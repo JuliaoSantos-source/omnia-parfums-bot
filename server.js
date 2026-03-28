@@ -7,19 +7,11 @@ const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://evolution-api-produc
 const EVOLUTION_KEY = process.env.EVOLUTION_KEY;
 const INSTANCE = process.env.EVOLUTION_INSTANCE || 'omnia-parfums';
 const NUMERO_HUMANO = process.env.NUMERO_HUMANO || '244930300694@s.whatsapp.net';
-
-// ===================================================
-// DESCONTO GLOBAL — muda esta variavel no Railway
-// Ex: DESCONTO_SEMANA=10  → 10% desconto em tudo
-//     DESCONTO_SEMANA=0   → sem desconto
-// ===================================================
 const DESCONTO_SEMANA = parseFloat(process.env.DESCONTO_SEMANA || '0');
 
 // ===================================================
 // CATALOGO OMNIA PARFUMS — 133 perfumes
-// EDT, EDP, Parfum e Elixir separados com precos proprios
-// Para adicionar: copia uma linha e ajusta os valores
-// Para alterar precos: edita os valores em Kz
+// Para activar desconto: DESCONTO_SEMANA=10 no Railway
 // ===================================================
 const CATALOGO = {
   'dior sauvage edt': { nome: 'Dior Sauvage EDT', genero: 'M', conc: 'EDT', preco: {'60ml': 203700, '100ml': 263300, '200ml': 333800}, notas: 'Bergamota, Ambroxan, Pimenta Rosa' },
@@ -163,15 +155,13 @@ function aplicaDesconto(kz) {
 }
 
 function formatPrecos(preco) {
-  return Object.entries(preco)
-    .map(([ml, kz]) => {
-      const kzFinal = aplicaDesconto(kz);
-      if (DESCONTO_SEMANA > 0) {
-        return `  - ${ml}: ~~${kz.toLocaleString('pt-PT')}~~ *${kzFinal.toLocaleString('pt-PT')} Kz* 🔥`;
-      }
-      return `  - ${ml}: ${kzFinal.toLocaleString('pt-PT')} Kz`;
-    })
-    .join('\n');
+  return Object.entries(preco).map(([ml, kz]) => {
+    const kzFinal = aplicaDesconto(kz);
+    if (DESCONTO_SEMANA > 0) {
+      return `  - ${ml}: ~~${kz.toLocaleString('pt-PT')}~~ *${kzFinal.toLocaleString('pt-PT')} Kz* 🔥`;
+    }
+    return `  - ${ml}: ${kzFinal.toLocaleString('pt-PT')} Kz`;
+  }).join('\n');
 }
 
 function getBannerDesconto() {
@@ -179,22 +169,48 @@ function getBannerDesconto() {
   return `\n\n🔥 *PROMOÇÃO ACTIVA: ${DESCONTO_SEMANA}% de desconto em todo o catálogo!*`;
 }
 
-// Agrupa versoes do mesmo perfume base (ex: Dior Sauvage EDT + EDP + Parfum)
 function getNomesAgrupados(genero) {
   const nomesBase = {};
-  Object.values(CATALOGO)
-    .filter(p => p.genero === genero)
-    .forEach(p => {
-      // Nome base sem concentração
-      const nomeBase = p.nome
-        .replace(/ EDT$/, '').replace(/ EDP$/, '')
-        .replace(/ Parfum$/, '').replace(/ Elixir$/, '')
-        .replace(/ Extrait$/, '').trim();
-      if (!nomesBase[nomeBase]) nomesBase[nomeBase] = [];
-      nomesBase[nomeBase].push(p.conc);
-    });
-  return Object.entries(nomesBase)
-    .map(([base, concs]) => `• ${base} _(${concs.join(' / ')})_`);
+  Object.values(CATALOGO).filter(p => p.genero === genero).forEach(p => {
+    const nomeBase = p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '').trim();
+    if (!nomesBase[nomeBase]) nomesBase[nomeBase] = [];
+    nomesBase[nomeBase].push(p.conc);
+  });
+  return Object.entries(nomesBase).map(([base, concs]) => `• ${base} _(${concs.join(' / ')})_`);
+}
+
+// ===================================================
+// PESQUISA INTELIGENTE — encontra mesmo com frases
+// Ex: "quero o invictus" → encontra "Rabanne Invictus"
+// Ex: "tem chance?" → encontra "Chanel Chance"
+// ===================================================
+function pesquisarCatalogo(txtLow) {
+  // 1. Procura exacta (nome completo na mensagem)
+  for (const [key, p] of Object.entries(CATALOGO)) {
+    if (txtLow.includes(key)) return { exacto: true, key, p };
+  }
+
+  // 2. Procura inteligente por palavras-chave
+  const nomesBaseVistos = new Set();
+  const matches = [];
+
+  for (const [key, p] of Object.entries(CATALOGO)) {
+    const nomeBase = p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '').toLowerCase().trim();
+    if (nomesBaseVistos.has(nomeBase)) continue;
+
+    const palavras = nomeBase.split(' ').filter(w => w.length > 2);
+    const todasPresentes = palavras.length > 0 && palavras.every(w => txtLow.includes(w));
+    const ultimaPalavra = palavras[palavras.length - 1];
+    const ultimaPresente = ultimaPalavra && ultimaPalavra.length > 3 && txtLow.includes(ultimaPalavra);
+
+    if (todasPresentes || ultimaPresente) {
+      nomesBaseVistos.add(nomeBase);
+      matches.push({ exacto: false, nomeBase, p });
+    }
+  }
+
+  if (matches.length > 0) return matches[0];
+  return null;
 }
 
 function getBotReply(msg) {
@@ -205,11 +221,11 @@ function getBotReply(msg) {
     const totalM = new Set(Object.values(CATALOGO).filter(p=>p.genero==='M').map(p=>p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/,''))).size;
     const totalF = new Set(Object.values(CATALOGO).filter(p=>p.genero==='F').map(p=>p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/,''))).size;
     const totalU = new Set(Object.values(CATALOGO).filter(p=>p.genero==='U').map(p=>p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/,''))).size;
-    const banner = DESCONTO_SEMANA > 0 ? `\n\n🔥 *PROMOÇÃO: ${DESCONTO_SEMANA}% DE DESCONTO EM TUDO ESTA SEMANA!*` : '';
-    return `🖤 *Bem-vindo à Omnia Parfums!*\n\nSomos a tua perfumaria de confiança em Luanda. 🇦🇴${banner}\n\nTemos *${totalM + totalF + totalU}+ perfumes*:\n👔 ${totalM} Masculinos · 👗 ${totalF} Femininos · ✨ ${totalU} Nicho/Unissexo\n\nPodes:\n- Escrever o nome de um perfume (ex: *Sauvage* ou *Sauvage EDP*)\n- Escrever *masculinos* · *femininos* · *nicho*\n- Escrever *catálogo* para ver todos\n- Escrever *encomendar* para fazer pedido\n\n_Entrega em Luanda incluída_ 📦`;
+    const banner = DESCONTO_SEMANA > 0 ? `\n\n🔥 *PROMOÇÃO: ${DESCONTO_SEMANA}% DE DESCONTO EM TUDO!*` : '';
+    return `🖤 *Bem-vindo à Omnia Parfums!*\n\nSomos a tua perfumaria de confiança em Luanda. 🇦🇴${banner}\n\nTemos *${totalM + totalF + totalU}+ perfumes*:\n👔 ${totalM} Masculinos · 👗 ${totalF} Femininos · ✨ ${totalU} Nicho\n\nPodes:\n- Escrever o nome de um perfume (ex: *Sauvage*, *Invictus*, *Chance*)\n- Escrever *masculinos* · *femininos* · *nicho*\n- Escrever *catálogo* para ver todos\n- Escrever *encomendar* para fazer pedido\n\n_Entrega em Luanda incluída_ 📦`;
   }
 
-  // Catalogo completo
+  // Catalogo
   if (/cat.logo|todos|lista|ver tudo/.test(txt)) {
     const masc = getNomesAgrupados('M');
     const fem = getNomesAgrupados('F');
@@ -218,70 +234,57 @@ function getBotReply(msg) {
     return `🖤 *Catálogo Omnia Parfums*${banner}\n\n👔 *MASCULINOS (${masc.length})*\n${masc.join('\n')}\n\n👗 *FEMININOS (${fem.length})*\n${fem.join('\n')}\n\n✨ *NICHO & LUXO (${uni.length})*\n${uni.join('\n')}\n\n_Escreve o nome para ver EDT/EDP/Parfum e preços_ 💛`;
   }
 
-  // Masculinos
   if (/^masculin|^homem|para ele/.test(txt)) {
     const lista = getNomesAgrupados('M');
-    const banner = getBannerDesconto();
-    return `👔 *Perfumes Masculinos — Omnia Parfums*${banner}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver versões e preços_ 💛`;
+    return `👔 *Perfumes Masculinos — Omnia Parfums*${getBannerDesconto()}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver versões e preços_ 💛`;
   }
 
-  // Femininos
   if (/^feminin|^mulher|para ela/.test(txt)) {
     const lista = getNomesAgrupados('F');
-    const banner = getBannerDesconto();
-    return `👗 *Perfumes Femininos — Omnia Parfums*${banner}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver versões e preços_ 💛`;
+    return `👗 *Perfumes Femininos — Omnia Parfums*${getBannerDesconto()}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver versões e preços_ 💛`;
   }
 
-  // Nicho
   if (/nicho|luxo|exclusivo|premium/.test(txt)) {
     const lista = getNomesAgrupados('U');
-    const banner = getBannerDesconto();
-    return `✨ *Perfumes Nicho & Luxo — Omnia Parfums*${banner}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver versões e preços_ 💛`;
+    return `✨ *Perfumes Nicho & Luxo — Omnia Parfums*${getBannerDesconto()}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
   }
 
-  // Encomendar
   if (/encomendar|encomenda|comprar|quero|pedido/.test(txt)) {
     return `📦 *Fazer Encomenda*\n\nEnvia-nos:\n1️⃣ Nome do perfume\n2️⃣ Versão (EDT / EDP / Parfum)\n3️⃣ Tamanho (ml)\n4️⃣ O teu nome\n5️⃣ Morada de entrega em Luanda\n\n💛 Respondemos em menos de 30 minutos!\n\n_Pagamento: Transferência, Multicaixa Express ou à entrega_`;
   }
 
-  // Entrega
   if (/entrega|envio/.test(txt)) {
     return `📦 *Entregas Omnia Parfums*\n\n✅ Entrega em toda Luanda\n⏰ Prazo: 24-48 horas\n💰 Entrega incluída no preço\n\n_Encomenda mínima: 1 frasco_`;
   }
 
-  // Procura exacta primeiro (ex: "sauvage edp")
-  for (const [key, produto] of Object.entries(CATALOGO)) {
-    if (txt.includes(key)) {
-      const emoji = produto.genero==='M' ? '👔' : produto.genero==='F' ? '👗' : '✨';
-      const banner = getBannerDesconto();
-      return `${emoji} *${produto.nome}* _(${produto.conc})_${banner}\n\n🌸 Notas: ${produto.notas}\n\n💰 *Preços:*\n${formatPrecos(produto.preco)}\n\n📦 Entrega em Luanda incluída\n\n_Para encomendar, escreve *encomendar*_ 🖤`;
-    }
+  // Pesquisa inteligente no catalogo
+  const match = pesquisarCatalogo(txt);
+
+  if (match && match.exacto) {
+    // Encontrou versao exacta (ex: "sauvage edp")
+    const p = match.p;
+    const emoji = p.genero==='M' ? '👔' : p.genero==='F' ? '👗' : '✨';
+    return `${emoji} *${p.nome}* _(${p.conc})_${getBannerDesconto()}\n\n🌸 Notas: ${p.notas}\n\n💰 *Preços:*\n${formatPrecos(p.preco)}\n\n📦 Entrega em Luanda incluída\n_Para encomendar, escreve *encomendar*_ 🖤`;
   }
 
-  // Procura por nome base (ex: "sauvage" mostra todas as versoes)
-  const matches = [];
-  const nomesBaseVistos = new Set();
-  for (const [key, produto] of Object.entries(CATALOGO)) {
-    const nomeBase = produto.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '').toLowerCase();
-    if (txt.includes(nomeBase) && !nomesBaseVistos.has(nomeBase)) {
-      // Encontrou pelo nome base — mostra todas as versoes
-      const versoes = Object.entries(CATALOGO).filter(([k, p]) =>
-        p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '').toLowerCase() === nomeBase && p.precos && Object.keys(p.precos).length > 0
-      );
-      if (versoes.length > 0) {
-        nomesBaseVistos.add(nomeBase);
-        const emoji = produto.genero==='M' ? '👔' : produto.genero==='F' ? '👗' : '✨';
-        const banner = getBannerDesconto();
-        let reply = `${emoji} *${produto.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '')}*${banner}\n\n🌸 Notas: ${produto.notas}\n\n💰 *Versões disponíveis:*\n`;
-        versoes.forEach(([k, p]) => {
-          reply += `\n*${p.conc}:*\n${formatPrecos(p.preco)}\n`;
-        });
-        reply += `\n📦 Entrega em Luanda incluída\n_Para encomendar, escreve *encomendar*_ 🖤`;
-        matches.push(reply);
-      }
+  if (match && !match.exacto) {
+    // Encontrou pelo nome base — mostra todas as versoes
+    const nomeBase = match.nomeBase;
+    const versoes = Object.entries(CATALOGO).filter(([k, p]) =>
+      p.nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '').toLowerCase().trim() === nomeBase && Object.keys(p.precos).length > 0
+    );
+    if (versoes.length > 0) {
+      const emoji = versoes[0][1].genero==='M' ? '👔' : versoes[0][1].genero==='F' ? '👗' : '✨';
+      const nomeDisplay = versoes[0][1].nome.replace(/ (EDT|EDP|Parfum|Elixir|Extrait)$/, '');
+      const notas = versoes[0][1].notas;
+      let reply = `${emoji} *${nomeDisplay}*${getBannerDesconto()}\n\n🌸 Notas: ${notas}\n\n💰 *Versões disponíveis:*\n`;
+      versoes.forEach(([k, p]) => {
+        reply += `\n*${p.conc}:*\n${formatPrecos(p.preco)}\n`;
+      });
+      reply += `\n📦 Entrega em Luanda incluída\n_Para encomendar, escreve *encomendar*_ 🖤`;
+      return reply;
     }
   }
-  if (matches.length > 0) return matches[0];
 
   // Nao encontrou — escalada para humano
   return null;
@@ -304,24 +307,34 @@ app.post('/webhook', async (req, res) => {
     if (req.body.event !== 'messages.upsert') return;
     const data = req.body.data;
     if (!data || data.key?.fromMe || data.key?.remoteJid?.includes('@g.us')) return;
+
     const from = data.key?.remoteJid;
     const text = data.message?.conversation || data.message?.extendedTextMessage?.text || '';
     if (!from || !text) return;
+
     console.log(`📩 ${from}: ${text}`);
     const reply = getBotReply(text);
+
     if (reply) {
       await sendMessage(from, reply);
     } else {
-      await sendMessage(from, `🖤 *Omnia Parfums*\n\nObrigado pela mensagem! Não encontrei esse perfume mas um atendente responde em breve. ⏳\n\nEscreve *catálogo* para ver todos os perfumes disponíveis.`);
+      // Resposta ao cliente
+      await sendMessage(from, `🖤 *Omnia Parfums*\n\nObrigado pela tua mensagem! Um atendente vai responder-te em breve. ⏳\n\nEntretanto podes escrever:\n- *catálogo* para ver todos os perfumes\n- *masculinos* ou *femininos* para filtrar\n- Nome de qualquer perfume para ver o preço`);
+
+      // Notificacao ao atendente com link WhatsApp
       if (NUMERO_HUMANO) {
-        await sendMessage(NUMERO_HUMANO, `⚠️ *Cliente sem resposta automática*\n\nNúmero: ${from}\nMensagem: "${text}"\n\n_Responde directamente ao cliente._`);
+        // Extrai numero limpo (remove @s.whatsapp.net)
+        const numeroCliente = from.replace('@s.whatsapp.net', '').replace('@c.us', '');
+        const linkWhatsApp = `https://wa.me/${numeroCliente}`;
+        const msgAtendente = `🔔 *OMNIA PARFUMS — Cliente a aguardar*\n\n📱 Número: +${numeroCliente}\n💬 Mensagem: _"${text}"_\n\n👆 Clica para responder:\n${linkWhatsApp}\n\n_O bot não encontrou resposta automática._`;
+        await sendMessage(NUMERO_HUMANO, msgAtendente);
       }
     }
   } catch(e) { console.error('Erro:', e.message); }
 });
 
 app.get('/webhook', (req, res) => res.send('OK'));
-app.get('/', (req, res) => res.send(`🖤 Omnia Parfums Bot v3 — ${Object.keys(CATALOGO).length} entradas | Desconto: ${DESCONTO_SEMANA}%`));
+app.get('/', (req, res) => res.send(`🖤 Omnia Parfums Bot v4 — ${Object.keys(CATALOGO).length} entradas | Desconto: ${DESCONTO_SEMANA}%`));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Bot v3 activo — ${Object.keys(CATALOGO).length} perfumes | Desconto: ${DESCONTO_SEMANA}%`));
+app.listen(PORT, () => console.log(`🚀 Bot v4 — ${Object.keys(CATALOGO).length} perfumes | Desconto: ${DESCONTO_SEMANA}%`));
