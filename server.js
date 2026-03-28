@@ -11,6 +11,7 @@ const DESCONTO_SEMANA = parseFloat(process.env.DESCONTO_SEMANA || '0');
 
 // ===================================================
 // CATALOGO — 133 perfumes com EDT/EDP/Parfum/Elixir
+// Campo: preco (sem s)
 // ===================================================
 const CATALOGO = {
   'dior sauvage edt': { nome: 'Dior Sauvage EDT', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'EDT', preco: {'60ml': 203700, '100ml': 263300, '200ml': 333800}, notas: 'Bergamota, Ambroxan, Pimenta Rosa' },
@@ -148,26 +149,20 @@ const CATALOGO = {
   'roja dove scandal edp': { nome: 'Roja Dove Scandal EDP', nomeBase: 'Roja Dove Scandal', genero: 'F', conc: 'EDP', preco: {'50ml': 885600}, notas: 'Aldeídos, Rosa, Âmbar' },};
 
 // ===================================================
-// ESTADO DE CONVERSA — guarda contexto por numero
+// SESSOES — estado de conversa por cliente
 // ===================================================
-const SESSOES = {}; // { numero: { aguardaConfirmacao: {sugestao, textoOriginal}, ts } }
+const SESSOES = {};
 
-function getSessao(numero) {
-  const s = SESSOES[numero];
-  if (s && Date.now() - s.ts < 5 * 60 * 1000) return s; // 5 minutos de validade
+function getSessao(num) {
+  const s = SESSOES[num];
+  if (s && Date.now() - s.ts < 5 * 60 * 1000) return s;
   return null;
 }
-
-function setSessao(numero, dados) {
-  SESSOES[numero] = { ...dados, ts: Date.now() };
-}
-
-function clearSessao(numero) {
-  delete SESSOES[numero];
-}
+function setSessao(num, dados) { SESSOES[num] = { ...dados, ts: Date.now() }; }
+function clearSessao(num) { delete SESSOES[num]; }
 
 // ===================================================
-// FUNCOES UTILITARIAS
+// UTILITARIOS
 // ===================================================
 function normalizar(txt) {
   return txt.toLowerCase()
@@ -178,82 +173,101 @@ function normalizar(txt) {
 
 function levenshtein(a, b) {
   const m = a.length, n = b.length;
-  const dp = Array.from({length: m+1}, (_, i) => Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  const dp = Array.from({length: m+1}, (_, i) =>
+    Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
   for (let i = 1; i <= m; i++)
     for (let j = 1; j <= n; j++)
       dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
   return dp[m][n];
 }
 
-// Aplica desconto
 function aplicaDesconto(kz) {
   if (DESCONTO_SEMANA <= 0) return kz;
   return Math.round(kz * (1 - DESCONTO_SEMANA / 100) / 100) * 100;
 }
 
 function formatPrecos(preco) {
+  if (!preco || typeof preco !== 'object') return '';
   return Object.entries(preco).map(([ml, kz]) => {
     const kzFinal = aplicaDesconto(kz);
-    if (DESCONTO_SEMANA > 0) {
+    if (DESCONTO_SEMANA > 0)
       return `  - ${ml}: ~~${kz.toLocaleString('pt-PT')}~~ *${kzFinal.toLocaleString('pt-PT')} Kz* 🔥`;
-    }
     return `  - ${ml}: ${kzFinal.toLocaleString('pt-PT')} Kz`;
   }).join('\n');
 }
 
 function getBannerDesconto() {
-  if (DESCONTO_SEMANA <= 0) return '';
-  return `\n🔥 *PROMOÇÃO: ${DESCONTO_SEMANA}% DESCONTO EM TUDO!*`;
+  return DESCONTO_SEMANA > 0 ? `\n🔥 *PROMOÇÃO: ${DESCONTO_SEMANA}% DESCONTO EM TUDO!*` : '';
 }
 
 function getNomesAgrupados(genero) {
-  const nomesBase = {};
+  const map = {};
   Object.values(CATALOGO).filter(p => p.genero === genero).forEach(p => {
-    if (!nomesBase[p.nomeBase]) nomesBase[p.nomeBase] = [];
-    if (!nomesBase[p.nomeBase].includes(p.conc)) nomesBase[p.nomeBase].push(p.conc);
+    if (!map[p.nomeBase]) map[p.nomeBase] = [];
+    if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
   });
-  return Object.entries(nomesBase).map(([base, concs]) => `• ${base} _(${concs.join(' / ')})_`);
+  return Object.entries(map).map(([base, concs]) => `• ${base} _(${concs.join(' / ')})_`);
 }
 
 // ===================================================
-// PESQUISA DIRECTA (exacta e por palavras)
+// FORMATAR RESPOSTA DE PERFUME — usa "preco" (sem s)
+// ===================================================
+function respostaPerfume(nomeBase) {
+  const versoes = Object.values(CATALOGO).filter(p =>
+    p.nomeBase === nomeBase && p.preco && Object.keys(p.preco).length > 0
+  );
+  if (versoes.length === 0) return null;
+
+  const p0 = versoes[0];
+  const emoji = p0.genero === 'M' ? '👔' : p0.genero === 'F' ? '👗' : '✨';
+  const banner = getBannerDesconto();
+
+  if (versoes.length === 1) {
+    return `${emoji} *${p0.nome}* _(${p0.conc})_${banner}\n\n🌸 Notas: ${p0.notas}\n\n💰 *Preços:*\n${formatPrecos(p0.preco)}\n\n📦 Entrega em Luanda incluída\n_Para encomendar, escreve *encomendar*_ 🖤`;
+  }
+
+  let reply = `${emoji} *${nomeBase}*${banner}\n\n🌸 Notas: ${p0.notas}\n\n💰 *Versões disponíveis:*\n`;
+  versoes.forEach(p => { reply += `\n*${p.conc}:*\n${formatPrecos(p.preco)}\n`; });
+  reply += `\n📦 Entrega em Luanda incluída\n_Para encomendar, escreve *encomendar*_ 🖤`;
+  return reply;
+}
+
+// ===================================================
+// PESQUISA DIRECTA — nome completo ou palavras
 // ===================================================
 function pesquisaDirecta(txtLow) {
-  // Exacta
+  // Exacta por chave do catalogo
   for (const [key, p] of Object.entries(CATALOGO)) {
-    if (txtLow.includes(key)) return { exacto: true, key, p };
+    if (txtLow.includes(key)) return p.nomeBase;
   }
-  // Por palavras do nome base
-  const nomesBaseVistos = new Set();
-  for (const [key, p] of Object.entries(CATALOGO)) {
-    const nbNorm = normalizar(p.nomeBase);
-    if (nomesBaseVistos.has(nbNorm)) continue;
-    const palavras = nbNorm.split(' ').filter(w => w.length > 2);
-    const todasPresentes = palavras.length > 0 && palavras.every(w => txtLow.includes(w));
+  // Por palavras do nomeBase
+  const vistos = new Set();
+  for (const p of Object.values(CATALOGO)) {
+    const nb = normalizar(p.nomeBase);
+    if (vistos.has(nb)) continue;
+    const palavras = nb.split(' ').filter(w => w.length > 2);
+    const todas = palavras.length > 0 && palavras.every(w => txtLow.includes(w));
     const ultima = palavras[palavras.length - 1];
-    const ultimaPresente = ultima && ultima.length > 3 && txtLow.includes(ultima);
-    if (todasPresentes || ultimaPresente) {
-      nomesBaseVistos.add(nbNorm);
-      return { exacto: false, nomeBase: p.nomeBase, p };
-    }
+    const ultimaOk = ultima && ultima.length > 3 && txtLow.includes(ultima);
+    if (todas || ultimaOk) { vistos.add(nb); return p.nomeBase; }
   }
   return null;
 }
 
 // ===================================================
-// PESQUISA INTELIGENTE (Levenshtein — detecta erros)
-// Constroi lista de palavras-chave por nome base
+// PESQUISA FUZZY — detecta erros e variações
 // ===================================================
-const PALAVRAS_CHAVE = [];
-const nomesBaseSet = new Set();
+const FUZZY_INDEX = [];
+const _vistos = new Set();
 for (const p of Object.values(CATALOGO)) {
-  const nb = p.nomeBase;
-  if (nomesBaseSet.has(nb)) continue;
-  nomesBaseSet.add(nb);
-  const nbNorm = normalizar(nb);
-  const palavras = nbNorm.split(' ').filter(w => w.length > 1);
-  // Adiciona o nome base completo e cada palavra significativa separada
-  PALAVRAS_CHAVE.push({ nomeBase: nb, keywords: [nbNorm, ...palavras.filter(w => w.length >= 2)] });
+  if (_vistos.has(p.nomeBase)) continue;
+  _vistos.add(p.nomeBase);
+  const nb = normalizar(p.nomeBase);
+  const palavras = nb.split(' ').filter(w => w.length > 1);
+  // Adiciona nome completo e cada palavra significativa como keyword
+  const keywords = new Set([nb]);
+  palavras.filter(w => w.length >= 2).forEach(w => keywords.add(w));
+  FUZZY_INDEX.push({ nomeBase: p.nomeBase, keywords: [...keywords] });
 }
 
 function pesquisaFuzzy(msgOriginal) {
@@ -262,14 +276,11 @@ function pesquisaFuzzy(msgOriginal) {
   let melhor = null;
   let melhorScore = Infinity;
 
-  for (const item of PALAVRAS_CHAVE) {
+  for (const item of FUZZY_INDEX) {
     for (const keyword of item.keywords) {
       const kwPalavras = keyword.split(' ').filter(w => w.length > 1);
       if (kwPalavras.length === 0) continue;
-
-      let totalDist = 0;
-      let matched = 0;
-
+      let totalDist = 0, matched = 0;
       for (const kw of kwPalavras) {
         if (kw.length < 2) { matched++; continue; }
         let minDist = Infinity;
@@ -281,13 +292,9 @@ function pesquisaFuzzy(msgOriginal) {
         }
         if (minDist < Infinity) { totalDist += minDist; matched++; }
       }
-
-      if (matched === kwPalavras.length) {
-        const score = totalDist;
-        if (score < melhorScore) {
-          melhorScore = score;
-          melhor = item;
-        }
+      if (matched === kwPalavras.length && totalDist < melhorScore) {
+        melhorScore = totalDist;
+        melhor = item;
       }
     }
   }
@@ -295,46 +302,41 @@ function pesquisaFuzzy(msgOriginal) {
 }
 
 // ===================================================
-// FORMATAR RESPOSTA DE PERFUME
+// BOT PRINCIPAL
 // ===================================================
-function respostaPerfume(nomeBase) {
-  const versoes = Object.entries(CATALOGO).filter(([k, p]) => p.nomeBase === nomeBase && Object.keys(p.precos).length > 0);
-  if (versoes.length === 0) return null;
-  const p0 = versoes[0][1];
-  const emoji = p0.genero==='M' ? '👔' : p0.genero==='F' ? '👗' : '✨';
-  const banner = getBannerDesconto();
-  let reply = `${emoji} *${nomeBase}*${banner}\n\n🌸 Notas: ${p0.notas}\n\n💰 *Versões disponíveis:*\n`;
-  if (versoes.length === 1) {
-    reply = `${emoji} *${versoes[0][1].nome}*${banner}\n\n🌸 Notas: ${p0.notas}\n\n💰 *Preços:*\n${formatPrecos(p0.preco)}`;
-  } else {
-    versoes.forEach(([k, p]) => { reply += `\n*${p.conc}:*\n${formatPrecos(p.preco)}\n`; });
-  }
-  reply += `\n\n📦 Entrega em Luanda incluída\n_Para encomendar, escreve *encomendar*_ 🖤`;
-  return reply;
+
+// Palavras de comando a ignorar na pesquisa fuzzy
+const PALAVRAS_IGNORAR = new Set([
+  'ola','oi','sim','nao','ok','bom','boa','dia','tarde','noite','hello','hi','hey','boas',
+  'catalogo','masculinos','femininos','nicho','luxo','encomendar','encomenda','entrega','envio',
+  'quero','preciso','tem','tens','ter','ver','lista','todos','tudo','outro','outra'
+]);
+
+function isComando(txtNorm) {
+  return /^(ola|oi|bom|boa|hello|hi|hey|boas|catalogo|todos|lista|masculin|feminin|nicho|luxo|encomendar|encomenda|entrega|envio)/.test(txtNorm);
 }
 
-// ===================================================
-// LOGICA PRINCIPAL DO BOT
-// ===================================================
 function getBotReply(from, msg) {
   const txt = msg.trim();
   const txtLow = txt.toLowerCase();
   const txtNorm = normalizar(txt);
 
-  // --- 1. Verificar se há sessão de confirmação activa ---
+  // --- 1. Sessão activa (aguarda sim/não) ---
   const sessao = getSessao(from);
-  if (sessao && sessao.aguardaConfirmacao) {
-    const resp = txtNorm.trim();
-    if (/^(sim|s|yes|yep|claro|certo|quero|isso|exato|exatamente|ok|confirm)/.test(resp)) {
+  if (sessao && sessao.nomeBase) {
+    const r = txtNorm.trim();
+    if (/^(sim|s\b|yes|yep|claro|certo|isso|ok|quero|exato|confirm)/.test(r)) {
+      const nomeBase = sessao.nomeBase;
       clearSessao(from);
-      return respostaPerfume(sessao.aguardaConfirmacao.nomeBase);
-    } else if (/^(nao|n|no|nope|outro|outra|diferente|errado)/.test(resp)) {
-      clearSessao(from);
-      return `🖤 Sem problema! Podes escrever:\n- *catálogo* para ver todos os perfumes\n- *masculinos* ou *femininos*\n- O nome do perfume que procuras`;
-    } else {
-      // Ignorar a sessão e processar normalmente
-      clearSessao(from);
+      const resp = respostaPerfume(nomeBase);
+      return resp || `🖤 Não encontrei detalhes para *${nomeBase}*. Escreve *catálogo* para ver todos.`;
     }
+    if (/^(nao|n\b|no\b|nope|outro|outra|diferente|errado|negativo)/.test(r)) {
+      clearSessao(from);
+      return `🖤 Sem problema! Escreve o nome do perfume que procuras\nou *catálogo* para ver todos. 😊`;
+    }
+    // Cliente escreveu outra coisa — limpa sessão e continua
+    clearSessao(from);
   }
 
   // --- 2. Comandos base ---
@@ -343,7 +345,7 @@ function getBotReply(from, msg) {
     const totalF = new Set(Object.values(CATALOGO).filter(p=>p.genero==='F').map(p=>p.nomeBase)).size;
     const totalU = new Set(Object.values(CATALOGO).filter(p=>p.genero==='U').map(p=>p.nomeBase)).size;
     const banner = DESCONTO_SEMANA > 0 ? `\n🔥 *PROMOÇÃO: ${DESCONTO_SEMANA}% DE DESCONTO EM TUDO!*` : '';
-    return `🖤 *Bem-vindo à Omnia Parfums!*\n${banner}\nSomos a tua perfumaria de confiança em Luanda. 🇦🇴\n\nTemos *${totalM+totalF+totalU}+ perfumes*:\n👔 ${totalM} Masculinos · 👗 ${totalF} Femininos · ✨ ${totalU} Nicho\n\nEscreve o nome de um perfume (mesmo com erros eu entendo 😉)\nOu: *masculinos* · *femininos* · *nicho* · *catálogo*\n\n_Entrega em Luanda incluída_ 📦`;
+    return `🖤 *Bem-vindo à Omnia Parfums!*${banner}\n\nSomos a tua perfumaria de confiança em Luanda. 🇦🇴\n\nTemos *${totalM+totalF+totalU}+ perfumes*:\n👔 ${totalM} Masculinos · 👗 ${totalF} Femininos · ✨ ${totalU} Nicho\n\nEscreve o nome de um perfume (mesmo com erros eu entendo 😉)\nOu: *masculinos* · *femininos* · *nicho* · *catálogo*\n\n_Entrega em Luanda incluída_ 📦`;
   }
 
   if (/catalogo|todos|lista|ver tudo/.test(txtNorm)) {
@@ -353,19 +355,16 @@ function getBotReply(from, msg) {
     return `🖤 *Catálogo Omnia Parfums*${getBannerDesconto()}\n\n👔 *MASCULINOS (${masc.length})*\n${masc.join('\n')}\n\n👗 *FEMININOS (${fem.length})*\n${fem.join('\n')}\n\n✨ *NICHO & LUXO (${uni.length})*\n${uni.join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
   }
 
-  if (/^masculin|^homem|para ele/.test(txtNorm)) {
-    const lista = getNomesAgrupados('M');
-    return `👔 *Perfumes Masculinos*${getBannerDesconto()}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
+  if (/^(masculin|homem|para ele)/.test(txtNorm)) {
+    return `👔 *Perfumes Masculinos*${getBannerDesconto()}\n\n${getNomesAgrupados('M').join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
   }
 
-  if (/^feminin|^mulher|para ela/.test(txtNorm)) {
-    const lista = getNomesAgrupados('F');
-    return `👗 *Perfumes Femininos*${getBannerDesconto()}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
+  if (/^(feminin|mulher|para ela)/.test(txtNorm)) {
+    return `👗 *Perfumes Femininos*${getBannerDesconto()}\n\n${getNomesAgrupados('F').join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
   }
 
-  if (/nicho|luxo|exclusivo|premium/.test(txtNorm)) {
-    const lista = getNomesAgrupados('U');
-    return `✨ *Nicho & Luxo*${getBannerDesconto()}\n\n${lista.join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
+  if (/^(nicho|luxo|exclusiv|premium)/.test(txtNorm)) {
+    return `✨ *Nicho & Luxo*${getBannerDesconto()}\n\n${getNomesAgrupados('U').join('\n')}\n\n_Escreve o nome para ver preços_ 💛`;
   }
 
   if (/encomendar|encomenda|pedido/.test(txtNorm)) {
@@ -378,23 +377,26 @@ function getBotReply(from, msg) {
 
   // --- 3. Pesquisa directa ---
   const directa = pesquisaDirecta(txtLow);
-  if (directa) {
-    const nomeBase = directa.exacto ? directa.p.nomeBase : directa.nomeBase;
-    return respostaPerfume(nomeBase);
+  if (directa) return respostaPerfume(directa);
+
+  // --- 4. Pesquisa fuzzy — só se não for comando ---
+  // Filtra palavras de comando para não fazer fuzzy em "nicho", "catalogo", etc.
+  const palavrasMsgFiltradas = txtNorm.split(' ').filter(w => !PALAVRAS_IGNORAR.has(w) && w.length > 1);
+  if (!isComando(txtNorm) && palavrasMsgFiltradas.length > 0) {
+    const fuzzy = pesquisaFuzzy(palavrasMsgFiltradas.join(' '));
+    if (fuzzy) {
+      setSessao(from, { nomeBase: fuzzy.nomeBase });
+      return `🤔 Será que quiseste dizer *${fuzzy.nomeBase}*?\n\nResponde *sim* ou *não* 😊`;
+    }
   }
 
-  // --- 4. Pesquisa fuzzy (inteligente com erros) ---
-  const fuzzy = pesquisaFuzzy(txt);
-  if (fuzzy) {
-    // Guarda sessao de confirmação
-    setSessao(from, { aguardaConfirmacao: { nomeBase: fuzzy.nomeBase } });
-    return `🤔 Será que quiseste dizer *${fuzzy.nomeBase}*?\n\nResponde *sim* ou *não* 😊`;
-  }
-
-  // --- 5. Não encontrou — escalada ---
+  // --- 5. Escalada ---
   return null;
 }
 
+// ===================================================
+// ENVIO E WEBHOOK
+// ===================================================
 async function sendMessage(to, text) {
   try {
     await axios.post(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
@@ -415,22 +417,23 @@ app.post('/webhook', async (req, res) => {
     const from = data.key?.remoteJid;
     const text = data.message?.conversation || data.message?.extendedTextMessage?.text || '';
     if (!from || !text) return;
+
     console.log(`📩 ${from}: ${text}`);
     const reply = getBotReply(from, text);
+
     if (reply) {
       await sendMessage(from, reply);
     } else {
-      await sendMessage(from, `🖤 *Omnia Parfums*\n\nNão encontrei esse perfume. Tenta:\n- Escrever só parte do nome (ex: *sauvage*, *chance*, *libre*)\n- Escrever *catálogo* para ver todos\n\nUm atendente vai ajudar-te em breve! ⏳`);
+      await sendMessage(from, `🖤 *Omnia Parfums*\n\nNão encontrei esse perfume. Experimenta:\n- Escrever só parte do nome _(ex: sauvage, chance, libre)_\n- Escrever *catálogo* para ver todos\n\nUm atendente vai ajudar-te em breve! ⏳`);
       if (NUMERO_HUMANO) {
-        const numeroCliente = from.replace('@s.whatsapp.net', '').replace('@c.us', '');
-        const link = `https://wa.me/${numeroCliente}`;
-        await sendMessage(NUMERO_HUMANO, `🔔 *OMNIA PARFUMS — Cliente a aguardar*\n\n📱 Número: +${numeroCliente}\n💬 Mensagem: _"${text}"_\n\n👆 Clica para responder:\n${link}\n\n_O bot não encontrou resposta automática._`);
+        const numLimpo = from.replace('@s.whatsapp.net', '').replace('@c.us', '');
+        await sendMessage(NUMERO_HUMANO, `🔔 *OMNIA PARFUMS — Cliente a aguardar*\n\n📱 Número: +${numLimpo}\n💬 Mensagem: _"${text}"_\n\n👆 Clica para responder:\nhttps://wa.me/${numLimpo}\n\n_Bot não encontrou resposta._`);
       }
     }
-  } catch(e) { console.error('Erro:', e.message); }
+  } catch(e) { console.error('Erro webhook:', e.message); }
 });
 
 app.get('/webhook', (req, res) => res.send('OK'));
-app.get('/', (req, res) => res.send(`🖤 Omnia Parfums Bot v5 — ${Object.keys(CATALOGO).length} entradas | Desconto: ${DESCONTO_SEMANA}%`));
+app.get('/', (req, res) => res.send(`🖤 Omnia Parfums Bot v6 — ${Object.keys(CATALOGO).length} entradas | Desconto: ${DESCONTO_SEMANA}%`));
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Bot v5 — ${Object.keys(CATALOGO).length} perfumes | Desconto: ${DESCONTO_SEMANA}%`));
+app.listen(PORT, () => console.log(`🚀 Bot v6 — ${Object.keys(CATALOGO).length} perfumes | Desconto: ${DESCONTO_SEMANA}%`));
