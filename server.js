@@ -149,6 +149,19 @@ const CATALOGO = {
 };
 
 // ===================================================
+// DADOS BANCÁRIOS — OMNIA PARFUMS
+// ===================================================
+const DADOS_BANCARIOS = `🏦 *Dados para Pagamento — Omnia Parfums*
+
+📱 *Multicaixa Express:* 925 553 281
+🏛️ *Banco BCI*
+👤 *Titular:* Julião dos Santos
+💳 *Conta:* 10857171310001
+🔢 *IBAN:* AO06 0005 0000 0857 1713 1011 5
+
+_Após efectuar o pagamento, envie o comprovativo (foto ou PDF) aqui neste chat._`;
+
+// ===================================================
 // SESSÕES
 // ===================================================
 const SESSOES = {};
@@ -606,8 +619,51 @@ function respostaPerfume(nomeBase) {
       reply += `\n*${p.conc}* _(${getDuracao(p.conc)})_:\n${formatPrecos(p.preco)}\n`;
     });
   }
-  reply += `\n📦 Entrega em Luanda incluída.\n\nDeseja encomendar ou tem alguma questão sobre esta fragrância?`;
+  reply += `\n📦 Entrega em Luanda incluída.\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!`;
   return reply;
+}
+
+// ===================================================
+// FLUXO DE ENCOMENDA
+// ===================================================
+
+// Iniciar encomenda a partir de um perfume específico
+function iniciarEncomenda(nomeBase, from) {
+  const versoes = Object.values(CATALOGO).filter(p =>
+    p.nomeBase === nomeBase && p.preco && Object.keys(p.preco).length > 0
+  );
+  if (!versoes.length) return null;
+
+  // Construir lista de opções (versão + tamanho + preço)
+  const opcoes = [];
+  versoes.forEach(p => {
+    Object.entries(p.preco).forEach(([ml, kz]) => {
+      const kzFinal = aplicaDesconto(kz);
+      opcoes.push({ nome: p.nome, conc: p.conc, ml, kz: kzFinal });
+    });
+  });
+
+  // Guardar sessão com as opções disponíveis
+  setSessao(from, {
+    tipo: 'confirmar_encomenda',
+    nomeBase,
+    opcoes,
+    orcamento: null,
+  });
+
+  let msg = `Óptima escolha! Para confirmar a sua encomenda do *${nomeBase}*:
+
+`;
+  msg += `Qual versão e tamanho deseja?
+
+`;
+  opcoes.forEach((o, i) => {
+    msg += `*${i+1}.* ${o.conc} — ${o.ml}: ${o.kz.toLocaleString('pt-PT')} Kz
+`;
+  });
+  msg += `
+Indique o número da opção ou descreva o que pretende.`;
+  return msg;
 }
 
 // ===================================================
@@ -752,7 +808,8 @@ function getBotReply(from, msg) {
   // ================================================
   const perfumeDirecto = pesquisaDirecta(txtLow);
   if (perfumeDirecto) {
-    clearSessao(from);
+    // Guardar perfume activo na sessão para uso em encomenda posterior
+    setSessao(from, { nomeBase: perfumeDirecto, tipo: 'perfume_activo' });
     const resp = respostaPerfume(perfumeDirecto);
     if (orcamento && resp) {
       const versoes = Object.values(CATALOGO).filter(p => p.nomeBase === perfumeDirecto && p.preco);
@@ -876,6 +933,70 @@ function getBotReply(from, msg) {
       clearSessao(from);
     }
 
+    // =============================================
+    // ESTADO: confirmar_encomenda
+    // Cliente escolheu perfume, bot confirma opção
+    // =============================================
+    if (sessao.tipo === 'confirmar_encomenda') {
+      const opcoes = sessao.opcoes || [];
+      const nomeBase = sessao.nomeBase || '';
+
+      // Detectar escolha por número ou por texto
+      let escolha = null;
+      const numMatch = txtNorm.match(/^[1-9]$/);
+      if (numMatch) {
+        const idx = parseInt(numMatch[0]) - 1;
+        if (idx >= 0 && idx < opcoes.length) escolha = opcoes[idx];
+      }
+      // Detectar por texto (ex: "100ml edp" ou "edp 100ml")
+      if (!escolha) {
+        escolha = opcoes.find(o =>
+          txtNorm.includes(normalizar(o.ml)) &&
+          (txtNorm.includes(normalizar(o.conc)) || opcoes.length === 1)
+        ) || (opcoes.length === 1 ? opcoes[0] : null);
+      }
+
+      if (escolha) {
+        // Confirmar escolha e enviar dados bancários
+        updateSessao(from, {
+          tipo: 'aguardar_comprovativo',
+          nomeBase,
+          opcaoEscolhida: escolha,
+        });
+
+        const kzFmt = escolha.kz.toLocaleString('pt-PT');
+        let msg = `✅ *Encomenda registada!*
+
+`;
+        msg += `• *Perfume:* ${escolha.nome}
+`;
+        msg += `• *Tamanho:* ${escolha.ml}
+`;
+        msg += `• *Valor:* ${kzFmt} Kz
+`;
+        msg += `📦 Entrega em Luanda incluída.
+
+`;
+        msg += `Para concluir, efectue o pagamento e envie o comprovativo:
+
+`;
+        msg += DADOS_BANCARIOS;
+        return msg;
+      }
+
+      // Não percebeu a escolha
+      let msg = `Não percebi bem a opção. Disponível para *${nomeBase}*:
+
+`;
+      opcoes.forEach((o, i) => {
+        msg += `*${i+1}.* ${o.conc} — ${o.ml}: ${o.kz.toLocaleString('pt-PT')} Kz
+`;
+      });
+      msg += `
+Indique o número da opção pretendida.`;
+      return msg;
+    }
+
     // Escalada
     if (sessao.tipo === 'confirmar_escalada') {
       if (/^(sim|s\b|yes|claro|ok|quero)/.test(txtNorm)) {
@@ -950,6 +1071,19 @@ function getBotReply(from, msg) {
       if (p.genero === 'U' && !vU.has(p.nomeBase)) { vU.add(p.nomeBase); uniN.push(label); }
     });
     return `💎 *Nicho & Luxo — Omnia Parfums*${getBannerDesconto()}\n\nO universo do nicho é para quem valoriza exclusividade e matérias-primas raras.\n\n👔 *Masculinos:*\n${mascN.join('\n')}\n\n👗 *Femininos:*\n${femN.join('\n')}\n\n✨ *Unissexo:*\n${uniN.join('\n')}\n\n_Escreva o nome para ver versões, preços e descrição._`;
+  }
+
+  // Pedido de encomenda com perfume em sessão activa ou mencionado
+  if (/encomendar|encomenda|quero comprar|vou comprar|quero pedir|fazer.*pedido|fazer.*encomenda/.test(txtNorm)) {
+    // Verifica se há perfume activo em sessão
+    const perfumeSessao = sessao && sessao.nomeBase;
+    const perfumeMensagem = pesquisaDirecta(txtLow);
+    const nomeParaEncomendar = perfumeMensagem || perfumeSessao;
+    if (nomeParaEncomendar) {
+      return iniciarEncomenda(nomeParaEncomendar, from);
+    }
+    // Sem perfume definido — pede que especifique
+    return `Claro! Qual o perfume que deseja encomendar? Pode escrever o nome e ajudo-o com os detalhes.`;
   }
 
   if (/entrega|envio|como.*chega|onde.*entreg/.test(txtNorm)) {
@@ -1051,13 +1185,81 @@ app.post('/webhook', async (req, res) => {
     const from = body?.data?.key?.remoteJid;
     const fromMe = body?.data?.key?.fromMe;
     if (!msg || !from || fromMe) return;
+
+    // ============================================
+    // TRATAR IMAGEM / PDF (comprovativo de pagamento)
+    // ============================================
+    const isImagem = !!(msg.imageMessage || msg.stickerMessage);
+    const isPDF = !!(msg.documentMessage && (
+      msg.documentMessage.mimetype === 'application/pdf' ||
+      msg.documentMessage.fileName?.endsWith('.pdf')
+    ));
+    const isDocumento = !!(msg.documentMessage);
+
+    if (isImagem || isPDF || isDocumento) {
+      const sessao = getSessao(from);
+      const tipoFicheiro = isImagem ? 'imagem' : 'documento';
+
+      if (sessao && sessao.tipo === 'aguardar_comprovativo') {
+        // Cliente enviou comprovativo após encomenda
+        const opcao = sessao.opcaoEscolhida || {};
+        const nomeBase = sessao.nomeBase || 'perfume';
+        clearSessao(from);
+
+        // Notificar atendente
+        if (NUMERO_HUMANO) {
+          const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
+          const link = `https://wa.me/${numLimpo}`;
+          await sendMessage(NUMERO_HUMANO,
+            `💳 *OMNIA PARFUMS — Comprovativo recebido*\n\n` +
+            `📱 Cliente: +${numLimpo}\n` +
+            `🛍️ Encomenda: ${opcao.nome || nomeBase} ${opcao.ml || ''}\n` +
+            `💰 Valor: ${(opcao.kz || 0).toLocaleString('pt-PT')} Kz\n` +
+            `📎 O cliente enviou um comprovativo de pagamento (${tipoFicheiro}).\n` +
+            `👆 Clica para verificar: ${link}\n` +
+            `🕐 ${new Date().toLocaleString('pt-PT')}`
+          );
+        }
+
+        // Resposta ao cliente
+        await sendMessage(from,
+          `✅ Comprovativo recebido! Obrigado.\n\n` +
+          `A nossa equipa irá validar o pagamento em breve e entrará em contacto consigo para confirmar os detalhes da entrega.\n\n` +
+          `🖤 *Omnia Parfums* — Entrega em Luanda em 24 a 48 horas.`
+        );
+        return;
+
+      } else {
+        // Imagem/ficheiro fora do contexto de encomenda
+        if (NUMERO_HUMANO) {
+          const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
+          await sendMessage(NUMERO_HUMANO,
+            `📎 *OMNIA PARFUMS — Ficheiro recebido*\n\n` +
+            `📱 Cliente: +${numLimpo}\n` +
+            `📎 Tipo: ${tipoFicheiro}\n` +
+            `👆 https://wa.me/${numLimpo}\n` +
+            `🕐 ${new Date().toLocaleString('pt-PT')}`
+          );
+        }
+        await sendMessage(from,
+          `Recebemos o seu ficheiro. A nossa equipa irá analisá-lo e entrará em contacto em breve. 🖤`
+        );
+        return;
+      }
+    }
+
+    // ============================================
+    // TRATAR TEXTO NORMAL
+    // ============================================
     let text = '';
     if (msg.conversation) text = msg.conversation;
     else if (msg.extendedTextMessage?.text) text = msg.extendedTextMessage.text;
     else if (msg.buttonsResponseMessage?.selectedDisplayText) text = msg.buttonsResponseMessage.selectedDisplayText;
     if (!text || text.trim().length < 1) return;
+
     const reply = getBotReply(from, text);
     if (reply) await sendMessage(from, reply);
+
   } catch (e) {
     console.error('Webhook error:', e);
   }
