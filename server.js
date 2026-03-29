@@ -591,8 +591,33 @@ function pesquisaFuzzy(msg) {
 // ===================================================
 // DETECTORES DE CONTEXTO
 // ===================================================
+// Detecta TIPO A — pergunta conceptual/educativa
+function isTipoA(n) {
+  return /o que e|o que sao|o que significa|o que quer dizer|diferenca entre|como funciona|explica|sillage|fougere|chypre|oud.*o que|nicho.*o que|edt.*o que|edp.*o que|concentracao|piramide|notas.*topo|notas.*coracao|notas.*fundo|designer.*nicho|nicho.*designer|melhor.*nicho|nicho.*melhor/.test(n);
+}
+
+// Detecta TIPO B — afirmação ou comentário do cliente
+function isTipoB(n) {
+  return /^(nao e|nao sao|isso nao|esse.*nao|essa.*nao|prefiro|gosto.*mais|nao gosto|calvin klein.*nao|esse.*caro|muito caro|e caro|e barato)/.test(n)
+    || /nao e nicho|nao e designer|nao e igual|diferente de|melhor que|pior que/.test(n);
+}
+
+// Detecta TIPO C — pedido vago (orçamento, sugestão sem critério)
+function isTipoC(n) {
+  return /mais barato|mais acessivel|opcoes.*baratas|algo.*barato|cabem no orcamento|cabe no orcamento|dentro do orcamento|meu orcamento|tens algo bom|o que recomendas|o que tens|o que sugeres sem contexto|tens opcoes/.test(n)
+    && !/(especific|nome|sauvage|invictus|chance|libre|si |aventus|creed|mancera|montale|mfk|kilian|amouage|roja|frederic)/.test(n);
+}
+
+// Detecta TIPO D — perfume específico nomeado
+function isTipoD(txtLow) {
+  return pesquisaDirecta(txtLow) !== null;
+}
+
+// Detecta pedido de sugestão COM critério (ocasião, nota, perfil)
 function isContextoSugestao(n) {
-  return /suger|recomendar|aconselh|ajuda|nao sei|qual.*perfume|perfume.*para|quero algo|notas|familia|fresco|intenso|doce|floral|oriental|amadei|aquatico|citrico|baunilha|rosa|oud|lavanda|noite|trabalho|festa|casamento|romantico|calor|presente|oferta|ocasiao|encontro|reuniao|verao|inverno/.test(n);
+  // Não inclui palavras que são conceitos gerais (tipo A) nem afirmações (tipo B)
+  if (isTipoA(n) || isTipoB(n)) return false;
+  return /suger|recomendar|aconselh|quero algo|quero um|procuro algo|procuro um|para.*ocasiao|para.*noite|para.*festa|para.*casamento|para.*trabalho|para.*reuniao|para.*romantico|para.*encontro|para.*oferecer|para.*presente|para.*ela|para.*ele|com.*baunilha|com.*rosa|com.*oud|com.*citrico|com.*floral|com.*oriental|com.*amadei|notas.*fresc|fresc.*notas|intenso e|doce e|leve e/.test(n);
 }
 
 function isComandoBase(n) {
@@ -713,6 +738,45 @@ Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
   }
 
   // ================================================
+  // FASE 1B — Detectar tipo de mensagem
+  // (A=conceptual, B=afirmação, C=vago, D=perfume)
+  // ================================================
+
+  // TIPO A — Pergunta conceptual/educativa
+  // Responde ao conceito, NUNCA inventa um perfume
+  if (isTipoA(txtNorm)) {
+    // Tratado mais abaixo nas respostas técnicas
+  }
+
+  // TIPO B — Afirmação do cliente
+  // Reconhece o que o cliente disse, não inventa perfumes
+  if (isTipoB(txtNorm)) {
+    // Afirmação sobre Calvin Klein não ser nicho
+    if (/calvin klein.*nao.*nicho|nao.*nicho.*calvin/.test(txtNorm)) {
+      return `Tem razão. Calvin Klein é uma marca de designer — grande escala, fórmulas acessíveis e muito reconhecida. O universo do nicho é diferente: casas mais pequenas, produção limitada e fragrâncias com maior profundidade e exclusividade.
+
+Quer explorar algumas opções de nicho ou prefere continuar nas marcas de designer?`;
+    }
+    // Afirmação sobre preço
+    if (/caro|barato|preco/.test(txtNorm)) {
+      return `Compreendo. Temos opções em diferentes gamas de preço. Qual seria o orçamento que tem em mente? Assim posso apresentar-lhe as melhores opções disponíveis.`;
+    }
+    // Preferência declarada
+    if (/prefiro|gosto.*mais/.test(txtNorm)) {
+      return `Boa referência! Isso ajuda-me muito a fazer uma sugestão mais certeira. Posso apresentar-lhe algumas opções com esse perfil — há alguma ocasião específica em mente?`;
+    }
+  }
+
+  // TIPO C — Pedido vago sem critério claro
+  // Pergunta o que precisa, NUNCA admite incapacidade
+  if (isTipoC(txtNorm) && !isContextoSugestao(txtNorm)) {
+    if (/barato|acessivel|orcamento|cabe/.test(txtNorm)) {
+      return `Claro, vamos encontrar algo que se encaixe bem! Para ajudá-lo melhor — qual é o orçamento que tem em mente? E é para uso próprio ou para oferecer?`;
+    }
+    return `Conta-me um pouco mais — está à procura de algo para si ou para oferecer? Isso ajuda-me a fazer uma sugestão mais certeira.`;
+  }
+
+  // ================================================
   // FASE 2 — Comandos e intenções principais
   // ================================================
 
@@ -732,7 +796,7 @@ Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
   // Pedido de atendimento humano
   if (/falar com.*humano|falar com.*pessoa|atendente|responsavel|gerente/.test(txtNorm)) {
     setSessao(from, { tipo: 'confirmar_escalada', motivo: 'Pedido explícito do cliente', contexto: txt });
-    return `Naturalmente. Deseja que notifique um colega para continuar o seu atendimento?\nResponda *sim* ou *não*.`;
+    return `Naturalmente. Deseja que notifique um colega para continuar o seu atendimento?\n`;
   }
 
   // Catálogo completo
@@ -853,7 +917,7 @@ Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
     const fuzzy = pesquisaFuzzy(semPalavrasComuns.join(' '));
     if (fuzzy) {
       setSessao(from, { tipo: 'confirmar_perfume', nomeBase: fuzzy.nomeBase });
-      return `Estará eventualmente a referir-se ao *${fuzzy.nomeBase}*?\n\nResponda *sim* ou *não*.`;
+      return `Estará a referir-se ao *${fuzzy.nomeBase}*?`;
     }
   }
 
@@ -893,7 +957,7 @@ app.post('/webhook', async (req, res) => {
     } else {
       // Resposta profissional + proposta de escalada
       const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
-      await sendMessage(from, `Agradeço a sua mensagem.\n\nNão consegui encontrar uma resposta directa para o que indicou. Posso sugerir:\n\n• Escrever o nome do perfume _(ex: Sauvage, Invictus, Libre)_\n• Escrever *catálogo* para ver toda a nossa selecção\n• Descrever a ocasião ou o perfil — faço sugestões personalizadas\n\nOu prefere que notifique um colega? _(responda sim ou não)_`);
+      await sendMessage(from, `Conta-me um pouco mais sobre o que procura — é para uso próprio ou para oferecer? Prefere algo fresco e discreto ou mais intenso e marcante?\n\nCom essa informação faço-lhe uma sugestão certeira. 😊`);
       setSessao(from, { tipo: 'confirmar_escalada', motivo: 'Bot não encontrou resposta', contexto: text });
       if (NUMERO_HUMANO) {
         await sendMessage(NUMERO_HUMANO, `🔔 *OMNIA PARFUMS — Cliente a aguardar*\n\n📱 +${numLimpo}\n💬 _"${text}"_\n👆 https://wa.me/${numLimpo}\n🕐 ${new Date().toLocaleString('pt-PT')}\n\n_Bot não encontrou resposta. Cliente pode confirmar escalada._`);
