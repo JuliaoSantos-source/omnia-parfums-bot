@@ -332,12 +332,42 @@ function sugerirPorCriterio(txtNorm, orcamento) {
   if (/mulher|feminin|ela\b|namorada|esposa|mae\b|irma|menina|minha mae|minha irma|minha namorada/.test(c)) filtrosActivos.push(FILTROS.feminino);
   if (filtrosActivos.length === 0) return null;
 
+  // Separar filtros de género (hard filter) dos restantes
+  const filtrosGenero = [];
+  const filtrosContexto = [];
+  for (const fn of filtrosActivos) {
+    if (fn === FILTROS.masculino || fn === FILTROS.feminino || fn === FILTROS.unissexo) {
+      filtrosGenero.push(fn);
+    } else {
+      filtrosContexto.push(fn);
+    }
+  }
+
   let pool = Object.values(CATALOGO).filter(p => p.preco && Object.keys(p.preco).length > 0);
+
+  // 1. Aplicar filtro de orçamento
   if (orcamento && orcamento > 0) {
     const poolOrc = pool.filter(p => precoMin(p.preco) <= orcamento * 1.1);
     if (poolOrc.length >= 3) pool = poolOrc;
   }
-  for (const fn of filtrosActivos) {
+
+  // 2. Aplicar filtro de género SEMPRE (hard filter — não tem mínimo de 2)
+  // Unissexo (U) aparece em TODAS as categorias de género
+  if (filtrosGenero.length > 0) {
+    const poolGenero = pool.filter(p => {
+      // Masculino: M e U
+      if (filtrosGenero.includes(FILTROS.masculino)) return p.genero === 'M' || p.genero === 'U';
+      // Feminino: F e U
+      if (filtrosGenero.includes(FILTROS.feminino)) return p.genero === 'F' || p.genero === 'U';
+      // Unissexo: só U
+      if (filtrosGenero.includes(FILTROS.unissexo)) return p.genero === 'U';
+      return true;
+    });
+    if (poolGenero.length >= 2) pool = poolGenero;
+  }
+
+  // 3. Aplicar filtros de contexto (família, ocasião, clima) — só se resultado >= 2
+  for (const fn of filtrosContexto) {
     const filtrado = pool.filter(fn);
     if (filtrado.length >= 2) pool = filtrado;
   }
@@ -708,8 +738,41 @@ function getBotReply(from, msg) {
       clearSessao(from);
     }
 
-    // CONSULTA GUIADA — 3 estados, 1 pergunta por estado
-    // ESTADO 1: recebeu resposta "para quem é"
+    // REFINAMENTO DE SUGESTÃO ACTIVA
+    // Quando o cliente recebe sugestões e refina o pedido
+    if (sessao.tipo === 'sugestao_activa') {
+      const criterioAnterior = sessao.criterio || '';
+      const orcAnterior = sessao.orcamento;
+
+      // Refinamento de género
+      let generoRefinado = '';
+      if (/feminin|mulher|ela\b|menina|namorada|esposa|mae\b|irma/.test(txtNorm)) generoRefinado = 'feminino';
+      else if (/masculin|homem|ele\b|rapaz|namorado|marido|pai\b|irmao/.test(txtNorm)) generoRefinado = 'masculino';
+
+      // Refinamento de orçamento
+      const novoOrc = extrairOrcamento(txt) || orcAnterior;
+
+      if (generoRefinado || novoOrc !== orcAnterior) {
+        const novoCriterio = normalizar(criterioAnterior + ' ' + generoRefinado);
+        const novasSugestoes = sugerirPorCriterio(novoCriterio, novoOrc);
+        if (novasSugestoes && (novasSugestoes.designers.length || novasSugestoes.nicho.length)) {
+          updateSessao(from, { tipo: 'sugestao_activa', criterio: novoCriterio, orcamento: novoOrc });
+          let titulo = generoRefinado === 'feminino' ? 'perfil feminino' : generoRefinado === 'masculino' ? 'perfil masculino' : 'o seu perfil';
+          return formatarSugestoes(novasSugestoes, titulo, novoOrc);
+        }
+      }
+
+      // Pedido de mais opções / nicho
+      if (/nicho|exclusiv|luxo|mais.*opcoes|outras.*opcoes|diferente/.test(txtNorm)) {
+        const sugestoesNicho = sugerirPorCriterio(criterioAnterior + ' exclusivo nicho', novoOrc);
+        if (sugestoesNicho && sugestoesNicho.nicho.length) {
+          updateSessao(from, { tipo: 'sugestao_activa', criterio: criterioAnterior, orcamento: novoOrc });
+          return formatarSugestoes({ designers: [], nicho: sugestoesNicho.nicho }, 'nicho e exclusivo', novoOrc);
+        }
+      }
+
+      clearSessao(from);
+    }
     if (sessao.tipo === 'consulta_guiada_1') {
       updateSessao(from, { tipo: 'consulta_guiada_2', perfil: txt });
       return `Obrigado! E prefere algo *mais fresco e discreto* ou *mais intenso e marcante*?`;
@@ -935,6 +998,8 @@ function getBotReply(from, msg) {
       else if (/oferecer|presente|prenda/.test(txtNorm)) titulo = 'oferta especial';
       else if (/unico|exclusivo|raro|diferente/.test(txtNorm)) titulo = 'algo raro e exclusivo';
       else if (/sensual|sedutor|conquista/.test(txtNorm)) titulo = 'momentos de conquista';
+      // Guardar contexto para possível refinamento posterior
+      setSessao(from, { tipo: 'sugestao_activa', criterio: txtNorm, orcamento });
       return formatarSugestoes(sugestaoDirecta, titulo, orcamento);
     }
     // Precisa de mais info — inicia consulta guiada com UMA pergunta
