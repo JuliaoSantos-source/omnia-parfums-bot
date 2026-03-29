@@ -10,9 +10,7 @@ const NUMERO_HUMANO = process.env.NUMERO_HUMANO || '244930300694@s.whatsapp.net'
 const DESCONTO_SEMANA = parseFloat(process.env.DESCONTO_SEMANA || '0');
 
 // ===================================================
-// CATÁLOGO — 133 perfumes | Preços só sites EUR
-// Designer: (max EUR + €20) × 1310 × 1.2
-// Nicho:    (max EUR + €35) × 1310 × 1.3
+// CATÁLOGO — 133 perfumes
 // ===================================================
 const CATALOGO = {
   'dior sauvage edt': { nome: 'Dior Sauvage EDT', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'60ml': 160300, '100ml': 193400, '200ml': 272000}, notas: 'Bergamota, Ambroxan, Pimenta Rosa' },
@@ -125,7 +123,7 @@ const CATALOGO = {
   'nishane afrika olifant': { nome: 'Nishane Afrika Olifant', nomeBase: 'Nishane Afrika Olifant', genero: 'U', conc: 'Extrait', familia: 'Amadeirado Especiado', nicho: true, preco: {'50ml': 362700}, notas: 'Âmbar, Vetiver, Patchouli' },
   'initio oud for greatness': { nome: 'Initio Oud for Greatness', nomeBase: 'Initio Oud for Greatness', genero: 'U', conc: 'EDP', familia: 'Amadeirado Especiado', nicho: true, preco: {'90ml': 536400}, notas: 'Oud, Almíscar, Especiarias, Âmbar' },
   'initio atomic rose': { nome: 'Initio Atomic Rose', nomeBase: 'Initio Atomic Rose', genero: 'U', conc: 'EDP', familia: 'Floral', nicho: true, preco: {'90ml': 536400}, notas: 'Rosa, Almíscar, Âmbar' },
-  'initio black gold': { nome: 'Initio Black Gold', nomeBase: 'Initio Black Gold', genero: 'U', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: true, preco: {'90ml': 536400}, notas: 'Sândalp, Âmbar, Almíscar' },
+  'initio black gold': { nome: 'Initio Black Gold', nomeBase: 'Initio Black Gold', genero: 'U', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: true, preco: {'90ml': 536400}, notas: 'Sândalo, Âmbar, Almíscar' },
   'initio rehab': { nome: 'Initio Rehab', nomeBase: 'Initio Rehab', genero: 'U', conc: 'EDP', familia: 'Gourmand', nicho: true, preco: {'90ml': 536400}, notas: 'Baunilha, Almíscar, Patchouli' },
   'xerjoff nio': { nome: 'Xerjoff Nio', nomeBase: 'Xerjoff Nio', genero: 'U', conc: 'EDP', familia: 'Cítrico Verde', nicho: true, preco: {'50ml': 391700, '100ml': 533000}, notas: 'Yuzu, Menta, Madeira' },
   'xerjoff oud stars alexandria ii': { nome: 'Xerjoff Oud Stars Alexandria II', nomeBase: 'Xerjoff Oud Stars Alexandria II', genero: 'U', conc: 'EDP', familia: 'Oriental', nicho: true, preco: {'50ml': 545000}, notas: 'Oud, Sândalo, Rosa' },
@@ -146,20 +144,19 @@ const CATALOGO = {
   'frederic malle cologne indelebile edp': { nome: 'Frederic Malle Cologne Indelebile EDP', nomeBase: 'Frederic Malle Cologne Indelebile', genero: 'U', conc: 'EDP', familia: 'Floral', nicho: true, preco: {'50ml': 545000}, notas: 'Almíscar, Néroli, Jasmim' },
   'roja dove enigma edp': { nome: 'Roja Dove Enigma EDP', nomeBase: 'Roja Dove Enigma', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: true, preco: {'50ml': 885600}, notas: 'Bergamota, Rosa, Incenso, Âmbar' },
   'roja dove elysium edp': { nome: 'Roja Dove Elysium EDP', nomeBase: 'Roja Dove Elysium', genero: 'M', conc: 'EDP', familia: 'Fougère', nicho: true, preco: {'50ml': 885600}, notas: 'Bergamota, Lavanda, Sândalo' },
-  'roja dove danger edp': { nome: 'Roja Dove Danger EDP', nomeBase: 'Roja Dove Danger', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: true, preco: {'50ml': 885600}, notas: 'Cabeça: Cítrico, Coração: Rosa, Fundo: Âmbar' },
-  'roja dove scandal edp': { nome: 'Roja Dove Scandal EDP', nomeBase: 'Roja Dove Scandal', genero: 'F', conc: 'EDP', familia: 'Floral Chypre', nicho: true, preco: {'50ml': 885600}, notas: 'Aldeídos, Rosa, Âmbar' },};
+  'roja dove danger edp': { nome: 'Roja Dove Danger EDP', nomeBase: 'Roja Dove Danger', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: true, preco: {'50ml': 885600}, notas: 'Cítrico, Rosa, Âmbar' },
+  'roja dove scandal edp': { nome: 'Roja Dove Scandal EDP', nomeBase: 'Roja Dove Scandal', genero: 'F', conc: 'EDP', familia: 'Floral Chypre', nicho: true, preco: {'50ml': 885600}, notas: 'Aldeídos, Rosa, Âmbar' },
+};
 
 // ===================================================
-// SESSÕES DE CONVERSA (contexto por cliente)
+// SESSÕES
 // ===================================================
 const SESSOES = {};
 function getSessao(num) {
   const s = SESSOES[num];
   return (s && Date.now() - s.ts < 15 * 60 * 1000) ? s : null;
 }
-function setSessao(num, dados) {
-  SESSOES[num] = { ...dados, ts: Date.now() };
-}
+function setSessao(num, dados) { SESSOES[num] = { ...dados, ts: Date.now() }; }
 function clearSessao(num) { delete SESSOES[num]; }
 function updateSessao(num, dados) {
   const s = getSessao(num) || {};
@@ -178,10 +175,10 @@ function normalizar(txt) {
 
 function levenshtein(a, b) {
   const m = a.length, n = b.length;
-  const dp = Array.from({length:m+1}, (_,i) =>
-    Array.from({length:n+1}, (_,j) => i===0?j:j===0?i:0));
-  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
-    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  const dp = Array.from({length: m+1}, (_, i) =>
+    Array.from({length: n+1}, (_, j) => i===0 ? j : j===0 ? i : 0));
+  for (let i=1; i<=m; i++) for (let j=1; j<=n; j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
   return dp[m][n];
 }
 
@@ -195,8 +192,8 @@ function formatPrecos(preco) {
   return Object.entries(preco).map(([ml, kz]) => {
     const f = aplicaDesconto(kz);
     return DESCONTO_SEMANA > 0
-      ? `  • ${ml}: ~~${kz.toLocaleString('pt-PT')}~~ *${f.toLocaleString('pt-PT')} Kz* 🔥`
-      : `  • ${ml}: ${f.toLocaleString('pt-PT')} Kz`;
+      ? ` • ${ml}: ~~${kz.toLocaleString('pt-PT')}~~ *${f.toLocaleString('pt-PT')} Kz* 🔥`
+      : ` • ${ml}: ${f.toLocaleString('pt-PT')} Kz`;
   }).join('\n');
 }
 
@@ -214,6 +211,7 @@ function getBannerDesconto() {
   return DESCONTO_SEMANA > 0 ? `\n🔥 *PROMOÇÃO: ${DESCONTO_SEMANA}% de desconto em todo o catálogo!*\n` : '';
 }
 
+// CORRIGIDO: filtro composto genero + nicho
 function getNomesAgrupados(genero, apenasNicho = false) {
   const map = {};
   Object.values(CATALOGO).filter(p => {
@@ -223,81 +221,66 @@ function getNomesAgrupados(genero, apenasNicho = false) {
     if (!map[p.nomeBase]) map[p.nomeBase] = [];
     if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
   });
-  return Object.entries(map).map(([base, concs]) =>
-    `• ${base} _(${concs.join(' / ')})`);
+  return Object.entries(map).map(([base, concs]) => `• ${base} _(${concs.join(' / ')})`);
 }
 
 // ===================================================
-// MOTOR DE SUGESTÕES POR PERFIL/OCASIÃO/NOTAS
+// MOTOR DE SUGESTÕES
 // ===================================================
 function sugerirPorCriterio(txtNorm, orcamento) {
   const c = txtNorm;
-
   const FILTROS = {
-    // Notas
-    baunilha:   p => /baunilha/i.test(p.notas + p.familia),
-    rosa:       p => /rosa/i.test(p.notas + p.familia),
-    oud:        p => /oud/i.test(p.notas + p.familia),
-    citrico:    p => /citrico|limao|laranja|bergamota|toranja/i.test(p.notas + p.familia),
-    floral:     p => /floral/i.test(p.familia),
+    baunilha: p => /baunilha/i.test(p.notas + p.familia),
+    rosa: p => /rosa/i.test(p.notas + p.familia),
+    oud: p => /oud/i.test(p.notas + p.familia),
+    citrico: p => /citrico|limao|laranja|bergamota|toranja/i.test(p.notas + p.familia),
+    floral: p => /floral/i.test(p.familia),
     amadeirado: p => /amadeirado/i.test(p.familia),
-    oriental:   p => /oriental/i.test(p.familia),
-    aquatico:   p => /aquatico/i.test(p.familia),
-    gourmand:   p => /gourmand/i.test(p.familia),
-    especiado:  p => /especiado|canela|cardamomo/i.test(p.notas + p.familia),
-    almiscar:   p => /almiscar/i.test(p.notas),
-    cafe:       p => /cafe/i.test(p.notas),
-    lavanda:    p => /lavanda/i.test(p.notas),
-    sandalo:    p => /sandalo/i.test(p.notas + p.familia),
-    // Ocasiões
-    noite:      p => /oriental|gourmand|amadeirado.*oriental|especiado/i.test(p.familia),
-    dia:        p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
-    verao:      p => /aquatico|citrico|aromatico/i.test(p.familia),
-    inverno:    p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
-    trabalho:   p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
-    reuniao:    p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
-    festa:      p => /oriental|gourmand|especiado|floral.*oriental/i.test(p.familia),
-    casamento:  p => /floral|floral.*amadeirado|floral.*oriental/i.test(p.familia),
-    romantico:  p => /floral.*oriental|oriental.*floral|gourmand|oriental.*amadeirado/i.test(p.familia),
-    encontro:   p => /floral.*oriental|oriental|gourmand/i.test(p.familia),
-    fresco:     p => /aquatico|citrico|aromatico|fougere/i.test(p.familia),
-    intenso:    p => /oriental|amadeirado.*oriental|gourmand|especiado/i.test(p.familia),
-    doce:       p => /gourmand|baunilha/i.test(p.notas + p.familia),
-    calor:      p => /aquatico|citrico|aromatico/i.test(p.familia),
-    masculino:  p => p.genero === 'M',
-    feminino:   p => p.genero === 'F',
-    unissexo:   p => p.genero === 'U',
+    oriental: p => /oriental/i.test(p.familia),
+    aquatico: p => /aquatico/i.test(p.familia),
+    gourmand: p => /gourmand/i.test(p.familia),
+    especiado: p => /especiado|canela|cardamomo/i.test(p.notas + p.familia),
+    almiscar: p => /almiscar/i.test(p.notas),
+    cafe: p => /cafe/i.test(p.notas),
+    lavanda: p => /lavanda/i.test(p.notas),
+    sandalo: p => /sandalo/i.test(p.notas + p.familia),
+    noite: p => /oriental|gourmand|amadeirado.*oriental|especiado/i.test(p.familia),
+    dia: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    verao: p => /aquatico|citrico|aromatico/i.test(p.familia),
+    inverno: p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+    trabalho: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    reuniao: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    festa: p => /oriental|gourmand|especiado|floral.*oriental/i.test(p.familia),
+    casamento: p => /floral|floral.*amadeirado|floral.*oriental/i.test(p.familia),
+    romantico: p => /floral.*oriental|oriental.*floral|gourmand|oriental.*amadeirado/i.test(p.familia),
+    encontro: p => /floral.*oriental|oriental|gourmand/i.test(p.familia),
+    fresco: p => /aquatico|citrico|aromatico|fougere/i.test(p.familia),
+    intenso: p => /oriental|amadeirado.*oriental|gourmand|especiado/i.test(p.familia),
+    doce: p => /gourmand|baunilha/i.test(p.notas + p.familia),
+    calor: p => /aquatico|citrico|aromatico/i.test(p.familia),
+    masculino: p => p.genero === 'M',
+    feminino: p => p.genero === 'F',
+    unissexo: p => p.genero === 'U',
   };
 
-  // Encontrar filtros que batem com a mensagem
   const filtrosActivos = [];
   for (const [kw, fn] of Object.entries(FILTROS)) {
-    if (c.includes(kw) || c.includes(kw.replace('a','â').replace('o','ó'))) {
-      filtrosActivos.push(fn);
-    }
+    if (c.includes(kw)) filtrosActivos.push(fn);
   }
-
-  // Filtros adicionais para género baseado em contexto
   if (/homem|masculin|ele\b|namorado|marido|pai\b|irmao/.test(c)) filtrosActivos.push(FILTROS.masculino);
   if (/mulher|feminin|ela\b|namorada|esposa|mae\b|irma/.test(c)) filtrosActivos.push(FILTROS.feminino);
-
   if (filtrosActivos.length === 0) return null;
 
-  // Aplicar filtros
   let pool = Object.values(CATALOGO).filter(p => p.preco && Object.keys(p.preco).length > 0);
-
-  // Filtrar por orçamento se fornecido
   if (orcamento && orcamento > 0) {
     const poolOrc = pool.filter(p => precoMin(p.preco) <= orcamento * 1.1);
     if (poolOrc.length >= 3) pool = poolOrc;
   }
-
   for (const fn of filtrosActivos) {
     const filtrado = pool.filter(fn);
     if (filtrado.length >= 2) pool = filtrado;
   }
 
-  // Agrupar por nomeBase, pegar únicos
   const vistos = new Set();
   const designers = [], nicho = [];
   for (const p of pool) {
@@ -306,43 +289,35 @@ function sugerirPorCriterio(txtNorm, orcamento) {
     if (p.nicho) nicho.push(p);
     else designers.push(p);
   }
-
-  return {
-    designers: designers.slice(0, 3),
-    nicho: nicho.slice(0, 2)
-  };
+  return { designers: designers.slice(0, 3), nicho: nicho.slice(0, 2) };
 }
 
 // ===================================================
-// DETECTOR DE ORÇAMENTO NA MENSAGEM
+// DETECTOR DE ORÇAMENTO
 // ===================================================
 function extrairOrcamento(txt) {
-  // Detecta padrões como "100000 kz", "100.000", "100 mil", "150k"
   const n = normalizar(txt);
-  const m1 = n.match(/(\d[\d\s]*)\s*k\b/);
-  if (m1) return parseInt(m1[1].replace(/\s/g,'')) * 1000;
-  const m2 = n.match(/(\d[\d\s]*)\s*mil/);
-  if (m2) return parseInt(m2[1].replace(/\s/g,'')) * 1000;
+  const m1 = n.match(/(\d[\d\s]*)k\b/);
+  if (m1) return parseInt(m1[1].replace(/\s/g, '')) * 1000;
+  const m2 = n.match(/(\d[\d\s]*)mil/);
+  if (m2) return parseInt(m2[1].replace(/\s/g, '')) * 1000;
   const m3 = n.match(/(\d{4,})/);
   if (m3) return parseInt(m3[1]);
   return null;
 }
 
 // ===================================================
-// ALTERNATIVAS MAIS ACESSÍVEIS
+// ALTERNATIVAS
 // ===================================================
 function encontrarAlternativas(nomeBase, orcamento) {
   const original = Object.values(CATALOGO).find(p => p.nomeBase === nomeBase);
   if (!original) return null;
-
-  // Encontrar perfumes com família similar e preço menor
   const pool = Object.values(CATALOGO).filter(p =>
     p.preco &&
     p.nomeBase !== nomeBase &&
     precoMin(p.preco) < (orcamento || precoMin(original.preco)) &&
     (p.familia === original.familia || p.genero === original.genero)
   );
-
   const vistos = new Set();
   const alternativas = [];
   for (const p of pool) {
@@ -355,12 +330,10 @@ function encontrarAlternativas(nomeBase, orcamento) {
 }
 
 // ===================================================
-// CONTEXTO SAZONAL PARA PERFUME
+// CONTEXTO SAZONAL
 // ===================================================
 function getContextoSazonal(p) {
   const f = (p.familia || '').toLowerCase();
-  const n = (p.notas || '').toLowerCase();
-
   if (/aquatico|citrico/.test(f)) return 'ideal para o dia a dia e para o calor de Angola';
   if (/gourmand|oriental.*amadei/.test(f)) return 'perfeito para noites especiais e encontros';
   if (/floral.*oriental|oriental.*floral/.test(f)) return 'excelente para eventos sociais e jantares';
@@ -372,6 +345,18 @@ function getContextoSazonal(p) {
 }
 
 // ===================================================
+// DURAÇÃO — CORRIGIDA (Parfum/Extrait correctos)
+// ===================================================
+function getDuracao(conc) {
+  const c = (conc || '').toLowerCase();
+  if (/extrait/.test(c)) return '10 a 14h — concentração máxima, projecção extraordinária';
+  if (/parfum/.test(c)) return '8 a 12h — forma mais pura, persistência superior';
+  if (/edp/.test(c)) return '6 a 8h — versátil do dia para a noite';
+  if (/edt/.test(c)) return '4 a 6h — leve e ideal para clima quente';
+  return '4 a 6h — leve e refrescante';
+}
+
+// ===================================================
 // RESPOSTA COMPLETA DE UM PERFUME
 // ===================================================
 function respostaPerfume(nomeBase) {
@@ -379,14 +364,12 @@ function respostaPerfume(nomeBase) {
     p.nomeBase === nomeBase && p.preco && Object.keys(p.preco).length > 0
   );
   if (!versoes.length) return null;
-
   const p0 = versoes[0];
   const emoji = p0.genero === 'M' ? '👔' : p0.genero === 'F' ? '👗' : '✨';
   const banner = getBannerDesconto();
   const generoLabel = p0.genero === 'M' ? 'Masculino' : p0.genero === 'F' ? 'Feminino' : 'Unissexo';
   const nichoLabel = p0.nicho ? ' _(Nicho)_' : '';
 
-  // Casa/marca
   const CASAS = {
     'Dior': 'a prestigiada casa francesa Dior',
     'Chanel': 'a icónica casa Chanel',
@@ -420,7 +403,6 @@ function respostaPerfume(nomeBase) {
     if (nomeBase.includes(marca)) { casa = desc; break; }
   }
 
-  // Descrição sensorial
   function getDescricao(p) {
     const f = (p.familia || '').toLowerCase();
     if (/baccarat|rouge.*540/.test(nomeBase.toLowerCase()))
@@ -431,7 +413,7 @@ function respostaPerfume(nomeBase) {
       return 'Envolvente, quente e irresistível. Sofisticado sem ser pesado. Quem está perto vai sentir um calor agradável — nunca enjoativo, sempre memorável.';
     if (/floral.*oriental|oriental.*floral/.test(f))
       return 'Elegante e marcante. Floral na superfície, com uma base quente e profunda que transforma ao longo do dia. Para quem quer ser lembrado depois de sair da sala.';
-    if (/floral/.test(f))
+    if (/floral/.test(f))
       return 'Floral com complexidade e alma. Não é um floral óbvio — tem carácter. É o perfume de quem não precisa de gritar para ser notado.';
     if (/oriental|especiado/.test(f))
       return 'Intenso e magnético. Como especiarias no ar e madeiras a arder numa noite fria. Para ocasiões em que quer fazer uma entrada inesquecível.';
@@ -440,101 +422,52 @@ function respostaPerfume(nomeBase) {
     return 'Uma fragrância de carácter que evolui de forma encantadora ao longo do dia.';
   }
 
-  // Duração por concentração
-  function getDuracao(conc) {
-    const c = (conc || '').toLowerCase();
-    if (/extrait|elixir/.test(c)) return '8 a 12h — projecção intensa e duradoura';
-    if (/parfum/.test(c)) return '8 a 10h — forma mais pura, máxima persistência';
-    if (/edp/.test(c)) return '6 a 8h — versátil do dia para a noite';
-    return '4 a 6h — leve e ideal para clima quente';
-  }
-
-  // Contexto ocasião
   const contexto = getContextoSazonal(p0);
-
-  let reply = `${emoji} *${nomeBase}*${nichoLabel}${banner}
-`;
-  reply += `
-Uma criação de ${casa}.
-`;
-  reply += `
-*Género:* ${generoLabel} | *Família:* ${p0.familia || 'não especificada'}
-`;
-  reply += `
-*Notas:* ${p0.notas}
-`;
-  reply += `
-${getDescricao(p0)}
-`;
-  reply += `
-✨ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.
-`;
+  let reply = `${emoji} *${nomeBase}*${nichoLabel}${banner}\n\nUma criação de ${casa}.\n\n*Género:* ${generoLabel} | *Família:* ${p0.familia || 'não especificada'}\n\n*Notas:* ${p0.notas}\n\n${getDescricao(p0)}\n\n✨ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n\n`;
 
   if (versoes.length === 1) {
-    reply += `
-*Duração estimada:* ${getDuracao(p0.conc)}.
-`;
-    reply += `
-💰 *Preço:*
-${formatPrecos(p0.preco)}
-`;
+    reply += `*Duração estimada:* ${getDuracao(p0.conc)}.\n\n💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
   } else {
-    reply += `
-💰 *Versões disponíveis:*
-`;
+    reply += `💰 *Versões disponíveis:*\n`;
     versoes.forEach(p => {
-      reply += `
-*${p.conc}* _(${getDuracao(p.conc)}):_
-${formatPrecos(p.preco)}
-`;
+      reply += `\n*${p.conc}* _(${getDuracao(p.conc)})_:\n${formatPrecos(p.preco)}\n`;
     });
   }
-
-  reply += `
-📦 Entrega em Luanda incluída.
-
-Deseja encomendar ou tem alguma questão sobre esta fragrância?`;
+  reply += `\n📦 Entrega em Luanda incluída.\n\nDeseja encomendar ou tem alguma questão sobre esta fragrância?`;
   return reply;
 }
 
 // ===================================================
-// FORMATAR LISTA DE SUGESTÕES (elegante, com contexto)
+// FORMATAR SUGESTÕES
 // ===================================================
 function formatarSugestoes(sugestoes, tituloContexto, orcamento) {
   const { designers, nicho } = sugestoes;
   if (!designers.length && !nicho.length) return null;
-
   let reply = `Com prazer em ajudar!\n`;
   if (tituloContexto) reply += `\nPara *${tituloContexto}*, aqui estão as minhas sugestões:\n`;
-
   if (designers.length) {
     reply += `\n👔👗 *Designer:*\n`;
     designers.forEach(p => {
       const kzMin = precoMin(p.preco);
       const contexto = getContextoSazonal(p);
-      reply += `\n• *${p.nomeBase}*\n  _${p.notas}_\n  ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n  A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      reply += `\n• *${p.nomeBase}*\n _${p.notas}_\n ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
     });
   }
-
   if (nicho.length) {
     reply += `\n💎 *Nicho (mais exclusivo):*\n`;
     nicho.forEach(p => {
       const kzMin = precoMin(p.preco);
       const contexto = getContextoSazonal(p);
-      reply += `\n• *${p.nomeBase}*\n  _${p.notas}_\n  ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n  A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      reply += `\n• *${p.nomeBase}*\n _${p.notas}_\n ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
     });
   }
-
-  if (orcamento) {
-    reply += `\n_Sugestões dentro do seu orçamento de ${orcamento.toLocaleString('pt-PT')} Kz._`;
-  }
-
+  if (orcamento) reply += `\n_Sugestões dentro do seu orçamento de ${orcamento.toLocaleString('pt-PT')} Kz._`;
   reply += `\n\nQuer saber mais sobre algum destes ou prefere outras opções?`;
   return reply;
 }
 
 // ===================================================
-// PESQUISA DIRECTA NO CATÁLOGO
+// PESQUISA DIRECTA
 // ===================================================
 function pesquisaDirecta(txtLow) {
   for (const [key, p] of Object.entries(CATALOGO)) {
@@ -554,7 +487,7 @@ function pesquisaDirecta(txtLow) {
 }
 
 // ===================================================
-// PESQUISA FUZZY (só para msgs curtas/nomes com erro)
+// PESQUISA FUZZY
 // ===================================================
 const FUZZY_INDEX = [];
 const _fv = new Set();
@@ -593,43 +526,43 @@ function pesquisaFuzzy(msg) {
 }
 
 // ===================================================
-// DETECTORES DE CONTEXTO
+// DETECTORES DE TIPO DE MENSAGEM
 // ===================================================
-// Detecta TIPO A — pergunta conceptual/educativa
+
+// TIPO A — pergunta conceptual/educativa
 function isTipoA(n) {
-  return /o que e|o que sao|o que significa|o que quer dizer|diferenca entre|como funciona|explica|sillage|fougere|chypre|oud.*o que|nicho.*o que|edt.*o que|edp.*o que|concentracao|piramide|notas.*topo|notas.*coracao|notas.*fundo|designer.*nicho|nicho.*designer|melhor.*nicho|nicho.*melhor/.test(n);
+  return /o que e|o que sao|o que significa|o que quer dizer|diferenca entre|como funciona|explica|sillage|fougere|chypre|oud.*o que|nicho.*o que|edt.*o que|edp.*o que|concentracao|piramide|notas.*topo|notas.*coracao|notas.*fundo|designer.*nicho|nicho.*designer/.test(n);
 }
 
-// Detecta TIPO B — afirmação ou comentário do cliente
+// TIPO B — afirmação do cliente (NÃO é pedido de perfume)
 function isTipoB(n) {
-  return /^(nao e|nao sao|isso nao|esse.*nao|essa.*nao|prefiro|gosto.*mais|nao gosto|calvin klein.*nao|esse.*caro|muito caro|e caro|e barato)/.test(n)
-    || /nao e nicho|nao e designer|nao e igual|diferente de|melhor que|pior que/.test(n);
+  return /^(nao e|nao sao|isso nao|esse.*nao|essa.*nao)/.test(n)
+    || /nao e nicho|nao e designer|nao e igual|calvin klein.*nao|nao.*nicho.*calvin/.test(n);
 }
 
-// Detecta TIPO C — pedido vago (orçamento, sugestão sem critério)
-function isTipoC(n) {
-  return /mais barato|mais acessivel|opcoes.*baratas|algo.*barato|cabem no orcamento|cabe no orcamento|dentro do orcamento|meu orcamento|tens algo bom|o que recomendas|o que tens|o que sugeres sem contexto|tens opcoes/.test(n)
-    && !/(especific|nome|sauvage|invictus|chance|libre|si |aventus|creed|mancera|montale|mfk|kilian|amouage|roja|frederic)/.test(n);
-}
-
-// Detecta TIPO D — perfume específico nomeado
-function isTipoD(txtLow) {
-  return pesquisaDirecta(txtLow) !== null;
-}
-
-// Detecta pedido de sugestão COM critério (ocasião, nota, perfil)
+// Detecta pedido de sugestão COM critério
 function isContextoSugestao(n) {
-  // Não inclui palavras que são conceitos gerais (tipo A) nem afirmações (tipo B)
   if (isTipoA(n) || isTipoB(n)) return false;
-  return /suger|recomendar|aconselh|quero algo|quero um|procuro algo|procuro um|para.*ocasiao|para.*noite|para.*festa|para.*casamento|para.*trabalho|para.*reuniao|para.*romantico|para.*encontro|para.*oferecer|para.*presente|para.*ela|para.*ele|com.*baunilha|com.*rosa|com.*oud|com.*citrico|com.*floral|com.*oriental|com.*amadei|notas.*fresc|fresc.*notas|intenso e|doce e|leve e/.test(n);
-}
-
-function isComandoBase(n) {
-  return /^(ola|oi|bom|boa|hello|hi|hey|boas|catalogo|todos|lista|masculin|feminin|nicho|luxo|encomendar|encomenda|entrega|envio|obrigad|ate|tchau|xau|ajuda|help)/.test(n);
+  return /suger|recomendar|aconselh|quero algo|quero um|procuro algo|procuro um|para.*ocasiao|para.*noite|para.*festa|para.*casamento|para.*trabalho|para.*reuniao|para.*romantico|para.*encontro|para.*oferecer|para.*presente|para.*ela\b|para.*ele\b|com.*baunilha|com.*rosa|com.*oud|com.*citrico|com.*floral|com.*oriental|com.*amadei|algo.*fresc|algo.*intenso|algo.*doce|algo.*marcante|algo.*forte|algo.*leve/.test(n);
 }
 
 // ===================================================
-// BOT PRINCIPAL — Consultor Omnia Parfums
+// ENVIO DE MENSAGEM
+// ===================================================
+async function sendMessage(to, text) {
+  try {
+    await axios.post(
+      `${EVOLUTION_URL}/message/sendText/${INSTANCE}`,
+      { number: to, text },
+      { headers: { apikey: EVOLUTION_KEY } }
+    );
+  } catch (e) {
+    console.error('Erro ao enviar:', e.message);
+  }
+}
+
+// ===================================================
+// BOT PRINCIPAL
 // ===================================================
 function getBotReply(from, msg) {
   const txt = msg.trim();
@@ -638,38 +571,28 @@ function getBotReply(from, msg) {
   const sessao = getSessao(from);
   const orcamento = extrairOrcamento(txt) || (sessao && sessao.orcamento);
 
-  // Actualizar orçamento na sessão se detectado
   if (extrairOrcamento(txt)) updateSessao(from, { orcamento: extrairOrcamento(txt) });
 
   // ================================================
-  // PRIORIDADE ABSOLUTA — Se a mensagem menciona um
-  // perfume específico do catálogo, responde SEMPRE
-  // sobre esse perfume — ignora sessão, fuzzy, tudo.
-  // NUNCA menciona outro perfume sem ser pedido.
+  // PRIORIDADE 1 — Perfume específico nomeado
+  // Responde APENAS sobre esse perfume.
+  // NUNCA menciona outro perfume sem pedido.
   // ================================================
   const perfumeDirecto = pesquisaDirecta(txtLow);
   if (perfumeDirecto) {
-    // Limpa qualquer sessão activa para não contaminar próximas mensagens
     clearSessao(from);
     const resp = respostaPerfume(perfumeDirecto);
-    // Só adiciona alternativas se o orçamento for explícito E o preço exceder
     if (orcamento && resp) {
       const versoes = Object.values(CATALOGO).filter(p => p.nomeBase === perfumeDirecto && p.preco);
       const minPreco = versoes.length ? Math.min(...versoes.map(p => precoMin(p.preco))) : 0;
       if (minPreco > orcamento * 1.15) {
         const alts = encontrarAlternativas(perfumeDirecto, orcamento);
         if (alts && alts.length) {
-          let extra = `
-
-💡 *Nota:* Este perfume está acima do orçamento indicado. Temos opções com perfil semelhante:
-`;
+          let extra = `\n💡 *Nota:* Este perfume está acima do orçamento indicado. Temos opções com perfil semelhante:\n`;
           alts.forEach(p => {
-            extra += `
-• *${p.nomeBase}* — _${p.notas}_ — a partir de ${precoMin(p.preco).toLocaleString('pt-PT')} Kz`;
+            extra += `\n• *${p.nomeBase}* — _${p.notas}_ — a partir de ${precoMin(p.preco).toLocaleString('pt-PT')} Kz`;
           });
-          extra += `
-
-Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
+          extra += `\n\nDeseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
           return resp + extra;
         }
       }
@@ -678,11 +601,11 @@ Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
   }
 
   // ================================================
-  // FASE 1 — Gerir estado de sessão activa
+  // PRIORIDADE 2 — Gerir sessão activa
   // ================================================
   if (sessao) {
 
-    // Cliente respondeu a confirmação de perfume fuzzy
+    // Confirmação de perfume fuzzy
     if (sessao.tipo === 'confirmar_perfume') {
       if (/^(sim|s\b|yes|claro|certo|isso|ok|quero|e esse|esse mesmo|exacto|e)/.test(txtNorm)) {
         const nb = sessao.nomeBase;
@@ -691,120 +614,117 @@ Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
       }
       if (/^(nao|n\b|no\b|nope|outro|diferente|errado|negativo|nada)/.test(txtNorm)) {
         clearSessao(from);
-        return `Peço desculpa pela confusão. Pode indicar-me o nome do perfume que procura ou descrever o que tem em mente? Terei todo o gosto em ajudar.`;
+        return `Peço desculpa pela confusão. Pode indicar-me o nome do perfume que procura ou descrever o que tem em mente?`;
       }
-      // Não respondeu sim/não — limpa sessão e continua processamento
       clearSessao(from);
     }
 
-    // Cliente em fluxo de consulta guiada (respondeu à 1ª pergunta)
-    // ESTADO 1: para quem é
+    // CONSULTA GUIADA — 3 estados, 1 pergunta por estado
+    // ESTADO 1: recebeu resposta "para quem é"
     if (sessao.tipo === 'consulta_guiada_1') {
       updateSessao(from, { tipo: 'consulta_guiada_2', perfil: txt });
       return `Obrigado! E prefere algo *mais fresco e discreto* ou *mais intenso e marcante*?`;
     }
 
-    // ESTADO 2: fresco/intenso
+    // ESTADO 2: recebeu resposta fresco/intenso/marcante
     if (sessao.tipo === 'consulta_guiada_2') {
-      updateSessao(from, { tipo: 'consulta_guiada_3', estilo: txt });
-      return `Tem algum orçamento em mente? Por exemplo: "150 mil Kz" ou "qualquer".`;
+      // Mapear resposta livre para keywords do motor
+      const estiloNorm = normalizar(txt);
+      let estiloMapped = estiloNorm;
+      if (/marcante|intenso|forte|impactante|chamativo|poderoso|pesado|heavy/.test(estiloNorm))
+        estiloMapped = 'intenso oriental noite';
+      else if (/fresc|leve|discreto|suave|delicado|aquatico|light/.test(estiloNorm))
+        estiloMapped = 'fresco aquatico dia';
+      else if (/doce|gourmand|baunilha|caramel/.test(estiloNorm))
+        estiloMapped = 'doce gourmand baunilha';
+      else if (/floral|flores|rosa|jasmim/.test(estiloNorm))
+        estiloMapped = 'floral rosa';
+      else if (/madeira|amadeirado|seco/.test(estiloNorm))
+        estiloMapped = 'amadeirado seco';
+      else if (/oud|oriental|exotico|especiado/.test(estiloNorm))
+        estiloMapped = 'oud oriental especiado';
+      updateSessao(from, { tipo: 'consulta_guiada_3', estilo: txt, estiloMapped });
+      return `Tem algum orçamento em mente? (ex: "150 mil Kz" ou "qualquer")`;
     }
 
-    // ESTADO 3: orçamento → sugestão final
+    // ESTADO 3: recebeu orçamento → faz sugestão
     if (sessao.tipo === 'consulta_guiada_3') {
       const perfil = sessao.perfil || '';
-      const estilo = sessao.estilo || '';
+      const estiloMapped = sessao.estiloMapped || sessao.estilo || '';
       const orc = extrairOrcamento(txt) || orcamento;
-      const estiloNorm = normalizar(estilo);
-      let estiloMapped = estiloNorm;
-      if (/marcante|intenso|forte|impactante|chamativo|poderoso/.test(estiloNorm))
-        estiloMapped = 'intenso oriental noite';
-      if (/fresc|leve|discreto|suave|delicado|aquatico/.test(estiloNorm))
-        estiloMapped = 'fresco aquatico dia';
-      if (/doce|gourmand|baunilha|caramel/.test(estiloNorm))
-        estiloMapped = 'doce gourmand baunilha';
-      if (/floral|flores|rosa|jasmim/.test(estiloNorm))
-        estiloMapped = 'floral feminino rosa';
-      if (/madeira|amadeirado|seco/.test(estiloNorm))
-        estiloMapped = 'amadeirado seco';
-      if (/oud|oriental|exotico|especiado/.test(estiloNorm))
-        estiloMapped = 'oud oriental especiado';
       const criterio = normalizar(perfil + ' ' + estiloMapped);
       clearSessao(from);
+
       const sugestoes = sugerirPorCriterio(criterio, orc);
       if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
         let titulo = 'o seu perfil';
         if (/fresc|aquatico/.test(criterio)) titulo = 'uso diário e clima quente';
         else if (/intenso|oriental|noite/.test(criterio)) titulo = 'noite e ocasiões especiais';
         else if (/doce|gourmand/.test(criterio)) titulo = 'quem aprecia fragrâncias envolventes';
+        else if (/floral/.test(criterio)) titulo = 'perfil floral';
+        else if (/amadeirado|oud/.test(criterio)) titulo = 'perfil amadeirado e intenso';
         return formatarSugestoes(sugestoes, titulo, orc);
       }
-      return `Para o perfil indicado, as melhores opções estão nas fragrâncias orientais e amadeiradas da nossa colecção. Escreva *catálogo* para ver tudo ou indique-me um nome específico.`;
+      return `Para o perfil que descreveu, as fragrâncias orientais e amadeiradas da nossa colecção são as mais indicadas. Escreva *catálogo* para ver tudo ou diga-me um nome específico e apresento-o com todos os detalhes.`;
     }
 
-    // Cliente respondeu à proposta de escalada
+    // Confirmação de escalada
     if (sessao.tipo === 'confirmar_escalada') {
       if (/^(sim|s\b|yes|claro|ok|quero)/.test(txtNorm)) {
         clearSessao(from);
         if (NUMERO_HUMANO) {
-          const n = from.replace('@s.whatsapp.net','').replace('@c.us','');
+          const n = from.replace('@s.whatsapp.net', '').replace('@c.us', '');
           sendMessage(NUMERO_HUMANO, `🔔 *OMNIA PARFUMS — Pedido de atendimento*\n\n📱 Cliente: +${n}\n💬 Motivo: ${sessao.motivo || 'Pedido de atendimento'}\n📝 Contexto: ${sessao.contexto || '-'}\n👆 https://wa.me/${n}\n🕐 ${new Date().toLocaleString('pt-PT')}`);
         }
         return `Perfeito. Já notifiquei a nossa equipa com os detalhes do seu pedido. Um colega entrará em contacto consigo em breve. 🖤\n\nEnquanto aguarda, se tiver mais alguma questão sobre fragrâncias, estarei aqui.`;
       }
       if (/^(nao|n\b|no\b|negativo)/.test(txtNorm)) {
         clearSessao(from);
-        return `Compreendo. Fico à sua disposição para qualquer questão sobre as nossas fragrâncias. Como posso continuar a ajudar?`;
+        return `Compreendo. Como posso continuar a ajudar?`;
       }
       clearSessao(from);
     }
   }
 
   // ================================================
-  // FASE 1B — Detectar tipo de mensagem
-  // (A=conceptual, B=afirmação, C=vago, D=perfume)
+  // PRIORIDADE 3 — Tipo A: pergunta conceptual
+  // Responde ao conceito, NUNCA inventa perfume
   // ================================================
-
-  // TIPO A — Pergunta conceptual/educativa
-  // Responde ao conceito, NUNCA inventa um perfume
   if (isTipoA(txtNorm)) {
-    // Tratado mais abaixo nas respostas técnicas
-  }
-
-  // TIPO B — Afirmação do cliente
-  // Reconhece o que o cliente disse, não inventa perfumes
-  if (isTipoB(txtNorm)) {
-    // Afirmação sobre Calvin Klein não ser nicho
-    if (/calvin klein.*nao.*nicho|nao.*nicho.*calvin/.test(txtNorm)) {
-      return `Tem razão. Calvin Klein é uma marca de designer — grande escala, fórmulas acessíveis e muito reconhecida. O universo do nicho é diferente: casas mais pequenas, produção limitada e fragrâncias com maior profundidade e exclusividade.
-
-Quer explorar algumas opções de nicho ou prefere continuar nas marcas de designer?`;
+    if (/nicho/.test(txtNorm)) {
+      return `Perfume de nicho é o nome que damos às fragrâncias criadas por casas independentes e artesanais — como Mancera, Creed, Byredo, Montale ou Amouage.\n\nAo contrário das grandes marcas de designer (Dior, Chanel, Armani), as casas de nicho produzem em menor quantidade, usam matérias-primas mais raras e criam fragrâncias com personalidade mais única e menos comercial.\n\nResultado: maior duração, maior exclusividade e uma experiência mais pessoal.\n\nTem interesse em explorar algum perfume de nicho em particular?`;
     }
-    // Afirmação sobre preço
-    if (/caro|barato|preco/.test(txtNorm)) {
-      return `Compreendo. Temos opções em diferentes gamas de preço. Qual seria o orçamento que tem em mente? Assim posso apresentar-lhe as melhores opções disponíveis.`;
+    if (/edt.*edp|edp.*edt|diferenca.*eau|concentracao/.test(txtNorm)) {
+      return `A diferença está na concentração de óleos aromáticos:\n\n*EDT* (Eau de Toilette): 5–15%. Leve e fresca. Dura 4 a 6 horas. Ideal para o dia a dia e clima quente.\n\n*EDP* (Eau de Parfum): 15–20%. Mais intensa e duradoura. Dura 6 a 8 horas. Versátil para dia e noite.\n\n*Parfum / Extrait*: 20–40%. Forma mais pura. Dura 8 a 12 horas ou mais.\n\nPara o clima de Angola, EDT para o dia a dia e EDP para ocasiões especiais é a combinação ideal. Tem alguma preferência?`;
     }
-    // Preferência declarada
-    if (/prefiro|gosto.*mais/.test(txtNorm)) {
-      return `Boa referência! Isso ajuda-me muito a fazer uma sugestão mais certeira. Posso apresentar-lhe algumas opções com esse perfil — há alguma ocasião específica em mente?`;
+    if (/designer.*nicho|nicho.*designer|melhor/.test(txtNorm)) {
+      return `Nenhum é melhor — são universos diferentes:\n\n*Designer* (Chanel, Dior, Armani...): grande escala, fórmulas reconhecíveis, qualidade consistente, forte reconhecimento social.\n\n*Nicho* (Mancera, Creed, Montale...): produção limitada, matérias-primas raras, maior exclusividade e duração. Para quem quer algo diferente do que toda a gente usa.\n\nDepende do que procura — reconhecimento, exclusividade ou orçamento. Posso ajudá-lo a escolher?`;
     }
-  }
-
-  // TIPO C — Pedido vago sem critério claro
-  // Pergunta o que precisa, NUNCA admite incapacidade
-  if (isTipoC(txtNorm) && !isContextoSugestao(txtNorm)) {
-    if (/barato|acessivel|orcamento|cabe/.test(txtNorm)) {
-      return `Claro, vamos encontrar algo que se encaixe bem! Para ajudá-lo melhor — qual é o orçamento que tem em mente? E é para uso próprio ou para oferecer?`;
+    if (/sillage/.test(txtNorm)) {
+      return `Sillage é o "rasto" que o perfume deixa no ar quando passa. Um sillage intenso significa que as pessoas à sua volta vão sentir o perfume mesmo depois de passar. Um sillage discreto é mais íntimo — apenas quem está muito perto consegue sentir.\n\nPara Angola, no clima quente, um sillage moderado é geralmente a escolha mais elegante para o dia. Para noite e eventos, pode optar por algo mais projectante.`;
     }
-    return `Conta-me um pouco mais — está à procura de algo para si ou para oferecer? Isso ajuda-me a fazer uma sugestão mais certeira.`;
+    return `Boa pergunta! Essa é uma área que domino. Pode reformular o que quer saber sobre ${txt.replace(/\?/g, '')} e respondo com todo o detalhe?`;
   }
 
   // ================================================
-  // FASE 2 — Comandos e intenções principais
+  // PRIORIDADE 4 — Tipo B: afirmação do cliente
+  // ================================================
+  if (isTipoB(txtNorm)) {
+    if (/calvin klein.*nao.*nicho|nao.*nicho.*calvin/.test(txtNorm)) {
+      return `Tem razão! Calvin Klein é uma marca de designer — grande escala, fórmulas acessíveis e muito reconhecida. O universo do nicho é diferente: casas mais pequenas, produção limitada e fragrâncias com maior profundidade e exclusividade.\n\nQuer explorar opções de nicho ou prefere continuar nas marcas de designer?`;
+    }
+    if (/nao e nicho/.test(txtNorm)) {
+      return `Tem razão, peço desculpa pela confusão. Quer explorar os nossos perfumes de nicho em separado? Escreva *nicho* para ver a selecção completa.`;
+    }
+    return `Obrigado pela observação! Como posso ajudá-lo com as nossas fragrâncias?`;
+  }
+
+  // ================================================
+  // PRIORIDADE 5 — Comandos principais
   // ================================================
 
   // Saudações
-  if (/^(ola|oi|bom dia|boa tarde|boa noite|hello|hi|hey|olá|boas)/.test(txtNorm)) {
+  if (/^(ola|oi|bom dia|boa tarde|boa noite|hello|hi|hey|ola|boas)/.test(txtNorm)) {
     const h = new Date().getHours();
     const s = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
     const banner = DESCONTO_SEMANA > 0 ? `\n\n🔥 *PROMOÇÃO ACTIVA: ${DESCONTO_SEMANA}% de desconto em todo o catálogo.*` : '';
@@ -819,79 +739,47 @@ Quer explorar algumas opções de nicho ou prefere continuar nas marcas de desig
   // Pedido de atendimento humano
   if (/falar com.*humano|falar com.*pessoa|atendente|responsavel|gerente/.test(txtNorm)) {
     setSessao(from, { tipo: 'confirmar_escalada', motivo: 'Pedido explícito do cliente', contexto: txt });
-    return `Naturalmente. Deseja que notifique um colega para continuar o seu atendimento?\n`;
+    return `Naturalmente. Deseja que notifique um colega para continuar o seu atendimento?`;
   }
 
-  // Catálogo completo
+  // CATÁLOGO — 4 grupos separados
   if (/catalogo|todos os perfumes|ver tudo|ver colecao/.test(txtNorm)) {
     const masc  = getNomesAgrupados('M');
     const fem   = getNomesAgrupados('F');
     const uni   = getNomesAgrupados('U');
     const nicho = getNomesAgrupados(null, true);
-    return `🖤 *Catálogo Omnia Parfums*${getBannerDesconto()}
-
-👔 *MASCULINOS — Designer (${masc.length})*
-${masc.join('\n')}
-
-👗 *FEMININOS — Designer (${fem.length})*
-${fem.join('\n')}
-
-✨ *UNISSEXO — Designer (${uni.length})*
-${uni.join('\n')}
-
-💎 *NICHO & LUXO (${nicho.length})*
-${nicho.join('\n')}
-
-_Escreva o nome para ver versões, preços e descrição._`;
+    return `🖤 *Catálogo Omnia Parfums*${getBannerDesconto()}\n\n👔 *MASCULINOS — Designer (${masc.length})*\n${masc.join('\n')}\n\n👗 *FEMININOS — Designer (${fem.length})*\n${fem.join('\n')}\n\n✨ *UNISSEXO — Designer (${uni.length})*\n${uni.join('\n')}\n\n💎 *NICHO & LUXO (${nicho.length})*\n${nicho.join('\n')}\n\n_Escreva o nome para ver versões, preços e descrição._`;
   }
 
-  // Por género
+  // Masculinos — designer + nicho separados
   if (/^(masculin|perfume.*homem|homem.*perfume|para.*ele\b)/.test(txtNorm)) {
     const designer = getNomesAgrupados('M');
     const nichoMasc = (() => {
       const map = {};
-      Object.values(CATALOGO)
-        .filter(p => p.nicho && p.genero === 'M')
-        .forEach(p => {
-          if (!map[p.nomeBase]) map[p.nomeBase] = [];
-          if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
-        });
-      return Object.entries(map)
-        .map(([base, concs]) => `• ${base} _(${concs.join(' / ')})`);
+      Object.values(CATALOGO).filter(p => p.nicho && p.genero === 'M').forEach(p => {
+        if (!map[p.nomeBase]) map[p.nomeBase] = [];
+        if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
+      });
+      return Object.entries(map).map(([base, concs]) => `• ${base} _(${concs.join(' / ')})`);
     })();
-    return `👔 *Perfumes Masculinos — Omnia Parfums*${getBannerDesconto()}
-
-🏷️ *Designer:*
-${designer.join('\n')}
-
-💎 *Nicho:*
-${nichoMasc.length ? nichoMasc.join('\n') : '_(em breve)_'}
-
-_Escreva o nome para ver versões e preços._`;
+    return `👔 *Perfumes Masculinos — Omnia Parfums*${getBannerDesconto()}\n\n🏷️ *Designer:*\n${designer.join('\n')}\n\n💎 *Nicho:*\n${nichoMasc.length ? nichoMasc.join('\n') : '_(em breve)_'}\n\n_Escreva o nome para ver versões e preços._`;
   }
+
+  // Femininos — designer + nicho separados
   if (/^(feminin|perfume.*mulher|mulher.*perfume|para.*ela\b)/.test(txtNorm)) {
     const designer = getNomesAgrupados('F');
     const nichoFem = (() => {
       const map = {};
-      Object.values(CATALOGO)
-        .filter(p => p.nicho && p.genero === 'F')
-        .forEach(p => {
-          if (!map[p.nomeBase]) map[p.nomeBase] = [];
-          if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
-        });
-      return Object.entries(map)
-        .map(([base, concs]) => `• ${base} _(${concs.join(' / ')})`);
+      Object.values(CATALOGO).filter(p => p.nicho && p.genero === 'F').forEach(p => {
+        if (!map[p.nomeBase]) map[p.nomeBase] = [];
+        if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
+      });
+      return Object.entries(map).map(([base, concs]) => `• ${base} _(${concs.join(' / ')})`);
     })();
-    return `👗 *Perfumes Femininos — Omnia Parfums*${getBannerDesconto()}
-
-🏷️ *Designer:*
-${designer.join('\n')}
-
-💎 *Nicho:*
-${nichoFem.length ? nichoFem.join('\n') : '_(em breve)_'}
-
-_Escreva o nome para ver versões e preços._`;
+    return `👗 *Perfumes Femininos — Omnia Parfums*${getBannerDesconto()}\n\n🏷️ *Designer:*\n${designer.join('\n')}\n\n💎 *Nicho:*\n${nichoFem.length ? nichoFem.join('\n') : '_(em breve)_'}\n\n_Escreva o nome para ver versões e preços._`;
   }
+
+  // Nicho — dividido por género
   if (/^(nicho|luxo|exclusiv|premium)/.test(txtNorm)) {
     const mascN = [], femN = [], uniN = [];
     const vM = new Set(), vF = new Set(), vU = new Set();
@@ -901,114 +789,57 @@ _Escreva o nome para ver versões e preços._`;
       if (p.genero === 'F' && !vF.has(p.nomeBase)) { vF.add(p.nomeBase); femN.push(label); }
       if (p.genero === 'U' && !vU.has(p.nomeBase)) { vU.add(p.nomeBase); uniN.push(label); }
     });
-    return `💎 *Nicho & Luxo — Omnia Parfums*${getBannerDesconto()}
-
-O universo do nicho é para quem valoriza exclusividade e matérias-primas raras.
-
-👔 *Masculinos:*
-${mascN.join('\n')}
-
-👗 *Femininos:*
-${femN.join('\n')}
-
-✨ *Unissexo:*
-${uniN.join('\n')}
-
-_Escreva o nome para ver versões, preços e descrição._`;
+    return `💎 *Nicho & Luxo — Omnia Parfums*${getBannerDesconto()}\n\nO universo do nicho é para quem valoriza exclusividade e matérias-primas raras.\n\n👔 *Masculinos:*\n${mascN.join('\n')}\n\n👗 *Femininos:*\n${femN.join('\n')}\n\n✨ *Unissexo:*\n${uniN.join('\n')}\n\n_Escreva o nome para ver versões, preços e descrição._`;
   }
 
-  // Encomenda
-  if (/encomendar|encomenda|como comprar|fazer.*pedido|quero comprar/.test(txtNorm)) {
-    return `📦 *Como Encomendar*\n\nEnvie-nos:\n1️⃣ Nome do perfume\n2️⃣ Versão _(EDT / EDP / Parfum)_\n3️⃣ Tamanho _(ml)_\n4️⃣ O seu nome\n5️⃣ Morada de entrega em Luanda\n\nRespondemos em menos de 30 minutos. 💛\n_Pagamento: Transferência, Multicaixa Express ou à entrega._`;
+  // Entrega/envio
+  if (/entrega|envio|entregam|como.*chega|onde.*entreg/.test(txtNorm)) {
+    return `📦 *Entrega em Luanda incluída* no preço de todos os nossos produtos.\n\nApós confirmação da encomenda, o prazo habitual é de 24 a 48 horas úteis. Para mais detalhes sobre a sua zona específica, posso notificar um colega. Pretende?`;
   }
 
-  // Entrega
-  if (/entrega|envio|como.*recebo|prazo/.test(txtNorm)) {
-    return `📦 *Entregas — Omnia Parfums*\n\n✅ Cobertura em toda Luanda\n⏰ Prazo: 24 a 48 horas\n💰 Custo de entrega incluído no preço\n\nTem alguma questão adicional?`;
-  }
-
-  // Descontos / negociação
-  if (/desconto|preco.*melhor|negoci|promocao/.test(txtNorm)) {
+  // Preço / desconto
+  if (/desconto|promocao|oferta|preco.*melhor|melhor.*preco/.test(txtNorm)) {
     if (DESCONTO_SEMANA > 0) {
-      return `🔥 Tem óptima oportunidade — *temos ${DESCONTO_SEMANA}% de desconto activo* em todo o catálogo neste momento.\n\nOs preços já reflectem esse desconto. Há algum perfume que deseje consultar?`;
+      return `🔥 Sim! Temos actualmente *${DESCONTO_SEMANA}% de desconto* em todo o catálogo. Os preços apresentados já reflectem este desconto.\n\nHá algum perfume específico que queira ver?`;
     }
-    return `Os nossos preços são fixos e reflectem a qualidade e autenticidade dos produtos. Posso verificar com a nossa equipa se existe alguma promoção activa. Deseja que o faça?`;
-  }
-
-  // Curiosidade sobre preços / margens
-  if (/como.*calculou|margem|lucro|custo|fornecedor|quanto.*ganha/.test(txtNorm)) {
-    return `O preço reflecte a qualidade, autenticidade do produto e todos os custos envolvidos para garantir uma fragrância genuína. Não partilhamos detalhes internos sobre formação de preços.\n\nPosso ajudá-lo a encontrar a melhor opção para o seu orçamento. Tem algum valor em mente?`;
-  }
-
-  // EDT vs EDP / concentrações
-  if (/diferenca|edt.*edp|edp.*edt|concentracao|dura.*mais|quanto.*dura|elixir|parfum/.test(txtNorm)) {
-    return `Excelente questão. As diferenças fundamentais:\n\n*EDT* — Fresco e leve. Dura 3 a 5 horas. Perfeito para o dia a dia e o calor de Angola.\n\n*EDP* — Mais intenso e duradouro. Dura 5 a 8 horas. Versátil do dia para a noite.\n\n*Parfum / Extrait* — A forma mais pura. Dura 8 horas ou mais. Para quem quer presença máxima.\n\n*Elixir* — Concentração ultra-elevada com fórmula reformulada. O melhor desempenho possível.\n\nQual se adapta melhor à sua rotina?`;
-  }
-
-  // Designer vs Nicho
-  if (/designer.*nicho|nicho.*designer|diferenca.*nicho|o que e nicho/.test(txtNorm)) {
-    return `Uma distinção importante:\n\n*Designer* — Grandes marcas como Dior, Chanel, Armani, YSL. Produção em escala, fórmulas reconhecíveis, excelente relação qualidade-preço.\n\n*Nicho* — Casas como Creed, MFK, Amouage, By Kilian, Mancera. Produção mais limitada, matérias-primas raras, maior exclusividade e duração.\n\nSe o objectivo é reconhecimento social e versatilidade, o designer é uma excelente escolha. Se procura algo verdadeiramente único e duradouro, o nicho é o caminho.\n\nQual é o seu perfil?`;
-  }
-
-  // Clima / sazonalidade Angola
-  if (/clima|angola|luanda|tropical|calor.*angola/.test(txtNorm)) {
-    return `Para o clima quente de Angola, a minha recomendação:\n\n*Dia a dia:* fragrâncias aquáticas e cítricas — o Acqua di Giò, Bleu de Chanel EDT, Dior Sauvage EDT ou Armani Sì são escolhas excelentes.\n\n*Noite e ocasiões especiais:* orientais e amadeirados ganham muito com o calor — Baccarat Rouge 540, Tom Ford Black Orchid, YSL Black Opium ou Rabanne 1 Million.\n\nDeseja sugestões para uma ocasião específica?`;
-  }
-
-  // Fora do âmbito
-  if (/advogado|medico|politica|economia|emprego|hotel|restaurante|viagem|investimento|juridico/.test(txtNorm)) {
-    if (NUMERO_HUMANO) {
-      const n = from.replace('@s.whatsapp.net','').replace('@c.us','');
-      sendMessage(NUMERO_HUMANO, `⚠️ *OMNIA — Questão fora do âmbito*\n📱 +${n}\n💬 "${txt}"\n🕐 ${new Date().toLocaleString('pt-PT')}`);
-    }
-    return `Agradeço a confiança, mas o meu âmbito de actuação é exclusivamente o mundo das fragrâncias. Para este tipo de questão não estou em condições de ajudar.\n\nSe precisar de algo relacionado com perfumes, estarei sempre à disposição. Bom dia!`;
+    return `Os nossos preços são fixos e reflectem a qualidade e autenticidade dos produtos. Se tiver interesse num produto específico, posso verificar se há alguma promoção activa. Qual o perfume que tem em mente?`;
   }
 
   // ================================================
-  // FASE 3 — Sugestões por ocasião/notas/perfil
-  // Tem prioridade sobre pesquisa directa quando
-  // a mensagem tem contexto de sugestão claro
+  // PRIORIDADE 6 — Sugestão com critério (isContextoSugestao)
+  // Se já tem info suficiente, sugere directamente.
+  // Só inicia consulta guiada se precisar de mais info.
   // ================================================
-  if (isContextoSugestao(txtNorm) && !pesquisaDirecta(txtLow)) {
+  if (isContextoSugestao(txtNorm)) {
     const sugestaoDirecta = sugerirPorCriterio(txtNorm, orcamento);
-    if (sugestaoDirecta &&
-        (sugestaoDirecta.designers.length || sugestaoDirecta.nicho.length)) {
+    if (sugestaoDirecta && (sugestaoDirecta.designers.length || sugestaoDirecta.nicho.length)) {
+      // Tem critério suficiente — sugere directamente
       let titulo = null;
-      if (/noite|festa/.test(txtNorm)) titulo = 'noite e ocasiões especiais';
-      else if (/casamento/.test(txtNorm)) titulo = 'casamento';
-      else if (/romantico|encontro/.test(txtNorm)) titulo = 'encontro romântico';
-      else if (/trabalho|reuniao/.test(txtNorm)) titulo = 'ambiente profissional';
+      if (/noite|festa|especial|romantico|encontro/.test(txtNorm)) titulo = 'noite e ocasiões especiais';
+      else if (/dia|trabalho|reuniao|escritorio/.test(txtNorm)) titulo = 'uso diário';
       else if (/verao|calor/.test(txtNorm)) titulo = 'clima quente';
-      else if (/inverno/.test(txtNorm)) titulo = 'estação fria';
-      else if (/fresco/.test(txtNorm)) titulo = 'uso fresco e discreto';
-      else if (/doce|baunilha/.test(txtNorm)) titulo = 'notas doces e quentes';
-      else if (/floral/.test(txtNorm)) titulo = 'notas florais';
-      else if (/oriental|intenso/.test(txtNorm)) titulo = 'fragrâncias intensas';
-      else if (/oud/.test(txtNorm)) titulo = 'notas de oud';
-      else if (/presente|oferta/.test(txtNorm)) titulo = 'oferta especial';
+      else if (/inverno|frio/.test(txtNorm)) titulo = 'clima frio';
       return formatarSugestoes(sugestaoDirecta, titulo, orcamento);
     }
-    // Não há critério claro — iniciar consulta guiada
+    // Precisa de mais info — inicia consulta guiada com UMA pergunta
     setSessao(from, { tipo: 'consulta_guiada_1' });
     return `Com prazer em ajudar! É para uso próprio ou para oferecer?`;
   }
 
-  // FASE 4 — Pesquisa directa já foi feita no início (prioridade absoluta)
-  // Chegando aqui, nenhum perfume específico foi encontrado na mensagem
+  // Pedido vago sem critério (mais barato, opções, etc.)
+  if (/mais barato|mais acessivel|opcoes.*baratas|algo.*barato|cabem no orcamento|cabe no orcamento|dentro do orcamento|meu orcamento|tens algo bom|o que recomendas|o que tens|o que sugeres/.test(txtNorm)) {
+    if (/barato|acessivel|orcamento|cabe/.test(txtNorm)) {
+      return `Claro, vamos encontrar algo que se encaixe bem! Qual é o orçamento que tem em mente? E é para uso próprio ou para oferecer?`;
+    }
+    setSessao(from, { tipo: 'consulta_guiada_1' });
+    return `Com prazer em ajudar! É para uso próprio ou para oferecer?`;
+  }
 
   // ================================================
-  // FASE 5 — Pesquisa fuzzy (só msgs curtas/nomes)
+  // PRIORIDADE 7 — Fuzzy search (nome com erro)
   // ================================================
-  const palavrasNorm = txtNorm.split(' ').filter(w => w.length > 1);
-  const isCurta = palavrasNorm.length <= 4;
-  const semComando = !isComandoBase(txtNorm);
-  const semContexto = !isContextoSugestao(txtNorm);
-  const semPalavrasComuns = palavrasNorm.filter(w =>
-    !['tem','tens','ter','ver','lista','todos','tudo','outro','outra','quero','preciso'].includes(w)
-  );
-
-  if (isCurta && semComando && semContexto && semPalavrasComuns.length > 0) {
-    const fuzzy = pesquisaFuzzy(semPalavrasComuns.join(' '));
+  if (txt.length > 3 && txt.length < 60) {
+    const fuzzy = pesquisaFuzzy(txt);
     if (fuzzy) {
       setSessao(from, { tipo: 'confirmar_perfume', nomeBase: fuzzy.nomeBase });
       return `Estará a referir-se ao *${fuzzy.nomeBase}*?`;
@@ -1016,51 +847,37 @@ _Escreva o nome para ver versões, preços e descrição._`;
   }
 
   // ================================================
-  // FASE 6 — Escalada elegante
+  // FALLBACK — resposta genérica inteligente
   // ================================================
-  return null;
+  return `Obrigado pela sua mensagem! Para o ajudar melhor:\n\n• Escreva o nome de um perfume para ver detalhes e preços\n• Escreva *catálogo* para ver toda a nossa selecção\n• Descreva o que procura (ex: "algo marcante para noite") e faço sugestões personalizadas\n• Ou diga *masculinos*, *femininos* ou *nicho* para filtrar`;
 }
 
 // ===================================================
-// ENVIO E WEBHOOK
+// WEBHOOK
 // ===================================================
-async function sendMessage(to, text) {
-  try {
-    await axios.post(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
-      number: to, text: text
-    }, { headers: { 'apikey': EVOLUTION_KEY, 'Content-Type': 'application/json' } });
-    console.log(`✅ Enviado para ${to}`);
-  } catch(e) { console.error('Erro:', e.response?.data || e.message); }
-}
-
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
   try {
-    if (req.body.event !== 'messages.upsert') return;
-    const data = req.body.data;
-    if (!data || data.key?.fromMe || data.key?.remoteJid?.includes('@g.us')) return;
-    const from = data.key?.remoteJid;
-    const text = data.message?.conversation || data.message?.extendedTextMessage?.text || '';
-    if (!from || !text) return;
-    console.log(`📩 ${from}: ${text}`);
+    const body = req.body;
+    const msg = body?.data?.message;
+    const from = body?.data?.key?.remoteJid;
+    const fromMe = body?.data?.key?.fromMe;
+    if (!msg || !from || fromMe) return;
+
+    let text = '';
+    if (msg.conversation) text = msg.conversation;
+    else if (msg.extendedTextMessage?.text) text = msg.extendedTextMessage.text;
+    else if (msg.buttonsResponseMessage?.selectedDisplayText) text = msg.buttonsResponseMessage.selectedDisplayText;
+    if (!text || text.trim().length < 1) return;
 
     const reply = getBotReply(from, text);
-
-    if (reply) {
-      await sendMessage(from, reply);
-    } else {
-      // Resposta profissional + proposta de escalada
-      const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
-      await sendMessage(from, `Conta-me um pouco mais sobre o que procura — é para uso próprio ou para oferecer? Prefere algo fresco e discreto ou mais intenso e marcante?\n\nCom essa informação faço-lhe uma sugestão certeira. 😊`);
-      setSessao(from, { tipo: 'confirmar_escalada', motivo: 'Bot não encontrou resposta', contexto: text });
-      if (NUMERO_HUMANO) {
-        await sendMessage(NUMERO_HUMANO, `🔔 *OMNIA PARFUMS — Cliente a aguardar*\n\n📱 +${numLimpo}\n💬 _"${text}"_\n👆 https://wa.me/${numLimpo}\n🕐 ${new Date().toLocaleString('pt-PT')}\n\n_Bot não encontrou resposta. Cliente pode confirmar escalada._`);
-      }
-    }
-  } catch(e) { console.error('Erro webhook:', e.message); }
+    if (reply) await sendMessage(from, reply);
+  } catch (e) {
+    console.error('Webhook error:', e);
+  }
 });
 
-app.get('/webhook', (req, res) => res.send('OK'));
-app.get('/', (req, res) => res.send(`🖤 Omnia Parfums Bot v9 — ${Object.keys(CATALOGO).length} perfumes | Desconto: ${DESCONTO_SEMANA}%`));
+app.get('/health', (req, res) => res.json({ status: 'ok', perfumes: Object.keys(CATALOGO).length }));
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Bot v9 Omnia Parfums — ${Object.keys(CATALOGO).length} perfumes | Desconto: ${DESCONTO_SEMANA}%`));
+app.listen(PORT, () => console.log(`Omnia Parfums Bot — porta ${PORT}`));
