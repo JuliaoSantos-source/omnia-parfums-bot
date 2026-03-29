@@ -370,7 +370,7 @@ function getContextoSazonal(p) {
 // ===================================================
 // RESPOSTA COMPLETA DE UM PERFUME
 // ===================================================
-function respostaPerfume(nomeBase, incluiContexto) {
+function respostaPerfume(nomeBase) {
   const versoes = Object.values(CATALOGO).filter(p =>
     p.nomeBase === nomeBase && p.preco && Object.keys(p.preco).length > 0
   );
@@ -378,22 +378,118 @@ function respostaPerfume(nomeBase, incluiContexto) {
 
   const p0 = versoes[0];
   const emoji = p0.genero === 'M' ? '👔' : p0.genero === 'F' ? '👗' : '✨';
-  const contexto = getContextoSazonal(p0);
   const banner = getBannerDesconto();
+  const generoLabel = p0.genero === 'M' ? 'Masculino' : p0.genero === 'F' ? 'Feminino' : 'Unissexo';
   const nichoLabel = p0.nicho ? ' _(Nicho)_' : '';
 
-  let reply = `${emoji} *${nomeBase}*${nichoLabel}${banner}\n`;
-  reply += `\n_${p0.notas}_\n`;
-  if (incluiContexto !== false) reply += `\n✨ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n`;
+  // Casa/marca
+  const CASAS = {
+    'Dior': 'a prestigiada casa francesa Dior',
+    'Chanel': 'a icónica casa Chanel',
+    'YSL': 'a casa francesa Yves Saint Laurent',
+    'Armani': 'a casa italiana Giorgio Armani',
+    'Rabanne': 'a casa Paco Rabanne',
+    'Versace': 'a casa italiana Versace',
+    'Hugo Boss': 'a casa Hugo Boss',
+    'Lancôme': 'a casa francesa Lancôme',
+    'Guerlain': 'a histórica casa francesa Guerlain',
+    'Mugler': 'a casa francesa Thierry Mugler',
+    'Tom Ford': 'a casa americana Tom Ford',
+    'Calvin Klein': 'a casa americana Calvin Klein',
+    'Narciso Rodriguez': 'a casa Narciso Rodriguez',
+    'Issey Miyake': 'a casa japonesa Issey Miyake',
+    'Creed': 'a lendária casa britânica Creed — uma das mais antigas do mundo',
+    'Mancera': 'a casa parisiense Mancera — uma das mais respeitadas no universo do nicho',
+    'Montale': 'a casa parisiense Montale — especialista em fragrâncias orientais',
+    'MFK': 'a Maison Francis Kurkdjian — uma das casas de nicho mais cobiçadas do mundo',
+    'By Kilian': 'a exclusiva casa By Kilian',
+    'Amouage': 'a opulenta casa omanense Amouage',
+    'Parfums de Marly': 'a casa francesa Parfums de Marly — inspirada na corte de Luís XV',
+    'Nishane': 'a casa turca Nishane',
+    'Initio': 'a casa francesa Initio Parfums Privés',
+    'Xerjoff': 'a casa italiana Xerjoff — sinónimo de luxo extremo',
+    'Frederic Malle': 'as Éditions de Parfums Frédéric Malle',
+    'Roja Dove': 'a casa britânica Roja Parfums',
+  };
+  let casa = 'uma reconhecida casa de perfumaria';
+  for (const [marca, desc] of Object.entries(CASAS)) {
+    if (nomeBase.includes(marca)) { casa = desc; break; }
+  }
+
+  // Descrição sensorial
+  function getDescricao(p) {
+    const f = (p.familia || '').toLowerCase();
+    if (/baccarat|rouge.*540/.test(nomeBase.toLowerCase()))
+      return 'Quem o usa raramente passa despercebido. Deixa um rasto dourado e inconfundível — é o tipo de fragrância que as pessoas se voltam para tentar perceber de onde vem.';
+    if (/aquatico|citrico/.test(f))
+      return 'Fresco, limpo e revigorante. Discreto sem ser apagado — a escolha certa para quem quer estar sempre bem apresentado sem exageros.';
+    if (/gourmand/.test(f))
+      return 'Envolvente, quente e irresistível. Sofisticado sem ser pesado. Quem está perto vai sentir um calor agradável — nunca enjoativo, sempre memorável.';
+    if (/floral.*oriental|oriental.*floral/.test(f))
+      return 'Elegante e marcante. Floral na superfície, com uma base quente e profunda que transforma ao longo do dia. Para quem quer ser lembrado depois de sair da sala.';
+    if (/floral/.test(f))
+      return 'Floral com complexidade e alma. Não é um floral óbvio — tem carácter. É o perfume de quem não precisa de gritar para ser notado.';
+    if (/oriental|especiado/.test(f))
+      return 'Intenso e magnético. Como especiarias no ar e madeiras a arder numa noite fria. Para ocasiões em que quer fazer uma entrada inesquecível.';
+    if (/amadeirado/.test(f))
+      return 'Sofisticado, seco e inconfundível. As madeiras nobres dão-lhe uma elegância discreta que combina com qualquer ocasião formal.';
+    return 'Uma fragrância de carácter que evolui de forma encantadora ao longo do dia.';
+  }
+
+  // Duração por concentração
+  function getDuracao(conc) {
+    const c = (conc || '').toLowerCase();
+    if (/extrait|elixir/.test(c)) return '8 a 12h — projecção intensa e duradoura';
+    if (/parfum/.test(c)) return '8 a 10h — forma mais pura, máxima persistência';
+    if (/edp/.test(c)) return '6 a 8h — versátil do dia para a noite';
+    return '4 a 6h — leve e ideal para clima quente';
+  }
+
+  // Contexto ocasião
+  const contexto = getContextoSazonal(p0);
+
+  let reply = `${emoji} *${nomeBase}*${nichoLabel}${banner}
+`;
+  reply += `
+Uma criação de ${casa}.
+`;
+  reply += `
+*Género:* ${generoLabel} | *Família:* ${p0.familia || 'não especificada'}
+`;
+  reply += `
+*Notas:* ${p0.notas}
+`;
+  reply += `
+${getDescricao(p0)}
+`;
+  reply += `
+✨ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.
+`;
 
   if (versoes.length === 1) {
-    reply += `\n💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
+    reply += `
+*Duração estimada:* ${getDuracao(p0.conc)}.
+`;
+    reply += `
+💰 *Preço:*
+${formatPrecos(p0.preco)}
+`;
   } else {
-    reply += `\n💰 *Versões disponíveis:*\n`;
-    versoes.forEach(p => { reply += `\n*${p.conc}:*\n${formatPrecos(p.preco)}\n`; });
-    reply += `\n_Precisa de ajuda a escolher entre as versões? Explico as diferenças com todo o gosto._\n`;
+    reply += `
+💰 *Versões disponíveis:*
+`;
+    versoes.forEach(p => {
+      reply += `
+*${p.conc}* _(${getDuracao(p.conc)}):_
+${formatPrecos(p.preco)}
+`;
+    });
   }
-  reply += `\n📦 Entrega em Luanda incluída\n\nDeseja encomendar ou prefere explorar mais opções?`;
+
+  reply += `
+📦 Entrega em Luanda incluída.
+
+Deseja encomendar ou tem alguma questão sobre esta fragrância?`;
   return reply;
 }
 
@@ -515,6 +611,42 @@ function getBotReply(from, msg) {
 
   // Actualizar orçamento na sessão se detectado
   if (extrairOrcamento(txt)) updateSessao(from, { orcamento: extrairOrcamento(txt) });
+
+  // ================================================
+  // PRIORIDADE ABSOLUTA — Se a mensagem menciona um
+  // perfume específico do catálogo, responde SEMPRE
+  // sobre esse perfume — ignora sessão, fuzzy, tudo.
+  // NUNCA menciona outro perfume sem ser pedido.
+  // ================================================
+  const perfumeDirecto = pesquisaDirecta(txtLow);
+  if (perfumeDirecto) {
+    // Limpa qualquer sessão activa para não contaminar próximas mensagens
+    clearSessao(from);
+    const resp = respostaPerfume(perfumeDirecto);
+    // Só adiciona alternativas se o orçamento for explícito E o preço exceder
+    if (orcamento && resp) {
+      const versoes = Object.values(CATALOGO).filter(p => p.nomeBase === perfumeDirecto && p.preco);
+      const minPreco = versoes.length ? Math.min(...versoes.map(p => precoMin(p.preco))) : 0;
+      if (minPreco > orcamento * 1.15) {
+        const alts = encontrarAlternativas(perfumeDirecto, orcamento);
+        if (alts && alts.length) {
+          let extra = `
+
+💡 *Nota:* Este perfume está acima do orçamento indicado. Temos opções com perfil semelhante:
+`;
+          alts.forEach(p => {
+            extra += `
+• *${p.nomeBase}* — _${p.notas}_ — a partir de ${precoMin(p.preco).toLocaleString('pt-PT')} Kz`;
+          });
+          extra += `
+
+Deseja explorar alguma destas ou prefere avançar com o ${perfumeDirecto}?`;
+          return resp + extra;
+        }
+      }
+    }
+    return resp;
+  }
 
   // ================================================
   // FASE 1 — Gerir estado de sessão activa
@@ -703,32 +835,8 @@ function getBotReply(from, msg) {
     }
   }
 
-  // ================================================
-  // FASE 4 — Pesquisa directa no catálogo
-  // ================================================
-  const directa = pesquisaDirecta(txtLow);
-  if (directa) {
-    const resp = respostaPerfume(directa);
-
-    // Se o preço estiver acima do orçamento, sugerir alternativas
-    if (orcamento && resp) {
-      const versoes = Object.values(CATALOGO).filter(p => p.nomeBase === directa && p.preco);
-      const minPreco = versoes.length ? Math.min(...versoes.map(p => precoMin(p.preco))) : 0;
-      if (minPreco > orcamento * 1.15) {
-        const alternativas = encontrarAlternativas(directa, orcamento);
-        let extra = '';
-        if (alternativas && alternativas.length) {
-          extra = `\n\n💡 *Nota:* O ${directa} está acima do orçamento que indicou. Temos alternativas com uma vibe semelhante dentro do seu orçamento:\n`;
-          alternativas.forEach(p => {
-            extra += `\n• *${p.nomeBase}* — _${p.notas}_ — a partir de ${precoMin(p.preco).toLocaleString('pt-PT')} Kz`;
-          });
-          extra += `\n\nDeseja explorar alguma destas opções?`;
-        }
-        return resp + extra;
-      }
-    }
-    return resp;
-  }
+  // FASE 4 — Pesquisa directa já foi feita no início (prioridade absoluta)
+  // Chegando aqui, nenhum perfume específico foi encontrado na mensagem
 
   // ================================================
   // FASE 5 — Pesquisa fuzzy (só msgs curtas/nomes)
