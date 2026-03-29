@@ -230,45 +230,106 @@ function getNomesAgrupados(genero, apenasNicho = false) {
 function sugerirPorCriterio(txtNorm, orcamento) {
   const c = txtNorm;
   const FILTROS = {
-    baunilha: p => /baunilha/i.test(p.notas + p.familia),
-    rosa: p => /rosa/i.test(p.notas + p.familia),
-    oud: p => /oud/i.test(p.notas + p.familia),
-    citrico: p => /citrico|limao|laranja|bergamota|toranja/i.test(p.notas + p.familia),
-    floral: p => /floral/i.test(p.familia),
+    // Notas específicas
+    baunilha:   p => /baunilha/i.test(p.notas + p.familia),
+    rosa:       p => /rosa/i.test(p.notas + p.familia),
+    oud:        p => /oud/i.test(p.notas + p.familia),
+    citrico:    p => /citrico|limao|laranja|bergamota|toranja/i.test(p.notas + p.familia),
+    floral:     p => /floral/i.test(p.familia),
     amadeirado: p => /amadeirado/i.test(p.familia),
-    oriental: p => /oriental/i.test(p.familia),
-    aquatico: p => /aquatico/i.test(p.familia),
-    gourmand: p => /gourmand/i.test(p.familia),
-    especiado: p => /especiado|canela|cardamomo/i.test(p.notas + p.familia),
-    almiscar: p => /almiscar/i.test(p.notas),
-    cafe: p => /cafe/i.test(p.notas),
-    lavanda: p => /lavanda/i.test(p.notas),
-    sandalo: p => /sandalo/i.test(p.notas + p.familia),
-    noite: p => /oriental|gourmand|amadeirado.*oriental|especiado/i.test(p.familia),
-    dia: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
-    verao: p => /aquatico|citrico|aromatico/i.test(p.familia),
-    inverno: p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
-    trabalho: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
-    reuniao: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
-    festa: p => /oriental|gourmand|especiado|floral.*oriental/i.test(p.familia),
-    casamento: p => /floral|floral.*amadeirado|floral.*oriental/i.test(p.familia),
-    romantico: p => /floral.*oriental|oriental.*floral|gourmand|oriental.*amadeirado/i.test(p.familia),
-    encontro: p => /floral.*oriental|oriental|gourmand/i.test(p.familia),
-    fresco: p => /aquatico|citrico|aromatico|fougere/i.test(p.familia),
-    intenso: p => /oriental|amadeirado.*oriental|gourmand|especiado/i.test(p.familia),
-    doce: p => /gourmand|baunilha/i.test(p.notas + p.familia),
-    calor: p => /aquatico|citrico|aromatico/i.test(p.familia),
-    masculino: p => p.genero === 'M',
-    feminino: p => p.genero === 'F',
-    unissexo: p => p.genero === 'U',
+    oriental:   p => /oriental/i.test(p.familia),
+    aquatico:   p => /aquatico/i.test(p.familia),
+    gourmand:   p => /gourmand/i.test(p.familia),
+    especiado:  p => /especiado|canela|cardamomo/i.test(p.notas + p.familia),
+    almiscar:   p => /almiscar/i.test(p.notas),
+    cafe:       p => /cafe/i.test(p.notas),
+    lavanda:    p => /lavanda/i.test(p.notas),
+    sandalo:    p => /sandalo/i.test(p.notas + p.familia),
+
+    // CLIMA QUENTE — todas as formas de dizer "faz calor"
+    calor:      p => /aquatico|citrico|aromatico/i.test(p.familia),
+    quente:     p => /aquatico|citrico|aromatico/i.test(p.familia),
+    verao:      p => /aquatico|citrico|aromatico/i.test(p.familia),
+    sol:        p => /aquatico|citrico|aromatico/i.test(p.familia),
+    praia:      p => /aquatico|citrico/i.test(p.familia),
+    quentura:   p => /aquatico|citrico|aromatico/i.test(p.familia),
+    abafado:    p => /aquatico|citrico|aromatico/i.test(p.familia),
+    sufocante:  p => /aquatico|citrico|aromatico/i.test(p.familia),
+    sudor:      p => /aquatico|citrico|aromatico/i.test(p.familia),
+    suor:       p => /aquatico|citrico|aromatico/i.test(p.familia),
+    humido:     p => /aquatico|citrico|aromatico/i.test(p.familia),
+
+    // CLIMA FRIO — todas as formas de dizer "faz frio"
+    frio:       p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+    inverno:    p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+    fresco:     p => /aquatico|citrico|aromatico|fougere/i.test(p.familia),
+    outono:     p => /oriental|amadeirado|especiado/i.test(p.familia),
+    chuva:      p => /amadeirado|oriental|especiado/i.test(p.familia),
+    chuvoso:    p => /amadeirado|oriental|especiado/i.test(p.familia),
+    nublado:    p => /amadeirado|oriental|especiado/i.test(p.familia),
+    tempestade: p => /amadeirado|oriental|especiado/i.test(p.familia),
+    noite:      p => /oriental|gourmand|amadeirado.*oriental|especiado/i.test(p.familia),
+
+    // DIA A DIA
+    dia:        p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    trabalho:   p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    escritorio: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    reuniao:    p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    quotidiano: p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    diario:     p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    casual:     p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    simples:    p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+
+    // OCASIÕES ESPECIAIS
+    festa:      p => /oriental|gourmand|especiado|floral.*oriental/i.test(p.familia),
+    balada:     p => /oriental|gourmand|especiado|floral.*oriental/i.test(p.familia),
+    saida:      p => /oriental|gourmand|especiado|floral.*oriental/i.test(p.familia),
+    evento:     p => /oriental|floral.*oriental|floral.*amadeirado/i.test(p.familia),
+    casamento:  p => /floral|floral.*amadeirado|floral.*oriental/i.test(p.familia),
+    batizado:   p => /floral|floral.*amadeirado/i.test(p.familia),
+    aniversario:p => /floral.*oriental|oriental|gourmand/i.test(p.familia),
+    formatura:  p => /floral.*oriental|floral.*amadeirado/i.test(p.familia),
+    jantar:     p => /oriental|gourmand|floral.*oriental/i.test(p.familia),
+    romantico:  p => /floral.*oriental|oriental.*floral|gourmand|oriental.*amadeirado/i.test(p.familia),
+    encontro:   p => /floral.*oriental|oriental|gourmand/i.test(p.familia),
+    date:       p => /floral.*oriental|oriental|gourmand/i.test(p.familia),
+    conquista:  p => /oriental|gourmand|floral.*oriental/i.test(p.familia),
+    seduzir:    p => /oriental|gourmand|floral.*oriental/i.test(p.familia),
+    impressionar:p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+    chamar:     p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+
+    // INTENSIDADE / ESTILO
+    intenso:    p => /oriental|amadeirado.*oriental|gourmand|especiado/i.test(p.familia),
+    marcante:   p => /oriental|amadeirado.*oriental|gourmand|especiado/i.test(p.familia),
+    forte:      p => /oriental|amadeirado.*oriental|gourmand|especiado/i.test(p.familia),
+    poderoso:   p => /oriental|amadeirado.*oriental|especiado/i.test(p.familia),
+    pesado:     p => /oriental|amadeirado.*oriental|especiado/i.test(p.familia),
+    impactante: p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+    chamativo:  p => /oriental|gourmand|amadeirado.*oriental/i.test(p.familia),
+    leve:       p => /aquatico|citrico|aromatico|fougere/i.test(p.familia),
+    discreto:   p => /aquatico|citrico|aromatico|floral.*amadeirado/i.test(p.familia),
+    suave:      p => /aquatico|citrico|floral|aromatico/i.test(p.familia),
+    delicado:   p => /floral|aquatico|citrico/i.test(p.familia),
+    doce:       p => /gourmand|baunilha/i.test(p.notas + p.familia),
+    sensual:    p => /oriental|gourmand|floral.*oriental/i.test(p.familia),
+    sedutor:    p => /oriental|gourmand|floral.*oriental/i.test(p.familia),
+    elegante:   p => /floral.*amadeirado|amadeirado|floral.*oriental/i.test(p.familia),
+    sofisticado:p => /amadeirado|floral.*amadeirado|oriental.*amadeirado/i.test(p.familia),
+    moderno:    p => /aquatico|citrico|fougere|aromatico/i.test(p.familia),
+    classico:   p => /floral|amadeirado|fougere/i.test(p.familia),
+    unico:      p => p.nicho === true,
+    exclusivo:  p => p.nicho === true,
+    raro:       p => p.nicho === true,
+    diferente:  p => p.nicho === true,
   };
 
   const filtrosActivos = [];
   for (const [kw, fn] of Object.entries(FILTROS)) {
     if (c.includes(kw)) filtrosActivos.push(fn);
   }
-  if (/homem|masculin|ele\b|namorado|marido|pai\b|irmao/.test(c)) filtrosActivos.push(FILTROS.masculino);
-  if (/mulher|feminin|ela\b|namorada|esposa|mae\b|irma/.test(c)) filtrosActivos.push(FILTROS.feminino);
+  // Género — vocabulário expandido
+  if (/homem|masculin|ele\b|namorado|marido|pai\b|irmao|macho|rapaz|cara\b|meu irmao|meu pai/.test(c)) filtrosActivos.push(FILTROS.masculino);
+  if (/mulher|feminin|ela\b|namorada|esposa|mae\b|irma|menina|minha mae|minha irma|minha namorada/.test(c)) filtrosActivos.push(FILTROS.feminino);
   if (filtrosActivos.length === 0) return null;
 
   let pool = Object.values(CATALOGO).filter(p => p.preco && Object.keys(p.preco).length > 0);
@@ -543,7 +604,35 @@ function isTipoB(n) {
 // Detecta pedido de sugestão COM critério
 function isContextoSugestao(n) {
   if (isTipoA(n) || isTipoB(n)) return false;
-  return /suger|recomendar|aconselh|quero algo|quero um|procuro algo|procuro um|para.*ocasiao|para.*noite|para.*festa|para.*casamento|para.*trabalho|para.*reuniao|para.*romantico|para.*encontro|para.*oferecer|para.*presente|para.*ela\b|para.*ele\b|com.*baunilha|com.*rosa|com.*oud|com.*citrico|com.*floral|com.*oriental|com.*amadei|algo.*fresc|algo.*intenso|algo.*doce|algo.*marcante|algo.*forte|algo.*leve/.test(n);
+
+  // Padrões de pedido directo
+  const pedidoDirecto = /suger|recomendar|aconselh|quero algo|quero um|procuro algo|procuro um|preciso de um|indica.me|mostra.me|tens algo|que tens|que me recomendas|qual.*bom/.test(n);
+
+  // Clima quente — todas as formas
+  const climaQuente = /calor|quente|quentura|abafado|sufocante|humido|sol\b|praia|suor|sudor|para.*dia\b|dia a dia|uso.*diario|diario/.test(n);
+
+  // Clima frio
+  const climaFrio = /frio|inverno|outono|chuva|chuvoso|nublado|tempestade|clima.*frio|tempo.*frio/.test(n);
+
+  // Ocasiões
+  const ocasiao = /noite|festa|balada|saida|evento|casamento|batizado|aniversario|formatura|jantar|romantico|encontro|date\b|conquista|seduzir|impressionar/.test(n);
+
+  // Contexto de oferta
+  const oferta = /oferecer|presente|prenda|oferta|para.*ela\b|para.*ele\b|para.*mulher|para.*homem|para.*namorad|para.*esposa|para.*marido|para.*mae\b|para.*pai\b|para.*irma|para.*irmao|para.*filha|para.*filho/.test(n);
+
+  // Estilo / intensidade
+  const estilo = /intenso|marcante|forte|poderoso|pesado|impactante|chamativo|leve|discreto|suave|delicado|doce|sensual|sedutor|elegante|sofisticado|moderno|classico|unico|exclusivo|raro|diferente|fresco|fresca/.test(n);
+
+  // Notas / famílias
+  const notas = /baunilha|rosa\b|oud|citrico|floral|amadeirado|oriental|aquatico|gourmand|especiado|almiscar|cafe\b|lavanda|sandalo/.test(n);
+
+  // Género
+  const genero = /masculino|feminino|homem|mulher|ele\b|ela\b|namorado|namorada|marido|esposa|pai\b|mae\b|irmao|irma|rapaz|menina/.test(n);
+
+  // Padrão "perfumes para X"
+  const perfumesParaX = /perfumes.*para|perfume.*para/.test(n);
+
+  return pedidoDirecto || climaQuente || climaFrio || ocasiao || oferta || estilo || notas || genero || perfumesParaX;
 }
 
 // ===================================================
@@ -628,21 +717,40 @@ function getBotReply(from, msg) {
 
     // ESTADO 2: recebeu resposta fresco/intenso/marcante
     if (sessao.tipo === 'consulta_guiada_2') {
-      // Mapear resposta livre para keywords do motor
       const estiloNorm = normalizar(txt);
       let estiloMapped = estiloNorm;
-      if (/marcante|intenso|forte|impactante|chamativo|poderoso|pesado|heavy/.test(estiloNorm))
-        estiloMapped = 'intenso oriental noite';
-      else if (/fresc|leve|discreto|suave|delicado|aquatico|light/.test(estiloNorm))
-        estiloMapped = 'fresco aquatico dia';
-      else if (/doce|gourmand|baunilha|caramel/.test(estiloNorm))
+
+      // CLIMA QUENTE
+      if (/calor|quente|quentura|abafado|sufocante|humido|sol\b|praia|suor|sudor/.test(estiloNorm))
+        estiloMapped = 'fresco aquatico citrico calor dia';
+      // CLIMA FRIO
+      else if (/frio|inverno|chuva|chuvoso|nublado|tempestade|outono/.test(estiloNorm))
+        estiloMapped = 'intenso oriental inverno';
+      // INTENSO / MARCANTE
+      else if (/marcante|intenso|forte|impactante|chamativo|poderoso|pesado|heavy|quero.*notar|chamar.*atencao/.test(estiloNorm))
+        estiloMapped = 'intenso oriental noite marcante';
+      // FRESCO / LEVE
+      else if (/fresc|leve|discreto|suave|delicado|aquatico|light|simples|nao.*pesado|nao.*forte/.test(estiloNorm))
+        estiloMapped = 'fresco aquatico dia discreto';
+      // DOCE / GOURMAND
+      else if (/doce|gourmand|baunilha|caramel|chocolate|enjoativo|cremoso/.test(estiloNorm))
         estiloMapped = 'doce gourmand baunilha';
-      else if (/floral|flores|rosa|jasmim/.test(estiloNorm))
-        estiloMapped = 'floral rosa';
-      else if (/madeira|amadeirado|seco/.test(estiloNorm))
-        estiloMapped = 'amadeirado seco';
-      else if (/oud|oriental|exotico|especiado/.test(estiloNorm))
+      // FLORAL
+      else if (/floral|flores|rosa\b|jasmim|feminino|delicad/.test(estiloNorm))
+        estiloMapped = 'floral rosa feminino';
+      // AMADEIRADO / SECO
+      else if (/madeira|amadeirado|seco|austero|classico|elegante|sofisticado/.test(estiloNorm))
+        estiloMapped = 'amadeirado seco elegante';
+      // OUD / ORIENTAL
+      else if (/oud|oriental|exotico|especiado|arabe|mistico|misterioso/.test(estiloNorm))
         estiloMapped = 'oud oriental especiado';
+      // SENSUAL / ROMANTICO
+      else if (/sensual|sedutor|romantico|seduzir|conquistar|atrair|date\b|encontro/.test(estiloNorm))
+        estiloMapped = 'sensual oriental romantico gourmand';
+      // ÚNICO / EXCLUSIVO
+      else if (/unico|exclusivo|raro|diferente|nao.*comum|nao.*vulgar|ninguem.*usa|original/.test(estiloNorm))
+        estiloMapped = 'unico exclusivo nicho';
+
       updateSessao(from, { tipo: 'consulta_guiada_3', estilo: txt, estiloMapped });
       return `Tem algum orçamento em mente? (ex: "150 mil Kz" ou "qualquer")`;
     }
@@ -658,11 +766,15 @@ function getBotReply(from, msg) {
       const sugestoes = sugerirPorCriterio(criterio, orc);
       if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
         let titulo = 'o seu perfil';
-        if (/fresc|aquatico/.test(criterio)) titulo = 'uso diário e clima quente';
-        else if (/intenso|oriental|noite/.test(criterio)) titulo = 'noite e ocasiões especiais';
-        else if (/doce|gourmand/.test(criterio)) titulo = 'quem aprecia fragrâncias envolventes';
-        else if (/floral/.test(criterio)) titulo = 'perfil floral';
-        else if (/amadeirado|oud/.test(criterio)) titulo = 'perfil amadeirado e intenso';
+        if (/fresc|aquatico|calor|quente|sol|praia|dia\b|diario|casual/.test(criterio)) titulo = 'clima quente e uso diário';
+        else if (/intenso|oriental|noite|marcante|forte|poderoso/.test(criterio)) titulo = 'noite e ocasiões especiais';
+        else if (/doce|gourmand|baunilha/.test(criterio)) titulo = 'quem aprecia fragrâncias envolventes';
+        else if (/floral|rosa/.test(criterio)) titulo = 'perfil floral e feminino';
+        else if (/amadeirado|seco|elegante/.test(criterio)) titulo = 'perfil amadeirado e sofisticado';
+        else if (/oud|oriental|especiado/.test(criterio)) titulo = 'perfil oriental e intenso';
+        else if (/sensual|romantico|encontro/.test(criterio)) titulo = 'momentos românticos e de conquista';
+        else if (/unico|exclusivo|nicho/.test(criterio)) titulo = 'quem quer algo raro e exclusivo';
+        else if (/frio|inverno|chuva/.test(criterio)) titulo = 'clima frio e noites especiais';
         return formatarSugestoes(sugestoes, titulo, orc);
       }
       return `Para o perfil que descreveu, as fragrâncias orientais e amadeiradas da nossa colecção são as mais indicadas. Escreva *catálogo* para ver tudo ou diga-me um nome específico e apresento-o com todos os detalhes.`;
@@ -815,10 +927,14 @@ function getBotReply(from, msg) {
     if (sugestaoDirecta && (sugestaoDirecta.designers.length || sugestaoDirecta.nicho.length)) {
       // Tem critério suficiente — sugere directamente
       let titulo = null;
-      if (/noite|festa|especial|romantico|encontro/.test(txtNorm)) titulo = 'noite e ocasiões especiais';
-      else if (/dia|trabalho|reuniao|escritorio/.test(txtNorm)) titulo = 'uso diário';
-      else if (/verao|calor/.test(txtNorm)) titulo = 'clima quente';
-      else if (/inverno|frio/.test(txtNorm)) titulo = 'clima frio';
+      if (/noite|festa|balada|saida|evento|jantar|romantico|encontro|date\b|conquista|seduzir/.test(txtNorm)) titulo = 'noite e ocasiões especiais';
+      else if (/calor|quente|quentura|abafado|sol\b|praia|suor|humido|verao/.test(txtNorm)) titulo = 'clima quente';
+      else if (/frio|inverno|chuva|chuvoso|outono|nublado/.test(txtNorm)) titulo = 'clima frio';
+      else if (/dia\b|trabalho|escritorio|reuniao|diario|quotidiano|casual/.test(txtNorm)) titulo = 'uso diário';
+      else if (/casamento|batizado|formatura|aniversario/.test(txtNorm)) titulo = 'ocasião especial';
+      else if (/oferecer|presente|prenda/.test(txtNorm)) titulo = 'oferta especial';
+      else if (/unico|exclusivo|raro|diferente/.test(txtNorm)) titulo = 'algo raro e exclusivo';
+      else if (/sensual|sedutor|conquista/.test(txtNorm)) titulo = 'momentos de conquista';
       return formatarSugestoes(sugestaoDirecta, titulo, orcamento);
     }
     // Precisa de mais info — inicia consulta guiada com UMA pergunta
@@ -837,8 +953,15 @@ function getBotReply(from, msg) {
 
   // ================================================
   // PRIORIDADE 7 — Fuzzy search (nome com erro)
+  // Só corre em mensagens curtas (2-5 palavras) que
+  // não contêm preposições ou palavras de contexto.
+  // Evita falsos positivos como "perfumes para o calor"
   // ================================================
-  if (txt.length > 3 && txt.length < 60) {
+  const palavrasMsg = txtNorm.split(' ').filter(w => w.length > 0);
+  const temPreposicao = /\b(para|com|sobre|de|do|da|dos|das|um|uma|o\b|a\b|os|as|que|como|qual|quero|queria|procuro|tens|tem)\b/.test(txtNorm);
+  const msgCurta = palavrasMsg.length >= 1 && palavrasMsg.length <= 5;
+
+  if (msgCurta && !temPreposicao && txt.length > 2 && txt.length < 50) {
     const fuzzy = pesquisaFuzzy(txt);
     if (fuzzy) {
       setSessao(from, { tipo: 'confirmar_perfume', nomeBase: fuzzy.nomeBase });
