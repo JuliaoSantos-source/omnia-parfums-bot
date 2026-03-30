@@ -713,27 +713,92 @@ function formatarSugestoes(sugestoes, tituloContexto, orcamento) {
     });
   }
   if (orcamento) reply += `\n_Dentro do orçamento de ${orcamento.toLocaleString('pt-PT')} Kz._`;
-  reply += `\n\nQuer saber mais sobre algum destes ou prefere outras opções?`;
+  reply += `\n\nQuer saber mais sobre algum destes? Escreva o nome para ver todos os detalhes, ou *encomendar [nome]* para avançar.`;
   return reply;
 }
 
 // ===================================================
 // PESQUISA DIRECTA
 // ===================================================
+// ===================================================
+// ÍNDICE DE PALAVRAS ÚNICAS — construído no arranque
+// Cada palavra que identifica EXCLUSIVAMENTE um perfume
+// ===================================================
+const _PALAVRA_PARA_NB = {}; // palavra → [nomeBase, ...]
+const _NB_NORM = {};         // nomeBase → string normalizada
+const _NB_PALAVRAS = {};     // nomeBase → palavras >3 letras
+
+(function construirIndice() {
+  const nomesBase = new Set(Object.values(CATALOGO).map(p => p.nomeBase));
+  for (const nb of nomesBase) {
+    const nbNorm = normalizar(nb);
+    _NB_NORM[nb] = nbNorm;
+    const palavras = nbNorm.split(' ').filter(w => w.length > 3);
+    _NB_PALAVRAS[nb] = palavras;
+    for (const p of palavras) {
+      if (!_PALAVRA_PARA_NB[p]) _PALAVRA_PARA_NB[p] = [];
+      if (!_PALAVRA_PARA_NB[p].includes(nb)) _PALAVRA_PARA_NB[p].push(nb);
+    }
+  }
+})();
+
 function pesquisaDirecta(txtLow) {
+  const txtNorm = normalizar(txtLow);
+
+  // 1. Exacta por chave do catálogo
   for (const [key, p] of Object.entries(CATALOGO)) {
     if (txtLow.includes(key)) return p.nomeBase;
   }
-  const vistos = new Set();
-  for (const p of Object.values(CATALOGO)) {
-    const nb = normalizar(p.nomeBase);
-    if (vistos.has(nb)) continue;
-    const palavras = nb.split(' ').filter(w => w.length > 2);
-    const todas = palavras.length > 0 && palavras.every(w => txtLow.includes(w));
-    const ultima = palavras[palavras.length - 1];
-    const ultimaOk = ultima && ultima.length > 3 && txtLow.includes(ultima);
-    if (todas || ultimaOk) { vistos.add(nb); return p.nomeBase; }
+
+  // 2. Exacta por nomeBase normalizado
+  const nomesBase = new Set(Object.values(CATALOGO).map(p => p.nomeBase));
+  for (const nb of nomesBase) {
+    if (txtNorm.includes(_NB_NORM[nb])) return nb;
   }
+
+  // 3. Por palavras únicas — uma palavra que identifica só 1 perfume
+  //    Se ela aparece na mensagem, encontrámos o perfume sem ambiguidade
+  const candidatos = new Map(); // nomeBase → nr de palavras encontradas
+  for (const palavra of Object.keys(_PALAVRA_PARA_NB)) {
+    if (!txtNorm.includes(palavra)) continue;
+    const perfumes = _PALAVRA_PARA_NB[palavra];
+    // Palavra única → encontrou directamente
+    if (perfumes.length === 1) {
+      const nb = perfumes[0];
+      const count = (candidatos.get(nb) || 0) + 2; // peso maior para palavras únicas
+      candidatos.set(nb, count);
+    } else {
+      // Palavra partilhada → adiciona ao score de todos os perfumes que a têm
+      for (const nb of perfumes) {
+        candidatos.set(nb, (candidatos.get(nb) || 0) + 1);
+      }
+    }
+  }
+
+  if (candidatos.size === 0) return null;
+
+  // Ordenar por score e validar o melhor candidato
+  const sorted = [...candidatos.entries()].sort((a, b) => b[1] - a[1]);
+  const [melhorNB, melhorScore] = sorted[0];
+  const palavrasDoMelhor = _NB_PALAVRAS[melhorNB] || [];
+
+  // Critério de aceitação:
+  // - Score >= 2 (pelo menos 1 palavra única, ou 2+ palavras partilhadas)
+  // - E o candidato tem score claramente melhor que o 2º (evita ambiguidade)
+  const segundoScore = sorted.length > 1 ? sorted[1][1] : 0;
+  const semAmbiguidade = melhorScore > segundoScore || melhorScore >= 3;
+
+  if (melhorScore >= 2 && semAmbiguidade) {
+    return melhorNB;
+  }
+
+  // 4. Fallback: todas as palavras do nome presentes (só para nomes distintos)
+  for (const nb of nomesBase) {
+    const palavras = _NB_PALAVRAS[nb];
+    if (palavras.length < 2) continue; // evita nomes com 1 palavra (ambíguo)
+    if (palavras.every(w => txtNorm.includes(w))) return nb;
+  }
+
   return null;
 }
 
@@ -941,6 +1006,12 @@ function getBotReply(from, msg) {
       const opcoes = sessao.opcoes || [];
       const nomeBase = sessao.nomeBase || '';
 
+      // Cancelar encomenda
+      if (/^(nao|n\b|cancelar|desistir|esquecer|nada|voltar)/.test(txtNorm)) {
+        clearSessao(from);
+        return `Sem problema. Se precisar de ajuda com outro perfume ou quiser retomar a encomenda, estou aqui.`;
+      }
+
       // Detectar escolha por número ou por texto
       let escolha = null;
       const numMatch = txtNorm.match(/^[1-9]$/);
@@ -1073,16 +1144,28 @@ Indique o número da opção pretendida.`;
     return `💎 *Nicho & Luxo — Omnia Parfums*${getBannerDesconto()}\n\nO universo do nicho é para quem valoriza exclusividade e matérias-primas raras.\n\n👔 *Masculinos:*\n${mascN.join('\n')}\n\n👗 *Femininos:*\n${femN.join('\n')}\n\n✨ *Unissexo:*\n${uniN.join('\n')}\n\n_Escreva o nome para ver versões, preços e descrição._`;
   }
 
-  // Pedido de encomenda com perfume em sessão activa ou mencionado
+  // Pedido de encomenda
   if (/encomendar|encomenda|quero comprar|vou comprar|quero pedir|fazer.*pedido|fazer.*encomenda/.test(txtNorm)) {
-    // Verifica se há perfume activo em sessão
-    const perfumeSessao = sessao && sessao.nomeBase;
+    // PRIORIDADE 1: perfume nomeado na mensagem actual
     const perfumeMensagem = pesquisaDirecta(txtLow);
-    const nomeParaEncomendar = perfumeMensagem || perfumeSessao;
-    if (nomeParaEncomendar) {
-      return iniciarEncomenda(nomeParaEncomendar, from);
+    if (perfumeMensagem) {
+      return iniciarEncomenda(perfumeMensagem, from);
     }
-    // Sem perfume definido — pede que especifique
+
+    // PRIORIDADE 2: perfume em sessão activa
+    // (depois de ver detalhes de um perfume OU depois de sugestão)
+    const perfumeSessao = sessao && (sessao.nomeBase || sessao.ultimoPerumeSugerido);
+    if (perfumeSessao) {
+      return iniciarEncomenda(perfumeSessao, from);
+    }
+
+    // PRIORIDADE 3: verificar se as sugestões tinham só 1 perfume
+    if (sessao && sessao.tipo === 'sugestao_activa' && sessao.criterio) {
+      // Não tem perfume definido — pede que escolha
+      return `Qual dos perfumes sugeridos deseja encomendar? Indique o nome e trato de tudo.`;
+    }
+
+    // Sem contexto — pede que especifique
     return `Claro! Qual o perfume que deseja encomendar? Pode escrever o nome e ajudo-o com os detalhes.`;
   }
 
