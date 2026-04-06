@@ -8,6 +8,83 @@ const EVOLUTION_KEY = process.env.EVOLUTION_KEY;
 const INSTANCE = process.env.EVOLUTION_INSTANCE || 'omnia-parfums';
 const NUMERO_HUMANO = process.env.NUMERO_HUMANO || '244930300694@s.whatsapp.net';
 const DESCONTO_SEMANA = parseFloat(process.env.DESCONTO_SEMANA || '0');
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
+
+// ===================================================
+// VISÃO IA — Identificar perfume numa imagem
+// ===================================================
+async function identificarPerfumeNaImagem(mediaUrl, mediaBase64) {
+  if (!ANTHROPIC_API_KEY) return null;
+  try {
+    // Construir o conteúdo da imagem
+    let imagemContent;
+    if (mediaBase64) {
+      imagemContent = {
+        type: 'image',
+        source: { type: 'base64', media_type: 'image/jpeg', data: mediaBase64 }
+      };
+    } else if (mediaUrl) {
+      imagemContent = {
+        type: 'image',
+        source: { type: 'url', url: mediaUrl }
+      };
+    } else {
+      return null;
+    }
+
+    const prompt = `Analisa esta imagem de um perfume.
+Identifica:
+1. Nome exacto do perfume (ex: "Dior Sauvage EDP", "Chanel N°5")
+2. Marca (ex: Dior, Chanel, YSL)
+3. Concentração se visível (EDT, EDP, Parfum, Extrait)
+
+Responde APENAS com um JSON no formato:
+{"nome": "Nome Completo", "marca": "Marca", "conc": "EDP", "encontrado": true}
+
+Se não consegues identificar o perfume, responde:
+{"nome": null, "marca": null, "conc": null, "encontrado": false}
+
+Não incluas mais nada na resposta — apenas o JSON.`;
+
+    const response = await axios.post('https://api.anthropic.com/v1/messages', {
+      model: 'claude-opus-4-6',
+      max_tokens: 200,
+      messages: [{
+        role: 'user',
+        content: [imagemContent, { type: 'text', text: prompt }]
+      }]
+    }, {
+      headers: {
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      }
+    });
+
+    const texto = response.data?.content?.[0]?.text || '';
+    const jsonMatch = texto.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    return JSON.parse(jsonMatch[0]);
+  } catch (e) {
+    console.error('Erro vision API:', e.message);
+    return null;
+  }
+}
+
+// Descarregar media da Evolution API e converter para base64
+async function downloadMediaBase64(from, msgId) {
+  try {
+    const response = await axios.post(
+      `${EVOLUTION_URL}/chat/getBase64FromMediaMessage/${INSTANCE}`,
+      { message: { key: { remoteJid: from, id: msgId } } },
+      { headers: { apikey: EVOLUTION_KEY } }
+    );
+    return response.data?.base64 || null;
+  } catch (e) {
+    console.error('Erro download media:', e.message);
+    return null;
+  }
+}
 
 // ===================================================
 // CATÁLOGO — 133 perfumes
@@ -1625,12 +1702,73 @@ app.post('/webhook', async (req, res) => {
         return;
 
       } else if (isImagem) {
-        // ─── 3. Imagem genérica — perguntar contexto ─────────
-        setSessao(from, { tipo: 'aguardar_confirmacao_foto' });
-        await sendMessage(from,
-          `📸 Recebemos a sua imagem!\n\n` +
-          `É a foto de um perfume que deseja saber o preço ou disponibilidade? Responda *sim* e a nossa equipa identifica e entra em contacto consigo. 🖤`
-        );
+        // ─── 3. Imagem genérica — Analisar com IA Vision ─────
+        // Informar o cliente que estamos a analisar
+        await sendMessage(from, `🔍 A analisar a imagem... um momento!`);
+
+        // Descarregar imagem da Evolution API
+        const msgId = body?.data?.key?.id;
+        const base64 = await downloadMediaBase64(from, msgId);
+
+        // Analisar com Anthropic Vision
+        const resultado = await identificarPerfumeNaImagem(null, base64);
+
+        if (resultado && resultado.encontrado && resultado.nome) {
+          // IA identificou o perfume — procurar no catálogo
+          const nomeIA = resultado.nome.toLowerCase();
+          const marcaIA = (resultado.marca || '').toLowerCase();
+          const concIA = (resultado.conc || '').toLowerCase();
+
+          // Pesquisa directa no catálogo
+          let nomeBaseEncontrado = null;
+
+          // 1. Tentar pesquisa directa com o nome completo
+          const txtBusca = nomeIA + ' ' + concIA;
+          nomeBaseEncontrado = pesquisaDirecta(txtBusca);
+
+          // 2. Se não encontrou, tentar só com palavras principais
+          if (!nomeBaseEncontrado) {
+            const palavrasChave = nomeIA.replace(/eau de|parfum|toilette|elixir/gi, '').trim();
+            nomeBaseEncontrado = pesquisaDirecta(palavrasChave);
+          }
+
+          if (nomeBaseEncontrado) {
+            // ✅ Perfume encontrado no catálogo!
+            clearSessao(from);
+            setSessao(from, { nomeBase: nomeBaseEncontrado, tipo: 'perfume_activo',
+              ehNicho: Object.values(CATALOGO).some(p => p.nomeBase === nomeBaseEncontrado && p.nicho) });
+            const resposta = respostaPerfume(nomeBaseEncontrado);
+            if (resposta) {
+              await sendMessage(from, `✨ Reconheci o perfume na imagem: *${resultado.nome}*\n\n` + resposta);
+            }
+          } else {
+            // ❌ IA identificou mas não está no catálogo
+            setSessao(from, { tipo: 'aguardar_foto_perfume', nomePerguntado: resultado.nome });
+            if (NUMERO_HUMANO) {
+              const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
+              await sendMessage(NUMERO_HUMANO,
+                `📸 *OMNIA — Perfume identificado por IA (fora do catálogo)*\n\n` +
+                `📱 Cliente: +${numLimpo}\n` +
+                `🤖 IA identificou: *${resultado.nome}* (${resultado.marca})\n` +
+                `📎 O cliente enviou uma foto — perfume não está no catálogo.\n` +
+                `👆 https://wa.me/${numLimpo}\n` +
+                `🕐 ${new Date().toLocaleString('pt-PT')}`
+              );
+            }
+            await sendMessage(from,
+              `✨ Reconheci o perfume: *${resultado.nome}*\n\n` +
+              `De momento não temos este perfume disponível no nosso catálogo.\n\n` +
+              `Já notifiquei a nossa equipa — vamos verificar disponibilidade e preço e entramos em contacto brevemente. 🖤`
+            );
+          }
+        } else {
+          // ❌ IA não conseguiu identificar
+          setSessao(from, { tipo: 'aguardar_confirmacao_foto' });
+          await sendMessage(from,
+            `📸 Recebi a imagem mas não consegui identificar o perfume com clareza.\n\n` +
+            `Pode escrever o nome do perfume? Assim ajudo-o de imediato. 🖤`
+          );
+        }
         return;
 
       } else {
