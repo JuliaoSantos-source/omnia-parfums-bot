@@ -13,47 +13,15 @@ const DESCONTO_SEMANA = parseFloat(process.env.DESCONTO_SEMANA || '0');
 // CATÁLOGO — 133 perfumes
 // ===================================================
 const CATALOGO = {
-  'dior sauvage edt': { nome: 'Dior Sauvage EDT', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'60ml': 160300, '100ml': 193400, '200ml': 272000}, notas: 'Bergamota, Ambroxan, Pimenta Rosa' },
-  'dior sauvage edp': { nome: 'Dior Sauvage EDP', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'EDP', familia: 'Oriental Fougère', nicho: false, preco: {'60ml': 177600, '100ml': 212200, '200ml': 294000}, notas: 'Bergamota, Lavanda, Baunilha' },
-  'dior sauvage parfum': { nome: 'Dior Sauvage Parfum', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'Parfum', familia: 'Oriental Aromático', nicho: false, preco: {'60ml': 220100}, notas: 'Bergamota, Sândalo, Baunilha' },
-  'dior sauvage elixir': { nome: 'Dior Sauvage Elixir', nomeBase: 'Dior Sauvage Elixir', genero: 'M', conc: 'Extrait', familia: 'Especiado Aromático', nicho: false, preco: {'60ml': 243700}, notas: 'Cardamomo, Lavanda, Patchouli' },
-  'dior j\'adore edp': { nome: 'Dior J\'adore EDP', nomeBase: 'Dior J\'adore', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'30ml': 130500, '50ml': 163500, '100ml': 212200, '150ml': 272000}, notas: 'Magnólia, Rosa, Jasmim' },
-  'dior miss dior edp': { nome: 'Dior Miss Dior EDP', nomeBase: 'Dior Miss Dior', genero: 'F', conc: 'EDP', familia: 'Floral Aromático', nicho: false, preco: {'30ml': 128900, '50ml': 160300, '100ml': 209100}, notas: 'Peónia, Rosa, Patchouli' },
-  'dior miss dior parfum': { nome: 'Dior Miss Dior Parfum', nomeBase: 'Dior Miss Dior', genero: 'F', conc: 'Parfum', familia: 'Floral', nicho: false, preco: {'35ml': 144600, '80ml': 212200}, notas: 'Rosa de Grasse, Almíscar Branco' },
   'dior homme intense edp': { nome: 'Dior Homme Intense EDP', nomeBase: 'Dior Homme Intense', genero: 'M', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'50ml': 150900, '100ml': 199600}, notas: 'Íris, Cedro, Âmbar' },
-  'bleu de chanel edt': { nome: 'Bleu de Chanel EDT', nomeBase: 'Bleu de Chanel', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 161900, '100ml': 209100, '150ml': 272000}, notas: 'Citrus, Incenso, Sândalo' },
-  'bleu de chanel edp': { nome: 'Bleu de Chanel EDP', nomeBase: 'Bleu de Chanel', genero: 'M', conc: 'EDP', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 183900, '100ml': 246800, '150ml': 311300}, notas: 'Citrus, Noz-moscada, Sândalo' },
-  'bleu de chanel parfum': { nome: 'Bleu de Chanel Parfum', nomeBase: 'Bleu de Chanel', genero: 'M', conc: 'Parfum', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 224800, '100ml': 294000}, notas: 'Citrus, Bétula, Âmbar' },
-  'chanel coco mademoiselle edp': { nome: 'Chanel Coco Mademoiselle EDP', nomeBase: 'Chanel Coco Mademoiselle', genero: 'F', conc: 'EDP', familia: 'Oriental Floral', nicho: false, preco: {'50ml': 193400, '100ml': 264100, '150ml': 327000}, notas: 'Bergamota, Rosa, Patchouli' },
-  'chanel coco mademoiselle intense': { nome: 'Chanel Coco Mademoiselle Intense', nomeBase: 'Chanel Coco Mademoiselle Intense', genero: 'F', conc: 'EDP', familia: 'Oriental Floral', nicho: false, preco: {'50ml': 215400, '100ml': 289200}, notas: 'Bergamota, Rosa, Vetiver' },
   'chanel n°5 edp': { nome: 'Chanel N°5 EDP', nomeBase: 'Chanel N°5', genero: 'F', conc: 'EDP', familia: 'Floral Aldéidico', nicho: false, preco: {'35ml': 150900, '50ml': 196500, '100ml': 272000}, notas: 'Ylang-ylang, Íris, Almíscar, Âmbar' },
-  'chanel chance edp': { nome: 'Chanel Chance EDP', nomeBase: 'Chanel Chance', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'50ml': 191800, '100ml': 262500}, notas: 'Cítrico, Rosa, Almíscar Branco' },
-  'chanel chance eau tendre edp': { nome: 'Chanel Chance Eau Tendre EDP', nomeBase: 'Chanel Chance Eau Tendre', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: false, preco: {'50ml': 191800, '100ml': 262500}, notas: 'Toranja, Quéssia, Almíscar Branco' },
-  'ysl black opium edp': { nome: 'YSL Black Opium EDP', nomeBase: 'YSL Black Opium', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 127300, '50ml': 160300, '90ml': 201200, '150ml': 273500}, notas: 'Café, Baunilha, Patchouli, Flor Branca' },
-  'ysl black opium parfum': { nome: 'YSL Black Opium Parfum', nomeBase: 'YSL Black Opium', genero: 'F', conc: 'Parfum', familia: 'Floral Gourmand', nicho: false, preco: {'50ml': 188600}, notas: 'Café Intenso, Açafrão, Âmbar' },
-  'ysl libre edp': { nome: 'YSL Libre EDP', nomeBase: 'YSL Libre', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'30ml': 132000, '50ml': 166600, '90ml': 215400}, notas: 'Lavanda, Flor de Laranjeira, Cedro' },
-  'ysl libre parfum': { nome: 'YSL Libre Parfum', nomeBase: 'YSL Libre', genero: 'F', conc: 'Parfum', familia: 'Floral Amadeirado', nicho: false, preco: {'50ml': 196500}, notas: 'Lavanda Africana, Âmbar, Baunilha' },
-  'ysl y edp': { nome: 'YSL Y EDP', nomeBase: 'YSL Y', genero: 'M', conc: 'EDP', familia: 'Fougère Amadeirado', nicho: false, preco: {'60ml': 160300, '100ml': 209100, '200ml': 276700}, notas: 'Bergamota, Gengibre, Cedro' },
   'ysl y parfum': { nome: 'YSL Y Parfum', nomeBase: 'YSL Y', genero: 'M', conc: 'Parfum', familia: 'Amadeirado Especiado', nicho: false, preco: {'60ml': 188600}, notas: 'Bergamota, Coriandro, Vetiver' },
   'ysl l\'homme edp': { nome: 'YSL L\'Homme EDP', nomeBase: 'YSL L\'Homme', genero: 'M', conc: 'EDP', familia: 'Amadeirado Especiado', nicho: false, preco: {'60ml': 155600, '100ml': 199600}, notas: 'Bergamota, Cedro, Âmbar' },
-  'rabanne 1 million edt': { nome: 'Rabanne 1 Million EDT', nomeBase: 'Rabanne 1 Million', genero: 'M', conc: 'EDT', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 143100, '100ml': 185500, '200ml': 248400}, notas: 'Mandarina, Canela, Âmbar, Couro' },
-  'rabanne 1 million edp': { nome: 'Rabanne 1 Million EDP', nomeBase: 'Rabanne 1 Million', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 155600, '100ml': 201200}, notas: 'Toranja, Canela, Couro, Patchouli' },
   'rabanne 1 million parfum': { nome: 'Rabanne 1 Million Parfum', nomeBase: 'Rabanne 1 Million', genero: 'M', conc: 'Parfum', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 168200, '100ml': 223200}, notas: 'Tonka, Baunilha, Salgado' },
-  'rabanne invictus edt': { nome: 'Rabanne Invictus EDT', nomeBase: 'Rabanne Invictus', genero: 'M', conc: 'EDT', familia: 'Aquático Amadeirado', nicho: false, preco: {'50ml': 132000, '100ml': 171300, '200ml': 234200}, notas: 'Toranja, Louro, Âmbar' },
-  'rabanne invictus edp': { nome: 'Rabanne Invictus EDP', nomeBase: 'Rabanne Invictus', genero: 'M', conc: 'EDP', familia: 'Aquático Amadeirado', nicho: false, preco: {'50ml': 147800, '100ml': 193400}, notas: 'Louro, Patchouli, Âmbar, Madeira' },
-  'rabanne invictus parfum': { nome: 'Rabanne Invictus Parfum', nomeBase: 'Rabanne Invictus', genero: 'M', conc: 'Parfum', familia: 'Amadeirado Especiado', nicho: false, preco: {'50ml': 158800, '100ml': 216900}, notas: 'Madeira, Âmbar, Musk' },
   'rabanne phantom edt': { nome: 'Rabanne Phantom EDT', nomeBase: 'Rabanne Phantom', genero: 'M', conc: 'EDT', familia: 'Lavanda Amadeirado', nicho: false, preco: {'50ml': 135200, '100ml': 176100}, notas: 'Limão, Lavanda, Vetiver' },
   'rabanne fame edp': { nome: 'Rabanne Fame EDP', nomeBase: 'Rabanne Fame', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 124200, '50ml': 152500, '80ml': 196500}, notas: 'Mandarina, Jasmim, Patchouli' },
-  'armani acqua di giò edt': { nome: 'Armani Acqua di Giò EDT', nomeBase: 'Armani Acqua di Giò', genero: 'M', conc: 'EDT', familia: 'Aquático', nicho: false, preco: {'50ml': 132000, '100ml': 171300, '200ml': 231100}, notas: 'Citrus, Alga Marinha, Patchouli' },
-  'armani acqua di giò edp': { nome: 'Armani Acqua di Giò EDP', nomeBase: 'Armani Acqua di Giò', genero: 'M', conc: 'EDP', familia: 'Aquático Aromático', nicho: false, preco: {'75ml': 179200, '125ml': 227900}, notas: 'Bergamota, Incenso, Patchouli' },
-  'armani acqua di giò profumo': { nome: 'Armani Acqua di Giò Profumo', nomeBase: 'Armani Acqua di Giò Profumo', genero: 'M', conc: 'Parfum', familia: 'Aquático Aromático', nicho: false, preco: {'75ml': 199600, '125ml': 251500}, notas: 'Incenso, Madeira, Cipreste' },
-  'armani sì edp': { nome: 'Armani Sì EDP', nomeBase: 'Armani Sì', genero: 'F', conc: 'EDP', familia: 'Floral Chypre', nicho: false, preco: {'30ml': 127300, '50ml': 160300, '100ml': 209100}, notas: 'Groselha, Rosa, Almíscar, Âmbar' },
-  'armani sì passione edp': { nome: 'Armani Sì Passione EDP', nomeBase: 'Armani Sì Passione', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'50ml': 166600, '100ml': 220100}, notas: 'Bergamota, Rosa, Baunilha' },
-  'lancôme la vie est belle edp': { nome: 'Lancôme La Vie est Belle EDP', nomeBase: 'Lancôme La Vie est Belle', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 110000, '50ml': 136800, '75ml': 152500, '100ml': 168200, '150ml': 193400, '200ml': 303400}, notas: 'Íris, Pralinê, Baunilha' },
   'lancôme idôle edp': { nome: 'Lancôme Idôle EDP', nomeBase: 'Lancôme Idôle', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'25ml': 106900, '50ml': 144600, '100ml': 191800}, notas: 'Rosa de Grasse, Almíscar, Âmbar' },
   'lancôme trésor edp': { nome: 'Lancôme Trésor EDP', nomeBase: 'Lancôme Trésor', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'30ml': 103800, '50ml': 132000, '100ml': 176100}, notas: 'Pêssego, Rosa, Almíscar, Âmbar' },
-  'versace eros edt': { nome: 'Versace Eros EDT', nomeBase: 'Versace Eros', genero: 'M', conc: 'EDT', familia: 'Aromático Fougère', nicho: false, preco: {'50ml': 127300, '100ml': 166600, '200ml': 224800}, notas: 'Menta, Tonka, Âmbar' },
-  'versace eros edp': { nome: 'Versace Eros EDP', nomeBase: 'Versace Eros', genero: 'M', conc: 'EDP', familia: 'Aromático Oriental', nicho: false, preco: {'50ml': 143100, '100ml': 188600}, notas: 'Bergamota, Néroli, Fava de Tonka' },
   'versace eros parfum': { nome: 'Versace Eros Parfum', nomeBase: 'Versace Eros', genero: 'M', conc: 'Parfum', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 163500}, notas: 'Lichia, Néroli, Âmbar, Vetiver' },
   'versace eros flame edp': { nome: 'Versace Eros Flame EDP', nomeBase: 'Versace Eros Flame', genero: 'M', conc: 'EDP', familia: 'Amadeirado Especiado', nicho: false, preco: {'50ml': 135200, '100ml': 179200}, notas: 'Toranja, Romã, Patchouli' },
   'versace bright crystal edt': { nome: 'Versace Bright Crystal EDT', nomeBase: 'Versace Bright Crystal', genero: 'F', conc: 'EDT', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 99000, '50ml': 124200, '90ml': 160300}, notas: 'Romã, Peónia, Almíscar' },
@@ -67,7 +35,6 @@ const CATALOGO = {
   'issey miyake l\'eau d\'issey h edt': { nome: 'Issey Miyake L\'Eau d\'Issey H EDT', nomeBase: 'Issey Miyake L\'Eau d\'Issey H', genero: 'M', conc: 'EDT', familia: 'Aquático', nicho: false, preco: {'50ml': 116300, '100ml': 147800}, notas: 'Yuzu, Coriandro, Almíscar' },
   'issey miyake l\'eau d\'issey h edp': { nome: 'Issey Miyake L\'Eau d\'Issey H EDP', nomeBase: 'Issey Miyake L\'Eau d\'Issey H', genero: 'M', conc: 'EDP', familia: 'Aquático Amadeirado', nicho: false, preco: {'50ml': 132000}, notas: 'Yuzu, Cedro, Âmbar' },
   'issey miyake l\'eau d\'issey f edp': { nome: 'Issey Miyake L\'Eau d\'Issey F EDP', nomeBase: 'Issey Miyake L\'Eau d\'Issey F', genero: 'F', conc: 'EDP', familia: 'Floral Aquático', nicho: false, preco: {'25ml': 97500, '50ml': 124200}, notas: 'Lótus, Peónia, Cedro' },
-  'calvin klein ck one edt': { nome: 'Calvin Klein CK One EDT', nomeBase: 'Calvin Klein CK One', genero: 'U', conc: 'EDT', familia: 'Cítrico Aquático', nicho: false, preco: {'50ml': 88000, '100ml': 106900, '200ml': 128900}, notas: 'Bergamota, Chá Verde, Almíscar' },
   'calvin klein eternity edp': { nome: 'Calvin Klein Eternity EDP', nomeBase: 'Calvin Klein Eternity', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'30ml': 91200, '50ml': 116300, '100ml': 147800}, notas: 'Orquídea, Almíscar, Sândalo' },
   'calvin klein obsession edp': { nome: 'Calvin Klein Obsession EDP', nomeBase: 'Calvin Klein Obsession', genero: 'F', conc: 'EDP', familia: 'Oriental', nicho: false, preco: {'50ml': 119500, '100ml': 152500}, notas: 'Especiarias, Almíscar, Baunilha' },
   'tom ford oud wood edp': { nome: 'Tom Ford Oud Wood EDP', nomeBase: 'Tom Ford Oud Wood', genero: 'U', conc: 'EDP', familia: 'Amadeirado Oriental', nicho: false, preco: {'50ml': 295500, '100ml': 426000}, notas: 'Oud, Sândalo, Vetiver' },
@@ -80,7 +47,6 @@ const CATALOGO = {
   'guerlain l\'homme idéal edt': { nome: 'Guerlain L\'Homme Idéal EDT', nomeBase: 'Guerlain L\'Homme Idéal', genero: 'M', conc: 'EDT', familia: 'Fougère Aromático', nicho: false, preco: {'50ml': 128900}, notas: 'Amêndoa, Lavanda, Couro' },
   'guerlain l\'homme idéal edp': { nome: 'Guerlain L\'Homme Idéal EDP', nomeBase: 'Guerlain L\'Homme Idéal', genero: 'M', conc: 'EDP', familia: 'Fougère Oriental', nicho: false, preco: {'50ml': 144600}, notas: 'Amêndoa, Vetiver, Âmbar' },
   'guerlain la petite robe noire edp': { nome: 'Guerlain La Petite Robe Noire EDP', nomeBase: 'Guerlain La Petite Robe Noire', genero: 'F', conc: 'EDP', familia: 'Floral Frutal Gourmand', nicho: false, preco: {'30ml': 116300, '50ml': 147800, '100ml': 196500}, notas: 'Bergamota, Rosa, Alcaçuz, Patchouli' },
-  'mugler angel edp': { nome: 'Mugler Angel EDP', nomeBase: 'Mugler Angel', genero: 'F', conc: 'EDP', familia: 'Oriental Gourmand', nicho: false, preco: {'25ml': 116300, '50ml': 155600, '100ml': 209100}, notas: 'Caramelo, Patchouli, Baunilha' },
   'mugler angel nova edp': { nome: 'Mugler Angel Nova EDP', nomeBase: 'Mugler Angel Nova', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'50ml': 160300}, notas: 'Lavanda, Pralinê, Almíscar' },
   'mugler alien edp': { nome: 'Mugler Alien EDP', nomeBase: 'Mugler Alien', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'30ml': 124200, '60ml': 168200}, notas: 'Jasmim, Âmbar Branco, Madeira de Caxemira' },
   'mugler a*men edt': { nome: 'Mugler A*Men EDT', nomeBase: 'Mugler A*Men', genero: 'M', conc: 'EDT', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 132000}, notas: 'Café, Patchouli, Âmbar' },
@@ -146,43 +112,112 @@ const CATALOGO = {
   'roja dove elysium edp': { nome: 'Roja Dove Elysium EDP', nomeBase: 'Roja Dove Elysium', genero: 'M', conc: 'EDP', familia: 'Fougère', nicho: true, preco: {'50ml': 885600}, notas: 'Bergamota, Lavanda, Sândalo' },
   'roja dove danger edp': { nome: 'Roja Dove Danger EDP', nomeBase: 'Roja Dove Danger', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: true, preco: {'50ml': 885600}, notas: 'Cítrico, Rosa, Âmbar' },
   'roja dove scandal edp': { nome: 'Roja Dove Scandal EDP', nomeBase: 'Roja Dove Scandal', genero: 'F', conc: 'EDP', familia: 'Floral Chypre', nicho: true, preco: {'50ml': 885600}, notas: 'Aldeídos, Rosa, Âmbar' },
-  'givenchy gentleman edp': { nome: 'Givenchy Gentleman EDP', nomeBase: 'Givenchy Gentleman', genero: 'M', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'60ml': 160300, '100ml': 199600}, notas: 'Lavanda, Íris, Patchouli, Baunilha Negra' },
-  'givenchy gentleman edt': { nome: 'Givenchy Gentleman EDT', nomeBase: 'Givenchy Gentleman', genero: 'M', conc: 'EDT', familia: 'Floral Amadeirado', nicho: false, preco: {'60ml': 144600, '100ml': 177600}, notas: 'Lavanda, Íris, Patchouli, Baunilha Negra' },
-  'givenchy gentleman society edp': { nome: 'Givenchy Gentleman Society EDP', nomeBase: 'Givenchy Gentleman Society', genero: 'M', conc: 'EDP', familia: 'Amadeirado Floral', nicho: false, preco: {'60ml': 180800, '100ml': 227900}, notas: 'Sálvia, Narciso, Vetiver, Sândalo, Baunilha' },
   'givenchy l\'interdit edp': { nome: 'Givenchy L\'Interdit EDP', nomeBase: 'Givenchy L\'Interdit', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'35ml': 138300, '50ml': 169800, '80ml': 209100}, notas: 'Jasmim, Tuberosa, Âmbar, Patchouli' },
   'givenchy l\'interdit parfum': { nome: 'Givenchy L\'Interdit Parfum', nomeBase: 'Givenchy L\'Interdit', genero: 'F', conc: 'Parfum', familia: 'Floral Oriental', nicho: false, preco: {'50ml': 205000}, notas: 'Jasmim, Tuberosa, Baunilha, Âmbar Branco' },
-  'givenchy irresistible edp': { nome: 'Givenchy Irresistible EDP', nomeBase: 'Givenchy Irresistible', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'35ml': 138300, '50ml': 169800, '80ml': 205000}, notas: 'Rosa, Magnólia, Almíscar, Âmbar' },
-  'dolce gabbana the one edp h': { nome: 'D&G The One EDP Homme', nomeBase: 'D&G The One Homme', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 152500, '100ml': 196500}, notas: 'Tabaco, Gengibre, Cardamomo, Âmbar' },
-  'dolce gabbana the one edt h': { nome: 'D&G The One EDT Homme', nomeBase: 'D&G The One Homme', genero: 'M', conc: 'EDT', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 135200, '100ml': 169800}, notas: 'Toranja, Basílico, Âmbar, Cedro' },
-  'dolce gabbana light blue h edt': { nome: 'D&G Light Blue Pour Homme EDT', nomeBase: 'D&G Light Blue Pour Homme', genero: 'M', conc: 'EDT', familia: 'Aquático', nicho: false, preco: {'40ml': 109800, '75ml': 147800, '125ml': 193400}, notas: 'Junípero, Bergamota, Rosalina, Madeira' },
-  'dolce gabbana light blue f edt': { nome: 'D&G Light Blue EDT', nomeBase: 'D&G Light Blue', genero: 'F', conc: 'EDT', familia: 'Floral Aquático', nicho: false, preco: {'25ml': 97500, '50ml': 127300, '100ml': 163500}, notas: 'Maçã, Cedro, Bambu, Jasmim Branco' },
   'dolce gabbana devotion edp': { nome: 'D&G Devotion EDP', nomeBase: 'D&G Devotion', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'50ml': 152500, '100ml': 205000}, notas: 'Neroli, Almíscar Branco, Âmbar, Baunilha' },
-  'prada luna rossa ocean edt': { nome: 'Prada Luna Rossa Ocean EDT', nomeBase: 'Prada Luna Rossa Ocean', genero: 'M', conc: 'EDT', familia: 'Aquático Aromático', nicho: false, preco: {'50ml': 152500, '100ml': 199600}, notas: 'Bergamota, Açafrão, Íris, Vetiver' },
   'prada luna rossa ocean parfum': { nome: 'Prada Luna Rossa Ocean Parfum', nomeBase: 'Prada Luna Rossa Ocean', genero: 'M', conc: 'Parfum', familia: 'Aquático Amadeirado', nicho: false, preco: {'50ml': 185500, '100ml': 236700}, notas: 'Bergamota, Íris, Vetiver, Sândalo' },
-  'prada paradoxe edp': { nome: 'Prada Paradoxe EDP', nomeBase: 'Prada Paradoxe', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 130500, '50ml': 169800, '90ml': 218500}, notas: 'Neroli, Âmbar, Almíscar, Baunilha' },
+  'prada paradoxe edp': { nome: 'Prada Paradoxe EDP', nomeBase: 'Prada Paradoxe', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 116200, '50ml': 130400, '90ml': 157100}, notas: 'Neroli, Âmbar, Almíscar, Baunilha' },
+  'prada paradoxe intense edp': { nome: 'Prada Paradoxe Intense EDP', nomeBase: 'Prada Paradoxe Intense', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'30ml': 122500, '50ml': 138300, '90ml': 166600}, notas: 'Neroli, Jasmim, Âmbar, Almíscar' },
+  'prada paradoxe virtual flower edp': { nome: 'Prada Paradoxe Virtual Flower EDP', nomeBase: 'Prada Paradoxe Virtual Flower', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 80100, '50ml': 88000, '90ml': 103000}, notas: 'Jasmim, Neroli, Almíscar, Âmbar' },
+  'prada paradoxe radical essence parfum': { nome: 'Prada Paradoxe Radical Essence Parfum', nomeBase: 'Prada Paradoxe Radical Essence', genero: 'F', conc: 'Parfum', familia: 'Floral Oriental', nicho: false, preco: {'30ml': 95800, '50ml': 106800, '90ml': 125700}, notas: 'Neroli, Âmbar, Almíscar, Patchouli' },
   'prada l\'homme edt': { nome: 'Prada L\'Homme EDT', nomeBase: 'Prada L\'Homme', genero: 'M', conc: 'EDT', familia: 'Floral Amadeirado', nicho: false, preco: {'50ml': 144600, '100ml': 180800}, notas: 'Íris, Âmbar, Cedro, Sálvia' },
   'prada l\'homme intense edp': { nome: 'Prada L\'Homme Intense EDP', nomeBase: 'Prada L\'Homme Intense', genero: 'M', conc: 'EDP', familia: 'Amadeirado Floral', nicho: false, preco: {'50ml': 160300, '100ml': 203700}, notas: 'Íris, Âmbar Branco, Cedro, Almíscar' },
-  'valentino born in roma uomo edp': { nome: 'Valentino Born in Roma Uomo EDP', nomeBase: 'Valentino Born in Roma', genero: 'M', conc: 'EDP', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 152500, '100ml': 196500}, notas: 'Lavanda, Baunilha, Vetiver, Âmbar' },
-  'valentino born in roma intense edp': { nome: 'Valentino Born in Roma Intense EDP', nomeBase: 'Valentino Born in Roma Intense', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 168200, '100ml': 211600}, notas: 'Lavanda, Baunilha, Vetiver, Âmbar Fumado' },
-  'valentino donna born in roma edp': { nome: 'Valentino Donna Born in Roma EDP', nomeBase: 'Valentino Donna Born in Roma', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'50ml': 152500, '100ml': 196500}, notas: 'Jasmim, Baunilha, Groseilha, Bergamota' },
-  'gucci guilty edp h': { nome: 'Gucci Guilty EDP Pour Homme', nomeBase: 'Gucci Guilty Pour Homme', genero: 'M', conc: 'EDP', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 152500, '90ml': 196500}, notas: 'Coentro, Cedro, Patchouli, Âmbar' },
-  'gucci guilty edt h': { nome: 'Gucci Guilty EDT Pour Homme', nomeBase: 'Gucci Guilty Pour Homme', genero: 'M', conc: 'EDT', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 130500, '90ml': 163500}, notas: 'Limão, Lavanda, Patchouli, Âmbar' },
-  'gucci bloom edp': { nome: 'Gucci Bloom EDP', nomeBase: 'Gucci Bloom', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'30ml': 144600, '50ml': 180800, '100ml': 227900}, notas: 'Tuberosa, Rangoon Creeper, Jasmim' },
   'gucci flora gorgeous gardenia edp': { nome: 'Gucci Flora Gorgeous Gardenia EDP', nomeBase: 'Gucci Flora Gorgeous Gardenia', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: false, preco: {'30ml': 130500, '50ml': 163500, '100ml': 207800}, notas: 'Pêra, Gardénia, Jasmim, Âmbar' },
-  'burberry hero edp': { nome: 'Burberry Hero EDP', nomeBase: 'Burberry Hero', genero: 'M', conc: 'EDP', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 144600, '100ml': 180800}, notas: 'Cedro, Vetiver, Almíscar, Junípero' },
-  'burberry hero edt': { nome: 'Burberry Hero EDT', nomeBase: 'Burberry Hero', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 130500, '100ml': 163500}, notas: 'Bergamota, Cedro, Almíscar, Vetiver' },
-  'burberry her edp': { nome: 'Burberry Her EDP', nomeBase: 'Burberry Her', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: false, preco: {'30ml': 127300, '50ml': 152500, '100ml': 196500}, notas: 'Frutas Vermelhas, Jasmim, Âmbar, Almíscar' },
-  'jean paul gaultier le male edt': { nome: 'Jean Paul Gaultier Le Male EDT', nomeBase: 'Jean Paul Gaultier Le Male', genero: 'M', conc: 'EDT', familia: 'Fougère Oriental', nicho: false, preco: {'75ml': 144600, '125ml': 180800}, notas: 'Lavanda, Baunilha, Almíscar, Menta' },
-  'jean paul gaultier le male edp': { nome: 'Jean Paul Gaultier Le Male EDP', nomeBase: 'Jean Paul Gaultier Le Male', genero: 'M', conc: 'EDP', familia: 'Oriental Fougère', nicho: false, preco: {'75ml': 152500, '125ml': 196500}, notas: 'Lavanda, Baunilha, Âmbar, Almíscar' },
-  'jean paul gaultier scandal edp': { nome: 'Jean Paul Gaultier Scandal EDP', nomeBase: 'Jean Paul Gaultier Scandal', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 127300, '50ml': 155600, '80ml': 196500}, notas: 'Mel, Peónia, Patchouli, Fava de Tonka' },
-  'carolina herrera good girl edp': { nome: 'Carolina Herrera Good Girl EDP', nomeBase: 'Carolina Herrera Good Girl', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 127300, '50ml': 160300, '80ml': 203700}, notas: 'Cacao, Jasmim, Bergamota, Tonka' },
-  'carolina herrera bad boy edt': { nome: 'Carolina Herrera Bad Boy EDT', nomeBase: 'Carolina Herrera Bad Boy', genero: 'M', conc: 'EDT', familia: 'Aromático Amadeirado', nicho: false, preco: {'50ml': 144600, '100ml': 180800}, notas: 'Pimenta Vermelha, Salgueiro, Âmbar Cinza' },
   'carolina herrera 212 vip edt': { nome: 'Carolina Herrera 212 VIP EDT', nomeBase: 'Carolina Herrera 212 VIP', genero: 'M', conc: 'EDT', familia: 'Fougère Aromático', nicho: false, preco: {'50ml': 138300, '100ml': 169800}, notas: 'Bergamota, Âmbar, Almíscar Branco' },
-  'viktor rolf spicebomb edt': { nome: 'Viktor & Rolf Spicebomb EDT', nomeBase: 'Viktor & Rolf Spicebomb', genero: 'M', conc: 'EDT', familia: 'Especiado Aromático', nicho: false, preco: {'50ml': 138300, '90ml': 180800}, notas: 'Pimenta, Safran, Vetiver, Tabaco' },
-  'viktor rolf spicebomb extreme edp': { nome: 'Viktor & Rolf Spicebomb Extreme EDP', nomeBase: 'Viktor & Rolf Spicebomb Extreme', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 152500, '90ml': 203700}, notas: 'Baunilha, Tabaco, Canela, Pimenta' },
-  'viktor rolf flowerbomb edp': { nome: 'Viktor & Rolf Flowerbomb EDP', nomeBase: 'Viktor & Rolf Flowerbomb', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'30ml': 138300, '50ml': 175000, '100ml': 224800}, notas: 'Rosa, Jasmim, Orquídea, Patchouli' },
   'lacoste l.12.12 blanc edt': { nome: 'Lacoste L.12.12 Blanc EDT', nomeBase: 'Lacoste L.12.12 Blanc', genero: 'M', conc: 'EDT', familia: 'Aquático Aromático', nicho: false, preco: {'50ml': 103700, '100ml': 127300}, notas: 'Bergamota, Patchouli, Almíscar, Cedro' },
   'lacoste l.12.12 vert edt': { nome: 'Lacoste L.12.12 Vert EDT', nomeBase: 'Lacoste L.12.12 Vert', genero: 'M', conc: 'EDT', familia: 'Aromático Fougère', nicho: false, preco: {'50ml': 103700, '100ml': 127300}, notas: 'Vetiver, Feno, Ervas Aromáticas' },
+
+  'dior sauvage edt': { nome: 'Dior Sauvage EDT', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'30ml': 110000, '60ml': 125700, '100ml': 149300, '200ml': 188600}, notas: 'Bergamota, Ambroxan, Pimenta Rosa' },
+  'dior sauvage edp': { nome: 'Dior Sauvage EDP', nomeBase: 'Dior Sauvage', genero: 'M', conc: 'EDP', familia: 'Oriental Fougère', nicho: false, preco: {'30ml': 125700, '60ml': 141400, '100ml': 165000, '200ml': 212100}, notas: 'Bergamota, Lavanda, Baunilha' },
+  'dior sauvage elixir': { nome: 'Dior Sauvage Elixir', nomeBase: 'Dior Sauvage Elixir', genero: 'M', conc: 'Extrait', familia: 'Especiado Aromático', nicho: false, preco: {'60ml': 248300, '100ml': 314300}, notas: 'Cardamomo, Lavanda, Patchouli' },
+  'dior j\'adore edp': { nome: 'Dior J\'adore EDP', nomeBase: 'Dior J\'adore', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'30ml': 139800, '50ml': 172800, '100ml': 220000, '150ml': 275000}, notas: 'Magnólia, Rosa, Jasmim' },
+  'dior miss dior edp': { nome: 'Dior Miss Dior EDP', nomeBase: 'Dior Miss Dior', genero: 'F', conc: 'EDP', familia: 'Floral Aromático', nicho: false, preco: {'30ml': 133500, '50ml': 161800, '100ml': 204300, '150ml': 259300}, notas: 'Peónia, Rosa, Patchouli' },
+  'bleu de chanel edt': { nome: 'Bleu de Chanel EDT', nomeBase: 'Bleu de Chanel', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 157100, '100ml': 196400, '150ml': 243600}, notas: 'Citrus, Incenso, Sândalo' },
+  'bleu de chanel edp': { nome: 'Bleu de Chanel EDP', nomeBase: 'Bleu de Chanel', genero: 'M', conc: 'EDP', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 172800, '100ml': 220000, '150ml': 267200}, notas: 'Citrus, Noz-moscada, Sândalo' },
+  'bleu de chanel parfum': { nome: 'Bleu de Chanel Parfum', nomeBase: 'Bleu de Chanel', genero: 'M', conc: 'Parfum', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 204300, '100ml': 259300}, notas: 'Citrus, Bétula, Âmbar' },
+  'chanel coco mademoiselle edp': { nome: 'Chanel Coco Mademoiselle EDP', nomeBase: 'Chanel Coco Mademoiselle', genero: 'F', conc: 'EDP', familia: 'Oriental Floral', nicho: false, preco: {'50ml': 179100, '100ml': 232600, '150ml': 282900}, notas: 'Bergamota, Rosa, Patchouli' },
+  'chanel chance eau tendre edp': { nome: 'Chanel Chance Eau Tendre EDP', nomeBase: 'Chanel Chance Eau Tendre', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: false, preco: {'50ml': 172800, '100ml': 223100}, notas: 'Toranja, Quéssia, Almíscar Branco' },
+  'ysl black opium edp': { nome: 'YSL Black Opium EDP', nomeBase: 'YSL Black Opium', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 97400, '50ml': 116200, '90ml': 144500, '150ml': 185400}, notas: 'Café, Baunilha, Patchouli, Flor Branca' },
+  'ysl libre edp': { nome: 'YSL Libre EDP', nomeBase: 'YSL Libre', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'30ml': 110000, '50ml': 133500, '90ml': 161800}, notas: 'Lavanda, Flor de Laranjeira, Cedro' },
+  'ysl y edp': { nome: 'YSL Y EDP', nomeBase: 'YSL Y', genero: 'M', conc: 'EDP', familia: 'Fougère Amadeirado', nicho: false, preco: {'40ml': 105200, '60ml': 122500, '100ml': 150800, '200ml': 188600}, notas: 'Bergamota, Gengibre, Cedro' },
+  'rabanne invictus edt': { nome: 'Rabanne Invictus EDT', nomeBase: 'Rabanne Invictus', genero: 'M', conc: 'EDT', familia: 'Aquático Amadeirado', nicho: false, preco: {'50ml': 117800, '100ml': 144500, '200ml': 180700}, notas: 'Toranja, Louro, Âmbar' },
+  'rabanne invictus edp': { nome: 'Rabanne Invictus EDP', nomeBase: 'Rabanne Invictus', genero: 'M', conc: 'EDP', familia: 'Aquático Amadeirado', nicho: false, preco: {'50ml': 128800, '100ml': 160300}, notas: 'Louro, Patchouli, Âmbar, Madeira' },
+  'rabanne invictus parfum': { nome: 'Rabanne Invictus Parfum', nomeBase: 'Rabanne Invictus', genero: 'M', conc: 'Parfum', familia: 'Amadeirado Especiado', nicho: false, preco: {'50ml': 133500, '100ml': 165000, '200ml': 212100}, notas: 'Lavanda, Sândalo Negro, Âmbar' },
+  'rabanne 1 million edt': { nome: 'Rabanne 1 Million EDT', nomeBase: 'Rabanne 1 Million', genero: 'M', conc: 'EDT', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 117800, '100ml': 144500, '200ml': 180700}, notas: 'Mandarina, Canela, Âmbar, Couro' },
+  'rabanne 1 million edp': { nome: 'Rabanne 1 Million EDP', nomeBase: 'Rabanne 1 Million', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 128800, '100ml': 157100}, notas: 'Toranja, Canela, Couro, Patchouli' },
+  'armani acqua di giò edt': { nome: 'Armani Acqua di Giò EDT', nomeBase: 'Armani Acqua di Giò', genero: 'M', conc: 'EDT', familia: 'Aquático', nicho: false, preco: {'50ml': 114700, '100ml': 138300, '200ml': 169700}, notas: 'Citrus, Alga Marinha, Patchouli' },
+  'armani acqua di giò edp': { nome: 'Armani Acqua di Giò EDP', nomeBase: 'Armani Acqua di Giò', genero: 'M', conc: 'EDP', familia: 'Aquático Aromático', nicho: false, preco: {'75ml': 146100, '125ml': 177600}, notas: 'Bergamota, Incenso, Patchouli' },
+  'armani acqua di giò profumo': { nome: 'Armani Acqua di Giò Profumo', nomeBase: 'Armani Acqua di Giò Profumo', genero: 'M', conc: 'Parfum', familia: 'Aquático Aromático', nicho: false, preco: {'75ml': 157100, '125ml': 188600}, notas: 'Incenso, Madeira, Cipreste' },
+  'armani sì edp': { nome: 'Armani Sì EDP', nomeBase: 'Armani Sì', genero: 'F', conc: 'EDP', familia: 'Floral Chypre', nicho: false, preco: {'30ml': 117800, '50ml': 146100, '100ml': 185400, '150ml': 227900}, notas: 'Groselha, Rosa, Almíscar, Âmbar' },
+  'versace eros edt': { nome: 'Versace Eros EDT', nomeBase: 'Versace Eros', genero: 'M', conc: 'EDT', familia: 'Aromático Fougère', nicho: false, preco: {'50ml': 106800, '100ml': 130400, '200ml': 165000}, notas: 'Menta, Tonka, Âmbar' },
+  'versace eros edp': { nome: 'Versace Eros EDP', nomeBase: 'Versace Eros', genero: 'M', conc: 'EDP', familia: 'Aromático Oriental', nicho: false, preco: {'50ml': 117800, '100ml': 146100}, notas: 'Bergamota, Néroli, Fava de Tonka' },
+  'lancôme la vie est belle edp': { nome: 'Lancôme La Vie est Belle EDP', nomeBase: 'Lancôme La Vie est Belle', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 106800, '50ml': 130400, '75ml': 157100, '100ml': 180700, '150ml': 220000}, notas: 'Íris, Pralinê, Baunilha' },
+  'mugler angel edp': { nome: 'Mugler Angel EDP', nomeBase: 'Mugler Angel', genero: 'F', conc: 'EDP', familia: 'Oriental Gourmand', nicho: false, preco: {'30ml': 106800, '50ml': 130400, '60ml': 146100, '90ml': 172800}, notas: 'Caramelo, Patchouli, Baunilha' },
+  'calvin klein ck one edt': { nome: 'Calvin Klein CK One EDT', nomeBase: 'Calvin Klein CK One', genero: 'U', conc: 'EDT', familia: 'Cítrico Aquático', nicho: false, preco: {'100ml': 86400, '200ml': 105200}, notas: 'Bergamota, Chá Verde, Almíscar' },
+  'givenchy gentleman edp': { nome: 'Givenchy Gentleman EDP', nomeBase: 'Givenchy Gentleman', genero: 'M', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'40ml': 122500, '60ml': 146100, '100ml': 180700, '150ml': 220000}, notas: 'Lavanda, Íris, Patchouli, Baunilha Negra' },
+  'givenchy gentleman society edp': { nome: 'Givenchy Gentleman Society EDP', nomeBase: 'Givenchy Gentleman Society', genero: 'M', conc: 'EDP', familia: 'Amadeirado Floral', nicho: false, preco: {'40ml': 130400, '60ml': 157100, '100ml': 204300}, notas: 'Sálvia, Narciso, Vetiver, Sândalo, Baunilha' },
+  'givenchy l\'interdit edp': { nome: 'Givenchy L\'Interdit EDP', nomeBase: 'Givenchy L\'Interdit', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'35ml': 117800, '50ml': 146100, '80ml': 177600, '125ml': 220000}, notas: 'Jasmim, Tuberosa, Âmbar, Patchouli' },
+  'givenchy irresistible edp': { nome: 'Givenchy Irresistible EDP', nomeBase: 'Givenchy Irresistible', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'35ml': 114700, '50ml': 141400, '80ml': 172800}, notas: 'Rosa, Magnólia, Almíscar, Âmbar' },
+  'burberry hero edp': { nome: 'Burberry Hero EDP', nomeBase: 'Burberry Hero', genero: 'M', conc: 'EDP', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 122500, '100ml': 150800}, notas: 'Cedro, Vetiver, Almíscar, Junípero' },
+  'burberry hero edt': { nome: 'Burberry Hero EDT', nomeBase: 'Burberry Hero', genero: 'M', conc: 'EDT', familia: 'Amadeirado Aromático', nicho: false, preco: {'50ml': 114700, '100ml': 138300, '150ml': 172800}, notas: 'Bergamota, Cedro, Almíscar, Vetiver' },
+  'burberry her edp': { nome: 'Burberry Her EDP', nomeBase: 'Burberry Her', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: false, preco: {'30ml': 110000, '50ml': 133500, '100ml': 165000}, notas: 'Frutas Vermelhas, Jasmim, Âmbar, Almíscar' },
+  'carolina herrera good girl edp': { nome: 'Carolina Herrera Good Girl EDP', nomeBase: 'Carolina Herrera Good Girl', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 114700, '50ml': 138300, '80ml': 169700}, notas: 'Cacao, Jasmim, Bergamota, Tonka' },
+  'carolina herrera bad boy edt': { nome: 'Carolina Herrera Bad Boy EDT', nomeBase: 'Carolina Herrera Bad Boy', genero: 'M', conc: 'EDT', familia: 'Aromático Amadeirado', nicho: false, preco: {'50ml': 122500, '100ml': 150800, '150ml': 188600}, notas: 'Pimenta Vermelha, Salgueiro, Âmbar Cinza' },
+  'viktor rolf flowerbomb edp': { nome: 'Viktor & Rolf Flowerbomb EDP', nomeBase: 'Viktor & Rolf Flowerbomb', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'30ml': 114700, '50ml': 138300, '100ml': 172800}, notas: 'Rosa, Jasmim, Orquídea, Patchouli' },
+  'viktor rolf spicebomb edt': { nome: 'Viktor & Rolf Spicebomb EDT', nomeBase: 'Viktor & Rolf Spicebomb', genero: 'M', conc: 'EDT', familia: 'Especiado Aromático', nicho: false, preco: {'50ml': 114700, '90ml': 138300}, notas: 'Pimenta, Safran, Vetiver, Tabaco' },
+  'viktor rolf spicebomb extreme edp': { nome: 'Viktor & Rolf Spicebomb Extreme EDP', nomeBase: 'Viktor & Rolf Spicebomb Extreme', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 125700, '90ml': 157100}, notas: 'Baunilha, Tabaco, Canela, Pimenta' },
+  'valentino born in roma uomo edp': { nome: 'Valentino Born in Roma Uomo EDP', nomeBase: 'Valentino Born in Roma', genero: 'M', conc: 'EDP', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 125700, '100ml': 157100}, notas: 'Lavanda, Baunilha, Vetiver, Âmbar' },
+  'valentino born in roma intense edp': { nome: 'Valentino Born in Roma Intense EDP', nomeBase: 'Valentino Born in Roma Intense', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 138300, '100ml': 169700}, notas: 'Lavanda, Baunilha, Vetiver, Âmbar Fumado' },
+  'valentino donna born in roma edp': { nome: 'Valentino Donna Born in Roma EDP', nomeBase: 'Valentino Donna Born in Roma', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'50ml': 125700, '100ml': 157100}, notas: 'Jasmim, Baunilha, Groseilha, Bergamota' },
+  'gucci bloom edp': { nome: 'Gucci Bloom EDP', nomeBase: 'Gucci Bloom', genero: 'F', conc: 'EDP', familia: 'Floral', nicho: false, preco: {'30ml': 122500, '50ml': 146100, '100ml': 188600}, notas: 'Tuberosa, Rangoon Creeper, Jasmim' },
+  'gucci guilty edp h': { nome: 'Gucci Guilty EDP Pour Homme', nomeBase: 'Gucci Guilty Pour Homme', genero: 'M', conc: 'EDP', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 122500, '90ml': 154000}, notas: 'Coentro, Cedro, Patchouli, Âmbar' },
+  'gucci guilty edt h': { nome: 'Gucci Guilty EDT Pour Homme', nomeBase: 'Gucci Guilty Pour Homme', genero: 'M', conc: 'EDT', familia: 'Oriental Aromático', nicho: false, preco: {'50ml': 110000, '90ml': 135100}, notas: 'Limão, Lavanda, Patchouli, Âmbar' },
+  'dolce gabbana the one edt h': { nome: 'D&G The One EDT Homme', nomeBase: 'D&G The One Homme', genero: 'M', conc: 'EDT', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 117800, '100ml': 146100}, notas: 'Toranja, Basílico, Âmbar, Cedro' },
+  'dolce gabbana the one edp h': { nome: 'D&G The One EDP Homme', nomeBase: 'D&G The One Homme', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 128800, '100ml': 160300}, notas: 'Tabaco, Gengibre, Cardamomo, Âmbar' },
+  'dolce gabbana light blue h edt': { nome: 'D&G Light Blue Pour Homme EDT', nomeBase: 'D&G Light Blue Pour Homme', genero: 'M', conc: 'EDT', familia: 'Aquático', nicho: false, preco: {'40ml': 94200, '75ml': 117800, '125ml': 146100}, notas: 'Junípero, Bergamota, Rosalina, Madeira' },
+  'dolce gabbana light blue f edt': { nome: 'D&G Light Blue EDT', nomeBase: 'D&G Light Blue', genero: 'F', conc: 'EDT', familia: 'Floral Aquático', nicho: false, preco: {'25ml': 86400, '50ml': 106800, '100ml': 132000}, notas: 'Maçã, Cedro, Bambu, Jasmim Branco' },
+  'jean paul gaultier le male edt': { nome: 'Jean Paul Gaultier Le Male EDT', nomeBase: 'Jean Paul Gaultier Le Male', genero: 'M', conc: 'EDT', familia: 'Fougère Oriental', nicho: false, preco: {'75ml': 117800, '125ml': 146100, '200ml': 180700}, notas: 'Lavanda, Baunilha, Almíscar, Menta' },
+  'jean paul gaultier le male edp': { nome: 'Jean Paul Gaultier Le Male EDP', nomeBase: 'Jean Paul Gaultier Le Male', genero: 'M', conc: 'EDP', familia: 'Oriental Fougère', nicho: false, preco: {'75ml': 128800, '125ml': 157100}, notas: 'Lavanda, Baunilha, Âmbar, Almíscar' },
+  'jean paul gaultier scandal edp': { nome: 'Jean Paul Gaultier Scandal EDP', nomeBase: 'Jean Paul Gaultier Scandal', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 110000, '50ml': 133500, '80ml': 161800}, notas: 'Mel, Peónia, Patchouli, Fava de Tonka' },
+  'prada luna rossa ocean edt': { nome: 'Prada Luna Rossa Ocean EDT', nomeBase: 'Prada Luna Rossa Ocean', genero: 'M', conc: 'EDT', familia: 'Aquático Aromático', nicho: false, preco: {'50ml': 130400, '100ml': 161800}, notas: 'Bergamota, Açafrão, Íris, Vetiver' },
+  'prada l\'homme edt': { nome: 'Prada L\'Homme EDT', nomeBase: 'Prada L\'Homme', genero: 'M', conc: 'EDT', familia: 'Floral Amadeirado', nicho: false, preco: {'50ml': 122500, '100ml': 150800}, notas: 'Íris, Âmbar, Cedro, Sálvia' },
+  'prada l\'homme intense edp': { nome: 'Prada L\'Homme Intense EDP', nomeBase: 'Prada L\'Homme Intense', genero: 'M', conc: 'EDP', familia: 'Amadeirado Floral', nicho: false, preco: {'50ml': 133500, '100ml': 165000}, notas: 'Íris, Âmbar Branco, Cedro, Almíscar' },
+  'creed aventus': { nome: 'Creed Aventus', nomeBase: 'Creed Aventus', genero: 'M', conc: 'EDP', familia: 'Frutal Chypre', nicho: true, preco: {'50ml': 323600, '100ml': 587500}, notas: 'Bergamota, Groselha Preta, Bétula, Almíscar' },
+  'creed green irish tweed': { nome: 'Creed Green Irish Tweed', nomeBase: 'Creed Green Irish Tweed', genero: 'M', conc: 'EDT', familia: 'Fougère', nicho: true, preco: {'50ml': 340600, '100ml': 510900}, notas: 'Íris, Sândalo, Âmbar' },
+  'creed millesime imperial': { nome: 'Creed Millesime Imperial', nomeBase: 'Creed Millesime Imperial', genero: 'U', conc: 'EDP', familia: 'Aquático', nicho: true, preco: {'50ml': 332100, '100ml': 502400}, notas: 'Bergamota, Alga, Almíscar' },
+  'creed aventus for her': { nome: 'Creed Aventus for Her', nomeBase: 'Creed Aventus for Her', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: true, preco: {'50ml': 315100, '75ml': 400200}, notas: 'Bergamota, Rosa, Baunilha' },
+  'tom ford oud wood edp': { nome: 'Tom Ford Oud Wood EDP', nomeBase: 'Tom Ford Oud Wood', genero: 'U', conc: 'EDP', familia: 'Amadeirado Oriental', nicho: true, preco: {'50ml': 383200, '100ml': 587500}, notas: 'Oud, Sândalo, Vetiver' },
+  'tom ford black orchid edp': { nome: 'Tom Ford Black Orchid EDP', nomeBase: 'Tom Ford Black Orchid', genero: 'U', conc: 'EDP', familia: 'Oriental Floral', nicho: true, preco: {'50ml': 306500, '100ml': 451300}, notas: 'Trufa, Orquídea Preta, Patchouli' },
+  'tom ford tobacco vanille edp': { nome: 'Tom Ford Tobacco Vanille EDP', nomeBase: 'Tom Ford Tobacco Vanille', genero: 'U', conc: 'EDP', familia: 'Oriental Especiado', nicho: true, preco: {'50ml': 391700, '100ml': 613100}, notas: 'Tabaco, Baunilha, Madeira de Cedro' },
+  'tom ford lost cherry edp': { nome: 'Tom Ford Lost Cherry EDP', nomeBase: 'Tom Ford Lost Cherry', genero: 'U', conc: 'EDP', familia: 'Floral Frutal', nicho: true, preco: {'50ml': 391700, '100ml': 613100}, notas: 'Cereja, Âmbar, Baunilha' },
+  'tom ford neroli portofino edp': { nome: 'Tom Ford Neroli Portofino EDP', nomeBase: 'Tom Ford Neroli Portofino', genero: 'U', conc: 'EDP', familia: 'Cítrico Floral', nicho: true, preco: {'50ml': 366100, '100ml': 562000}, notas: 'Bergamota, Néroli, Âmbar' },
+  'tom ford rose prick edp': { nome: 'Tom Ford Rose Prick EDP', nomeBase: 'Tom Ford Rose Prick', genero: 'U', conc: 'EDP', familia: 'Floral', nicho: true, preco: {'50ml': 391700}, notas: 'Rosa, Pimenta, Fava de Tonka' },
+  'ralph lauren polo blue edt': { nome: 'Ralph Lauren Polo Blue EDT', nomeBase: 'Ralph Lauren Polo Blue', genero: 'M', conc: 'EDT', familia: 'Aquático Amadeirado', nicho: false, preco: {'75ml': 90500, '125ml': 114700, '200ml': 141400}, notas: 'Melão, Pepino, Sândalo, Almíscar' },
+  'ralph lauren polo blue edp': { nome: 'Ralph Lauren Polo Blue EDP', nomeBase: 'Ralph Lauren Polo Blue', genero: 'M', conc: 'EDP', familia: 'Aquático Amadeirado', nicho: false, preco: {'75ml': 100300, '125ml': 125700, '200ml': 157100}, notas: 'Bergamota, Cedro, Âmbar, Sândalo' },
+  'azzaro wanted edt': { nome: 'Azzaro Wanted EDT', nomeBase: 'Azzaro Wanted', genero: 'M', conc: 'EDT', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 94200, '100ml': 114700}, notas: 'Bergamota, Cedro, Âmbar, Gengibre' },
+  'azzaro the most wanted edp': { nome: 'Azzaro The Most Wanted EDP', nomeBase: 'Azzaro The Most Wanted', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 117800, '100ml': 146100}, notas: 'Sálvia, Âmbar, Cedro, Baunilha' },
+  'azzaro the most wanted edt': { nome: 'Azzaro The Most Wanted EDT', nomeBase: 'Azzaro The Most Wanted', genero: 'M', conc: 'EDT', familia: 'Aromático Amadeirado', nicho: false, preco: {'50ml': 102100, '100ml': 125700}, notas: 'Bergamota, Cedro, Âmbar' },
+  'ysl myslf edp': { nome: 'YSL MYSLF EDP', nomeBase: 'YSL MYSLF', genero: 'M', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'60ml': 117800, '100ml': 146100, '150ml': 180700}, notas: 'Lavanda, Salicilato, Cedro, Âmbar' },
+  'ysl mon paris edp': { nome: 'YSL Mon Paris EDP', nomeBase: 'YSL Mon Paris', genero: 'F', conc: 'EDP', familia: 'Floral Frutal', nicho: false, preco: {'30ml': 102100, '50ml': 124100, '90ml': 152400}, notas: 'Amora, Peónia, Almíscar, Âmbar' },
+  'armani stronger with you edt': { nome: 'Armani Stronger With You EDT', nomeBase: 'Armani Stronger With You', genero: 'M', conc: 'EDT', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 99000, '100ml': 121000, '150ml': 149300}, notas: 'Castanha, Cardamomo, Baunilha, Âmbar' },
+  'armani stronger with you intensely edp': { nome: 'Armani Stronger With You Intensely EDP', nomeBase: 'Armani Stronger With You Intensely', genero: 'M', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 102100, '100ml': 125700, '150ml': 154000}, notas: 'Castanha, Sálvia, Cedro, Baunilha' },
+  'armani my way edp': { nome: 'Armani My Way EDP', nomeBase: 'Armani My Way', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'30ml': 92700, '50ml': 114700, '90ml': 141400}, notas: 'Bergamota, Flor de Laranjeira, Cedro, Almíscar' },
+  'mugler alien goddess edp': { nome: 'Mugler Alien Goddess EDP', nomeBase: 'Mugler Alien Goddess', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 102100, '60ml': 125700, '90ml': 149300}, notas: 'Neroli, Baunilha, Âmbar, Almíscar' },
+  'hugo boss bottled edt': { nome: 'Hugo Boss Bottled EDT', nomeBase: 'Hugo Boss Bottled', genero: 'M', conc: 'EDT', familia: 'Amadeirado Especiado', nicho: false, preco: {'30ml': 67500, '50ml': 75400, '100ml': 91100, '200ml': 114700}, notas: 'Maçã, Madeira de Sândalo, Cedro' },
+  'hugo boss the scent edt': { nome: 'Hugo Boss The Scent EDT', nomeBase: 'Hugo Boss The Scent', genero: 'M', conc: 'EDT', familia: 'Oriental Amadeirado', nicho: false, preco: {'50ml': 94200, '100ml': 114700, '200ml': 141400}, notas: 'Gengibre, Osmanthus, Couro' },
+  'hugo boss alive edp': { nome: 'Hugo Boss Alive EDP', nomeBase: 'Hugo Boss Alive', genero: 'F', conc: 'EDP', familia: 'Floral Amadeirado', nicho: false, preco: {'30ml': 86400, '50ml': 102100, '80ml': 121000}, notas: 'Maçã, Rosa, Sândalo, Baunilha' },
+  'carolina herrera 212 vip edt': { nome: 'Carolina Herrera 212 VIP EDT', nomeBase: 'Carolina Herrera 212 VIP', genero: 'M', conc: 'EDT', familia: 'Fougère Aromático', nicho: false, preco: {'50ml': 102100, '100ml': 124100}, notas: 'Bergamota, Âmbar, Almíscar Branco' },
+  'carolina herrera 212 vip black edp': { nome: 'Carolina Herrera 212 VIP Black EDP', nomeBase: 'Carolina Herrera 212 VIP Black', genero: 'M', conc: 'EDP', familia: 'Oriental Especiado', nicho: false, preco: {'50ml': 102100, '100ml': 125700, '200ml': 157100}, notas: 'Sálvia, Couro, Baunilha, Âmbar' },
+  'carolina herrera good girl blush edp': { nome: 'Carolina Herrera Good Girl Blush EDP', nomeBase: 'Carolina Herrera Good Girl Blush', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 119400, '50ml': 141400, '80ml': 169700, '150ml': 220000}, notas: 'Rosa, Peónia, Amora, Almíscar' },
+  'dolce gabbana devotion edp': { nome: 'D&G Devotion EDP', nomeBase: 'D&G Devotion', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'50ml': 117800, '100ml': 146100}, notas: 'Neroli, Almíscar Branco, Âmbar, Baunilha' },
+  'dolce gabbana the one edp f': { nome: 'D&G The One EDP', nomeBase: 'D&G The One', genero: 'F', conc: 'EDP', familia: 'Floral Oriental', nicho: false, preco: {'50ml': 117800, '100ml': 146100}, notas: 'Bergamota, Rosa, Baunilha, Âmbar' },
+  'jean paul gaultier la belle edp': { nome: 'Jean Paul Gaultier La Belle EDP', nomeBase: 'Jean Paul Gaultier La Belle', genero: 'F', conc: 'EDP', familia: 'Oriental Floral', nicho: false, preco: {'30ml': 102100, '50ml': 122500, '100ml': 152400}, notas: 'Pera, Jasmim, Baunilha, Âmbar' },
+  'jean paul gaultier le male ultra edt': { nome: 'Jean Paul Gaultier Le Male Ultra EDT', nomeBase: 'Jean Paul Gaultier Le Male Ultra', genero: 'M', conc: 'EDT', familia: 'Oriental Almíscar', nicho: false, preco: {'40ml': 102100, '75ml': 122500, '125ml': 149300}, notas: 'Lavanda, Baunilha, Almíscar, Menta' },
+  'narciso rodriguez for her edp': { nome: 'Narciso Rodriguez For Her EDP', nomeBase: 'Narciso Rodriguez For Her', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 89500, '50ml': 110000, '100ml': 138300, '150ml': 169700}, notas: 'Rosa, Almíscar, Âmbar' },
+  'narciso rodriguez musc noir rose edp': { nome: 'Narciso Rodriguez Musc Noir Rose EDP', nomeBase: 'Narciso Rodriguez Musc Noir Rose', genero: 'F', conc: 'EDP', familia: 'Floral Almíscar', nicho: false, preco: {'30ml': 102100, '50ml': 122500}, notas: 'Rosa, Almíscar Negro, Sândalo' },
+  'montblanc explorer edp': { nome: 'Montblanc Explorer EDP', nomeBase: 'Montblanc Explorer', genero: 'M', conc: 'EDP', familia: 'Amadeirado Aromático', nicho: false, preco: {'60ml': 94200, '100ml': 114700, '200ml': 141400}, notas: 'Bergamota, Patchouli, Âmbar, Couro' },
+  'gucci flora gorgeous jasmine edp': { nome: 'Gucci Flora Gorgeous Jasmine EDP', nomeBase: 'Gucci Flora Gorgeous Jasmine', genero: 'F', conc: 'EDP', familia: 'Floral Gourmand', nicho: false, preco: {'30ml': 117800, '50ml': 141400, '100ml': 180700}, notas: 'Jasmim, Bergamota, Almíscar, Âmbar' },
+
 };
 
 // ===================================================
@@ -648,21 +683,54 @@ function respostaPerfume(nomeBase) {
   const contexto = getContextoSazonal(p0);
   let reply = `${emoji} *${nomeBase}*${nichoLabel}${banner}\n\nUma criação de ${casa}.\n\n*Género:* ${generoLabel} | *Família:* ${p0.familia}\n\n*Notas:* ${p0.notas}\n\n${getDescricao(p0)}\n\n✨ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n\n`;
 
+  // Mostrar SEMPRE todas as versões — mesmo que só haja 1
+  // Assim o cliente fica sempre informado de todas as opções disponíveis
   if (versoes.length === 1) {
-    reply += `*Duração estimada:* ${getDuracao(p0.conc)}.\n\n💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
-  } else {
-    reply += `💰 *Versões disponíveis:*\n`;
-    versoes.forEach(p => {
-      reply += `\n*${p.conc}* _(${getDuracao(p.conc)})_:\n${formatPrecos(p.preco)}\n`;
-    });
-  }
-  reply += `\n📦 Entrega em Luanda incluída.`;
+    reply += `*Concentração:* ${p0.conc} — ${getDuracao(p0.conc)}.\n\n`;
+    reply += `💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
+    reply += `\n📦 Entrega em Luanda incluída.`;
 
-  // UPSELL de promoção para perfumes de nicho
-  if (p0.nicho) {
-    reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!\n\n💡 Posso também verificar se existe alguma promoção disponível para este perfume. Quer que o faça?`;
+    // Procurar versões relacionadas: mesma marca, nome semelhante mas diferente nomeBase
+    // Ex: "Prada Paradoxe" → verificar se há "Prada Paradoxe Intense", etc.
+    const marcaBase = nomeBase.split(' ').slice(0, 2).join(' ').toLowerCase();
+    const versoesRelacionadas = Object.values(CATALOGO).filter(p =>
+      p.nomeBase !== nomeBase &&
+      normalizar(p.nomeBase).startsWith(normalizar(nomeBase).split(' ').slice(0,2).join(' ')) &&
+      p.preco && Object.keys(p.preco).length > 0
+    );
+    const nomesRelUnicos = new Set(versoesRelacionadas.map(p => p.nomeBase));
+
+    if (nomesRelUnicos.size > 0) {
+      reply += `\n\n💡 *Também temos versões relacionadas:*\n`;
+      nomesRelUnicos.forEach(nb => {
+        const vs = versoesRelacionadas.filter(p => p.nomeBase === nb);
+        const kzMin = Math.min(...vs.map(p => precoMin(p.preco)));
+        reply += `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      });
+      reply += `\nQuer saber mais sobre alguma destas versões?`;
+    } else if (p0.nicho) {
+      reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!\n\n💡 Posso também verificar se existe alguma promoção disponível. Quer que o faça?`;
+    } else {
+      reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!`;
+    }
   } else {
-    reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!`;
+    // Múltiplas versões — mostrar TODAS com preços e perguntar qual prefere
+    reply += `💰 *Todas as versões disponíveis:*\n`;
+    versoes.forEach((p, i) => {
+      const precMin = precoMin(p.preco);
+      const precMax = precoMax(p.preco);
+      const faixaPreco = precMin === precMax
+        ? `${precMin.toLocaleString('pt-PT')} Kz`
+        : `${precMin.toLocaleString('pt-PT')} a ${precMax.toLocaleString('pt-PT')} Kz`;
+      reply += `\n*${i+1}. ${p.conc}* _(${getDuracao(p.conc).split(' — ')[0]})_\n`;
+      reply += formatPrecos(p.preco) + `\n`;
+    });
+    reply += `\n📦 Entrega em Luanda incluída.`;
+    if (p0.nicho) {
+      reply += `\n\nQual das versões prefere? Pode indicar o número ou o nome _(EDT, EDP, Parfum...)_.\n\n💡 Posso também verificar se existe alguma promoção disponível. Quer que o faça?`;
+    } else {
+      reply += `\n\nQual das versões prefere? Indique o número ou o nome _(EDT, EDP, Parfum...)_ e trato da encomenda.`;
+    }
   }
   return reply;
 }
@@ -917,9 +985,22 @@ function getBotReply(from, msg) {
   // ================================================
   const perfumeDirecto = pesquisaDirecta(txtLow);
   if (perfumeDirecto) {
-    // Guardar perfume activo — inclui flag se é nicho (para upsell de promoção)
     const ehNicho = Object.values(CATALOGO).some(p => p.nomeBase === perfumeDirecto && p.nicho);
-    setSessao(from, { nomeBase: perfumeDirecto, tipo: 'perfume_activo', ehNicho });
+    // Verificar quantas versões existem — se múltiplas, guardar lista para selecção
+    const versoesPerfume = Object.values(CATALOGO).filter(p =>
+      p.nomeBase === perfumeDirecto && p.preco && Object.keys(p.preco).length > 0
+    );
+    if (versoesPerfume.length > 1) {
+      // Múltiplas versões — guardar lista para o cliente escolher
+      setSessao(from, {
+        nomeBase: perfumeDirecto,
+        tipo: 'escolher_versao',
+        ehNicho,
+        versoes: versoesPerfume.map((p, i) => ({ idx: i+1, nome: p.nome, conc: p.conc, preco: p.preco, nomeBase: p.nomeBase }))
+      });
+    } else {
+      setSessao(from, { nomeBase: perfumeDirecto, tipo: 'perfume_activo', ehNicho });
+    }
     const resp = respostaPerfume(perfumeDirecto);
     if (orcamento && resp) {
       const versoes = Object.values(CATALOGO).filter(p => p.nomeBase === perfumeDirecto && p.preco);
@@ -943,6 +1024,65 @@ function getBotReply(from, msg) {
   // P2 — Sessão activa
   // ================================================
   if (sessao) {
+
+    // =============================================
+    // ESTADO: cliente escolhe versão de perfume
+    // =============================================
+    if (sessao.tipo === 'escolher_versao') {
+      const versoes = sessao.versoes || [];
+      const nomeBase = sessao.nomeBase;
+
+      // Detectar escolha por número (1, 2, 3...)
+      const numMatch = txtNorm.match(/^[1-9]$/);
+      let escolha = null;
+
+      if (numMatch) {
+        const idx = parseInt(numMatch[0]);
+        escolha = versoes.find(v => v.idx === idx);
+      }
+
+      // Detectar por concentração (edt, edp, parfum, extrait, elixir)
+      if (!escolha) {
+        escolha = versoes.find(v =>
+          txtNorm.includes(normalizar(v.conc)) ||
+          (v.nome && txtNorm.includes(normalizar(v.nome).split(' ').pop()))
+        );
+      }
+
+      if (escolha) {
+        // Encontrou a versão — iniciar encomenda directamente
+        clearSessao(from);
+        // Criar as opcoes de tamanho para essa versão
+        const opcoes = Object.entries(escolha.preco).map(([ml, kz]) => ({
+          nome: escolha.nome, conc: escolha.conc, ml, kz: aplicaDesconto(kz)
+        }));
+        setSessao(from, {
+          tipo: 'confirmar_encomenda',
+          nomeBase,
+          opcoes,
+        });
+        let msg = `Óptima escolha! *${escolha.nome}*\n\nQual o tamanho que prefere?\n\n`;
+        opcoes.forEach((o, i) => {
+          msg += `*${i+1}.* ${o.ml}: ${o.kz.toLocaleString('pt-PT')} Kz\n`;
+        });
+        return msg;
+      }
+
+      // Pedido de encomendar sem especificar versão
+      if (/encomendar|encomenda|quero comprar|vou comprar/.test(txtNorm)) {
+        clearSessao(from);
+        return iniciarEncomenda(nomeBase, from);
+      }
+
+      // Não reconheceu — mostrar opções novamente
+      let msg = `Qual das versões prefere?\n\n`;
+      versoes.forEach(v => {
+        const kzMin = precoMin(v.preco);
+        msg += `*${v.idx}.* ${v.conc} — a partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      });
+      msg += `\nIndique o número ou o nome da concentração.`;
+      return msg;
+    }
 
     // =============================================
     // UPSELL: cliente respondeu "sim" ao upsell de promoção
