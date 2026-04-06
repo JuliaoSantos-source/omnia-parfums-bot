@@ -1085,6 +1085,31 @@ function getBotReply(from, msg) {
     }
 
     // =============================================
+    // CONFIRMAÇÃO: cliente confirmou que imagem é de perfume
+    // =============================================
+    if (sessao.tipo === 'aguardar_confirmacao_foto') {
+      if (/^(sim|s|yes|claro|ok|quero|e isso|exacto|perfume|foto)/.test(txtNorm)) {
+        updateSessao(from, { tipo: 'aguardar_foto_perfume', nomePerguntado: 'foto enviada' });
+        if (NUMERO_HUMANO) {
+          const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
+          sendMessage(NUMERO_HUMANO,
+            `📸 *OMNIA — Cliente quer identificação de perfume*\n\n` +
+            `📱 Cliente: +${numLimpo}\n` +
+            `📎 O cliente enviou uma imagem de um perfume para cotação.\n` +
+            `👆 https://wa.me/${numLimpo}\n` +
+            `🕐 ${new Date().toLocaleString('pt-PT')}`
+          );
+        }
+        return `Perfeito! Já notifiquei a nossa equipa. Um consultor vai identificar o perfume e entrará em contacto com o preço e disponibilidade. 🖤`;
+      }
+      if (/^(nao|n|no|negativo|nada|outro)/.test(txtNorm)) {
+        clearSessao(from);
+        return `Sem problema. Posso ajudá-lo com algum outro perfume? Escreva o nome ou descreva o que procura. 🖤`;
+      }
+      clearSessao(from);
+    }
+
+    // =============================================
     // UPSELL: cliente respondeu "sim" ao upsell de promoção
     // =============================================
     if (sessao.tipo === 'perfume_activo' && sessao.ehNicho) {
@@ -1488,9 +1513,19 @@ Indique o número da opção pretendida.`;
         `🕐 ${new Date().toLocaleString('pt-PT')}`
       );
     }
-    return `De momento não temos esse perfume disponível no nosso catálogo.
-
-Já encaminhei o seu pedido a um dos nossos consultores — vamos verificar a disponibilidade e o preço e entramos em contacto consigo brevemente. 🖤`;
+    // Guardar estado para receber foto do perfume
+    setSessao(from, { tipo: 'aguardar_foto_perfume', nomePerguntado: txt });
+    if (NUMERO_HUMANO && numLimpo) {
+      sendMessage(NUMERO_HUMANO,
+        `🔍 *OMNIA — Perfume fora do catálogo*\n\n` +
+        `📱 Cliente: +${numLimpo}\n` +
+        `💬 Mensagem: _"${txt}"_\n` +
+        `📝 O cliente perguntou sobre um perfume que não está no catálogo.\n` +
+        `👆 https://wa.me/${numLimpo}\n` +
+        `🕐 ${new Date().toLocaleString('pt-PT')}`
+      );
+    }
+    return `De momento não temos esse perfume no nosso catálogo.\n\nPode enviar uma *foto do perfume*? Assim a nossa equipa identifica-o e entra em contacto consigo com o preço e disponibilidade. 📸\n\nOu se preferir, um consultor pode entrar em contacto directamente. 🖤`;
   }
 
   // Mensagem genuinamente ambígua — pedir clarificação de forma elegante
@@ -1545,40 +1580,65 @@ app.post('/webhook', async (req, res) => {
       const tipoFicheiro = isImagem ? 'imagem' : 'documento';
 
       if (sessao && sessao.tipo === 'aguardar_comprovativo') {
-        // Cliente enviou comprovativo após encomenda
+        // ─── 1. Comprovativo de pagamento ────────────────────
         const opcao = sessao.opcaoEscolhida || {};
         const nomeBase = sessao.nomeBase || 'perfume';
         clearSessao(from);
-
-        // Notificar atendente
         if (NUMERO_HUMANO) {
           const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
-          const link = `https://wa.me/${numLimpo}`;
           await sendMessage(NUMERO_HUMANO,
-            `💳 *OMNIA PARFUMS — Comprovativo recebido*\n\n` +
+            `💳 *OMNIA — Comprovativo recebido*\n\n` +
             `📱 Cliente: +${numLimpo}\n` +
             `🛍️ Encomenda: ${opcao.nome || nomeBase} ${opcao.ml || ''}\n` +
             `💰 Valor: ${(opcao.kz || 0).toLocaleString('pt-PT')} Kz\n` +
-            `📎 O cliente enviou um comprovativo de pagamento (${tipoFicheiro}).\n` +
-            `👆 Clica para verificar: ${link}\n` +
+            `📎 Comprovativo enviado (${tipoFicheiro}).\n` +
+            `👆 https://wa.me/${numLimpo}\n` +
             `🕐 ${new Date().toLocaleString('pt-PT')}`
           );
         }
-
-        // Resposta ao cliente
         await sendMessage(from,
           `✅ Comprovativo recebido! Obrigado.\n\n` +
-          `A nossa equipa irá validar o pagamento em breve e entrará em contacto consigo para confirmar os detalhes da entrega.\n\n` +
+          `A nossa equipa vai validar o pagamento em breve e entrará em contacto para confirmar a entrega.\n\n` +
           `🖤 *Omnia Parfums* — Entrega em Luanda em 24 a 48 horas.`
         );
         return;
 
-      } else {
-        // Imagem/ficheiro fora do contexto de encomenda
+      } else if (sessao && sessao.tipo === 'aguardar_foto_perfume') {
+        // ─── 2. Foto de perfume para identificação ───────────
+        const nomePerguntado = sessao.nomePerguntado || 'perfume desconhecido';
+        clearSessao(from);
         if (NUMERO_HUMANO) {
           const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
           await sendMessage(NUMERO_HUMANO,
-            `📎 *OMNIA PARFUMS — Ficheiro recebido*\n\n` +
+            `📸 *OMNIA — Foto de perfume para identificação*\n\n` +
+            `📱 Cliente: +${numLimpo}\n` +
+            `💬 Perfume perguntado: _"${nomePerguntado}"_\n` +
+            `📎 O cliente enviou uma foto do perfume para cotação.\n` +
+            `👆 https://wa.me/${numLimpo}\n` +
+            `🕐 ${new Date().toLocaleString('pt-PT')}`
+          );
+        }
+        await sendMessage(from,
+          `📸 Foto recebida! Obrigado.\n\n` +
+          `A nossa equipa vai identificar o perfume e entrar em contacto consigo com o preço e disponibilidade em breve. 🖤`
+        );
+        return;
+
+      } else if (isImagem) {
+        // ─── 3. Imagem genérica — perguntar contexto ─────────
+        setSessao(from, { tipo: 'aguardar_confirmacao_foto' });
+        await sendMessage(from,
+          `📸 Recebemos a sua imagem!\n\n` +
+          `É a foto de um perfume que deseja saber o preço ou disponibilidade? Responda *sim* e a nossa equipa identifica e entra em contacto consigo. 🖤`
+        );
+        return;
+
+      } else {
+        // ─── 4. PDF / documento genérico ─────────────────────
+        if (NUMERO_HUMANO) {
+          const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
+          await sendMessage(NUMERO_HUMANO,
+            `📎 *OMNIA — Documento recebido*\n\n` +
             `📱 Cliente: +${numLimpo}\n` +
             `📎 Tipo: ${tipoFicheiro}\n` +
             `👆 https://wa.me/${numLimpo}\n` +
@@ -1586,7 +1646,7 @@ app.post('/webhook', async (req, res) => {
           );
         }
         await sendMessage(from,
-          `Recebemos o seu ficheiro. A nossa equipa irá analisá-lo e entrará em contacto em breve. 🖤`
+          `Recebemos o documento. A nossa equipa irá analisá-lo e entrará em contacto. 🖤`
         );
         return;
       }
