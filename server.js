@@ -619,7 +619,14 @@ function respostaPerfume(nomeBase) {
       reply += `\n*${p.conc}* _(${getDuracao(p.conc)})_:\n${formatPrecos(p.preco)}\n`;
     });
   }
-  reply += `\n📦 Entrega em Luanda incluída.\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!`;
+  reply += `\n📦 Entrega em Luanda incluída.`;
+
+  // UPSELL de promoção para perfumes de nicho
+  if (p0.nicho) {
+    reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!\n\n💡 Posso também verificar se existe alguma promoção disponível para este perfume. Quer que o faça?`;
+  } else {
+    reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!`;
+  }
   return reply;
 }
 
@@ -873,8 +880,9 @@ function getBotReply(from, msg) {
   // ================================================
   const perfumeDirecto = pesquisaDirecta(txtLow);
   if (perfumeDirecto) {
-    // Guardar perfume activo na sessão para uso em encomenda posterior
-    setSessao(from, { nomeBase: perfumeDirecto, tipo: 'perfume_activo' });
+    // Guardar perfume activo — inclui flag se é nicho (para upsell de promoção)
+    const ehNicho = Object.values(CATALOGO).some(p => p.nomeBase === perfumeDirecto && p.nicho);
+    setSessao(from, { nomeBase: perfumeDirecto, tipo: 'perfume_activo', ehNicho });
     const resp = respostaPerfume(perfumeDirecto);
     if (orcamento && resp) {
       const versoes = Object.values(CATALOGO).filter(p => p.nomeBase === perfumeDirecto && p.preco);
@@ -898,6 +906,42 @@ function getBotReply(from, msg) {
   // P2 — Sessão activa
   // ================================================
   if (sessao) {
+
+    // =============================================
+    // UPSELL: cliente respondeu "sim" ao upsell de promoção
+    // =============================================
+    if (sessao.tipo === 'perfume_activo' && sessao.ehNicho) {
+      if (/^(sim|s|yes|claro|quero|gostava|boa|ótimo|por favor|faz.*favor|verifica|verif)/.test(txtNorm)) {
+        const nomeBase = sessao.nomeBase;
+        clearSessao(from);
+        if (NUMERO_HUMANO) {
+          const numLimpo = from.replace('@s.whatsapp.net','').replace('@c.us','');
+          sendMessage(NUMERO_HUMANO,
+            `🎁 *OMNIA — Pedido de verificação de promoção*
+
+` +
+            `📱 Cliente: +${numLimpo}
+` +
+            `🛍️ Perfume: ${nomeBase}
+` +
+            `💬 O cliente quer saber se há promoção disponível.
+` +
+            `👆 https://wa.me/${numLimpo}
+` +
+            `🕐 ${new Date().toLocaleString('pt-PT')}`
+          );
+        }
+        return `Perfeito! Já enviei o pedido à nossa equipa para verificar se existe alguma promoção disponível para o *${nomeBase}*.
+
+Um consultor entrará em contacto consigo brevemente. 🖤`;
+      }
+      if (/^(nao|n|no|negativo|obrigad|dispenso|tudo bem|nao precis)/.test(txtNorm)) {
+        // Não quer promoção — mantém sessão para encomendar
+        return `Claro! Quando quiser encomendar, escreva *encomendar* e trato de tudo. 😊`;
+      }
+      // Não é resposta ao upsell — limpa flag de nicho e continua processamento normal
+      updateSessao(from, { ehNicho: false });
+    }
 
     // Confirmação fuzzy
     if (sessao.tipo === 'confirmar_perfume') {
@@ -1233,9 +1277,49 @@ Indique o número da opção pretendida.`;
   }
 
   // ================================================
-  // FALLBACK
+  // FALLBACK INTELIGENTE
+  // Antes de desistir, detecta se o cliente mencionou
+  // um nome de perfume fora do catálogo → escalada elegante
   // ================================================
-  return `Para o ajudar da melhor forma:\n\n• Escreva o nome de um perfume para ver preços e detalhes\n• Escreva *catálogo* para ver toda a selecção\n• Descreva a ocasião ou o que procura e faço sugestões personalizadas\n• Ou escreva *masculinos*, *femininos* ou *nicho* para filtrar`;
+
+  // Detectar se a mensagem parece conter um nome de perfume
+  // (capitalizado, marca conhecida, ou padrão de nome)
+  const MARCAS_CONHECIDAS = /(dior|chanel|ysl|armani|versace|rabanne|paco|guerlain|lancôme|lancome|mugler|boss|narciso|issey|calvin|tom ford|creed|mancera|montale|mfk|kilian|amouage|parfums de marly|nishane|initio|xerjoff|frederic malle|roja|givenchy|burberry|prada|valentino|bvlgari|hermes|hermès|jo malone|byredo|diptyque|serge|maison|viktor|spicebomb|flowerbomb|invictus|sauvage|aventus|oud|baccarat|layton|delina|pegasus|hacivat|replica)/i;
+
+  const pareceNomePerfume = MARCAS_CONHECIDAS.test(txt) ||
+    // Padrão: maiúscula + pelo menos outra palavra (ex: "Polo Blue", "Guilty Pour Homme")
+    /^[A-Z][a-zA-Zà-ÿ]+ [A-Za-zà-ÿ]/.test(txt) ||
+    // Explicitamente a pedir um perfume
+    /tens.*o\s+\w+|tem.*o\s+\w+|quanto.*custa.*\w{4}|preço.*\w{4}|informaç.*\w{4}/i.test(txt);
+
+  if (pareceNomePerfume) {
+    // Cliente mencionou algo que parece um perfume — não está no catálogo
+    const numLimpo = from ? from.replace('@s.whatsapp.net','').replace('@c.us','') : '';
+    if (NUMERO_HUMANO && numLimpo) {
+      sendMessage(NUMERO_HUMANO,
+        `🔍 *OMNIA — Perfume não encontrado no catálogo*
+
+` +
+        `📱 Cliente: +${numLimpo}
+` +
+        `💬 Mensagem: _"${txt}"_
+` +
+        `📝 O cliente pode estar a perguntar sobre um perfume fora do catálogo.
+` +
+        `👆 https://wa.me/${numLimpo}
+` +
+        `🕐 ${new Date().toLocaleString('pt-PT')}`
+      );
+    }
+    return `De momento não temos esse perfume disponível no nosso catálogo.
+
+Já encaminhei o seu pedido a um dos nossos consultores — vamos verificar a disponibilidade e o preço e entramos em contacto consigo brevemente. 🖤`;
+  }
+
+  // Mensagem genuinamente ambígua — pedir clarificação de forma elegante
+  return `Peço desculpa, não percebi bem o que procura.
+
+Pode indicar-me o nome do perfume ou descrever a ocasião? Terei todo o gosto em ajudar.`;
 }
 
 // ===================================================
