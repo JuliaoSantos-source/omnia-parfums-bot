@@ -164,6 +164,9 @@ const CATALOGO = {
   'nishane ani': { nome: 'Nishane Ani', nomeBase: 'Nishane Ani', genero: 'U', conc: 'Extrait', familia: 'Floral Almíscar', nicho: true, preco: {'50ml': 345700}, notas: 'Flor de Laranjeira, Almíscar, Âmbar' },
   'nishane zenne': { nome: 'Nishane Zenne', nomeBase: 'Nishane Zenne', genero: 'U', conc: 'Extrait', familia: 'Oriental Floral', nicho: true, preco: {'50ml': 345700}, notas: 'Rosa, Oud, Âmbar' },
   'nishane afrika olifant': { nome: 'Nishane Afrika Olifant', nomeBase: 'Nishane Afrika Olifant', genero: 'U', conc: 'Extrait', familia: 'Amadeirado Especiado', nicho: true, preco: {'50ml': 362700}, notas: 'Âmbar, Vetiver, Patchouli' },
+  'nishane hundred silent ways': { nome: 'Nishane Hundred Silent Ways', nomeBase: 'Nishane Hundred Silent Ways', genero: 'U', conc: 'Extrait', familia: 'Floral Amadeirado', nicho: true, preco: {'50ml': 362700, '100ml': 490000}, notas: 'Rosa Turca, Almíscar, Cedro, Âmbar' },
+  'nishane wulong cha': { nome: 'Nishane Wulong Cha', nomeBase: 'Nishane Wulong Cha', genero: 'U', conc: 'Extrait', familia: 'Aquático Verde', nicho: true, preco: {'50ml': 345700}, notas: 'Chá Oolong, Madeira, Almíscar' },
+  'nishane florane': { nome: 'Nishane Florane', nomeBase: 'Nishane Florane', genero: 'U', conc: 'Extrait', familia: 'Floral Verde', nicho: true, preco: {'50ml': 345700}, notas: 'Tubarosa, Jasmim, Almíscar Branco' },
   'initio oud for greatness': { nome: 'Initio Oud for Greatness', nomeBase: 'Initio Oud for Greatness', genero: 'U', conc: 'EDP', familia: 'Amadeirado Especiado', nicho: true, preco: {'90ml': 536400}, notas: 'Oud, Almíscar, Especiarias, Âmbar' },
   'initio atomic rose': { nome: 'Initio Atomic Rose', nomeBase: 'Initio Atomic Rose', genero: 'U', conc: 'EDP', familia: 'Floral', nicho: true, preco: {'90ml': 536400}, notas: 'Rosa, Almíscar, Âmbar' },
   'initio black gold': { nome: 'Initio Black Gold', nomeBase: 'Initio Black Gold', genero: 'U', conc: 'EDP', familia: 'Oriental Amadeirado', nicho: true, preco: {'90ml': 536400}, notas: 'Sândalo, Âmbar, Almíscar' },
@@ -1561,54 +1564,75 @@ Indique o número da opção pretendida.`;
   // um nome de perfume fora do catálogo → escalada elegante
   // ================================================
 
-  // Detectar se a mensagem parece conter um nome de perfume
-  // (capitalizado, marca conhecida, ou padrão de nome)
-  const MARCAS_CONHECIDAS = /(dior|chanel|ysl|armani|versace|rabanne|paco|guerlain|lancôme|lancome|mugler|boss|narciso|issey|calvin|tom ford|creed|mancera|montale|mfk|kilian|amouage|parfums de marly|nishane|initio|xerjoff|frederic malle|roja|givenchy|burberry|prada|valentino|bvlgari|hermes|hermès|jo malone|byredo|diptyque|serge|maison|viktor|spicebomb|flowerbomb|invictus|sauvage|aventus|oud|baccarat|layton|delina|pegasus|hacivat|replica)/i;
-
-  const pareceNomePerfume = MARCAS_CONHECIDAS.test(txt) ||
-    // Padrão: maiúscula + pelo menos outra palavra (ex: "Polo Blue", "Guilty Pour Homme")
-    /^[A-Z][a-zA-Zà-ÿ]+ [A-Za-zà-ÿ]/.test(txt) ||
-    // Explicitamente a pedir um perfume
-    /tens.*o\s+\w+|tem.*o\s+\w+|quanto.*custa.*\w{4}|preço.*\w{4}|informaç.*\w{4}/i.test(txt);
-
-  if (pareceNomePerfume) {
-    // Cliente mencionou algo que parece um perfume — não está no catálogo
-    const numLimpo = from ? from.replace('@s.whatsapp.net','').replace('@c.us','') : '';
-    if (NUMERO_HUMANO && numLimpo) {
-      sendMessage(NUMERO_HUMANO,
-        `🔍 *OMNIA — Perfume não encontrado no catálogo*
-
-` +
-        `📱 Cliente: +${numLimpo}
-` +
-        `💬 Mensagem: _"${txt}"_
-` +
-        `📝 O cliente pode estar a perguntar sobre um perfume fora do catálogo.
-` +
-        `👆 https://wa.me/${numLimpo}
-` +
-        `🕐 ${new Date().toLocaleString('pt-PT')}`
-      );
-    }
-    // Guardar estado para receber foto do perfume
-    setSessao(from, { tipo: 'aguardar_foto_perfume', nomePerguntado: txt });
-    if (NUMERO_HUMANO && numLimpo) {
-      sendMessage(NUMERO_HUMANO,
-        `🔍 *OMNIA — Perfume fora do catálogo*\n\n` +
-        `📱 Cliente: +${numLimpo}\n` +
-        `💬 Mensagem: _"${txt}"_\n` +
-        `📝 O cliente perguntou sobre um perfume que não está no catálogo.\n` +
-        `👆 https://wa.me/${numLimpo}\n` +
-        `🕐 ${new Date().toLocaleString('pt-PT')}`
-      );
-    }
-    return `De momento não temos esse perfume no nosso catálogo.\n\nPode enviar uma *foto do perfume*? Assim a nossa equipa identifica-o e entra em contacto consigo com o preço e disponibilidade. 📸\n\nOu se preferir, um consultor pode entrar em contacto directamente. 🖤`;
+  // ================================================
+  // FIX — "Nicho femininos", "nicho e designer", etc.
+  // Responde SEM escalar
+  // ================================================
+  if (/nicho.*(feminin|mulher|ela\b|menina)|feminin.*nicho|mulher.*nicho/.test(txtNorm)) {
+    const nichoF = (() => {
+      const map = {};
+      Object.values(CATALOGO).filter(p => p.nicho && (p.genero === 'F' || p.genero === 'U')).forEach(p => {
+        if (!map[p.nomeBase]) map[p.nomeBase] = [];
+        if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
+      });
+      return Object.entries(map).map(([b, c]) => `• ${b} _(${c.join(' / ')})`);
+    })();
+    return `👗💎 *Nicho Feminino & Unissexo — Omnia Parfums*${getBannerDesconto()}\n\nPerfumes de nicho para ela — exclusivos, raros, inesquecíveis:\n\n${nichoF.join('\n')}\n\n_Escreva o nome para ver detalhes completos, notas e preços._`;
   }
 
-  // Mensagem genuinamente ambígua — pedir clarificação de forma elegante
-  return `Peço desculpa, não percebi bem o que procura.
+  if (/nicho.*(masculin|homem|ele\b|rapaz)|masculin.*nicho|homem.*nicho/.test(txtNorm)) {
+    const nichoM = (() => {
+      const map = {};
+      Object.values(CATALOGO).filter(p => p.nicho && (p.genero === 'M' || p.genero === 'U')).forEach(p => {
+        if (!map[p.nomeBase]) map[p.nomeBase] = [];
+        if (!map[p.nomeBase].includes(p.conc)) map[p.nomeBase].push(p.conc);
+      });
+      return Object.entries(map).map(([b, c]) => `• ${b} _(${c.join(' / ')})`);
+    })();
+    return `👔💎 *Nicho Masculino & Unissexo — Omnia Parfums*${getBannerDesconto()}\n\nPerfumes de nicho para ele — presença inconfundível, exclusividade real:\n\n${nichoM.join('\n')}\n\n_Escreva o nome para ver detalhes completos, notas e preços._`;
+  }
 
-Pode indicar-me o nome do perfume ou descrever a ocasião? Terei todo o gosto em ajudar.`;
+  if (/nicho.*designer|designer.*nicho|diferenca.*(nicho|designer)|nicho.*ou.*designer|designer.*ou.*nicho/.test(txtNorm)) {
+    return `Boa questão! São dois universos com filosofias diferentes:\n\n🏷️ *Designer* (Dior, Chanel, Armani, YSL...) — produção em larga escala, fórmulas reconhecíveis, forte presença social. Excelente relação qualidade-preço.\n\n💎 *Nicho* (Mancera, Creed, Montale, Nishane, Parfums de Marly...) — produção limitada, matérias-primas raras, maior duração e exclusividade. Para quem quer ser inconfundível, não apenas reconhecível.\n\nA escolha depende do que procura: *ser reconhecido* ou *ser único*?\n\nEscreva *nicho* ou *catálogo* para explorar, ou diga-me o perfil e faço uma sugestão.`;
+  }
+
+  // ================================================
+  // Perfume fora do catálogo — escalada CIRÚRGICA
+  // NUNCA durante conversa fluida ou conceptual
+  // ================================================
+  const eContextoFluido = /nicho|designer|suger|recomendar|calor|quente|frio|noite|festa|fresc|intenso|floral|oriental|leve|para.*ele|para.*ela|para.*dia|para.*noite|quero algo|procuro|tens.*algo|o que.*recomendas|lista|ver|mostrar|explorar|diferenca|o que e|como|feminino|masculino/i.test(txt);
+
+  if (!eContextoFluido) {
+    const pareceNomeEspecifico = (
+      /^[A-Z][a-zA-Zà-ÿ]/.test(txt) && txt.split(' ').length <= 6
+    ) && (
+      /tens|tem|custa|preço|preco|quanto|disponivel|quero|comprar|encomendar/i.test(txt) ||
+      txt.split(' ').length <= 4
+    );
+
+    if (pareceNomeEspecifico) {
+      const numLimpo = from ? from.replace('@s.whatsapp.net','').replace('@c.us','') : '';
+      setSessao(from, { tipo: 'aguardar_foto_perfume', nomePerguntado: txt });
+      if (NUMERO_HUMANO && numLimpo) {
+        sendMessage(NUMERO_HUMANO,
+          `🔍 *OMNIA — Perfume não encontrado*\n\n📱 Cliente: +${numLimpo}\n💬 Perguntou: _"${txt}"_\n👆 https://wa.me/${numLimpo}\n🕐 ${new Date().toLocaleString('pt-PT')}`
+        );
+      }
+      return `De momento não temos esse perfume no catálogo. Pode enviar uma *foto do frasco*? A nossa equipa verifica disponibilidade e preço e entra em contacto. 📸`;
+    }
+  }
+
+  // ================================================
+  // FALLBACK — variado, nunca monótono
+  // ================================================
+  const FALLBACKS = [
+    `Não percebi completamente, mas estou aqui! Pode dizer o nome de um perfume, descrever o que procura (ex: "algo fresco para o calor") ou escrever *catálogo* para ver tudo.`,
+    `Pode reformular? Se me disser o perfume ou a ocasião, ajudo de imediato. Ou escreva *catálogo* para explorar a nossa selecção.`,
+    `Tenho fragrâncias para todas as ocasiões — diga-me um nome, uma sensação ou um momento e trato do resto.`,
+    `Pode dar-me mais detalhes? Um nome, uma ocasião, ou "algo marcante para noite" — e faço uma sugestão certeira.`,
+    `Estou aqui! Descreva o que procura — clima, ocasião, sensação — ou escreva directamente o nome do perfume.`,
+  ];
+  return FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
 }
 
 // ===================================================
