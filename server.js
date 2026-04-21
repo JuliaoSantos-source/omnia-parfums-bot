@@ -1325,6 +1325,9 @@ function getBotReply(from, msg) {
     /perfumes?\s+(de\s+)?(nicho|designer|masculin|feminin|unissex|luxo|calor|frio|noite|dia\b)/.test(txtNorm) ||
     /^(ver|mostrar|listar|explorar)\s+(nicho|catalogo|masculin|feminin)/.test(txtNorm);
 
+  // "Outras opções" / "alternativas" nunca deve chegar ao fallback de escalada
+  const ehPedidoAlternativas = /outras?\s*op[çc][oõ]es|ver\s+mais|mais\s+op[çc][oõ]es|alternativas|outra\s+op[çc][aã]o|outras\s+escolhas|outras\s+sugest/.test(txtNorm);
+
   // ================================================
   // P1 — Perfume específico nomeado (PRIORIDADE MÁXIMA)
   // Só corre se não for um comando de navegação
@@ -1453,6 +1456,39 @@ function getBotReply(from, msg) {
         return `Sem problema. Posso ajudá-lo com algum outro perfume? Escreva o nome ou descreva o que procura. 🖤`;
       }
       clearSessao(from);
+    }
+
+    // =============================================
+    // OUTRAS OPÇÕES — cliente viu um perfume e quer alternativas
+    // Captura ANTES de qualquer outro handler para não cair no fallback
+    // =============================================
+    if (/outras?\s*op[çc][oõ]es|ver\s+mais|mais\s+op[çc][oõ]es|alternativas|outras\s+escolhas|outra\s+op[çc][aã]o|diferente|mostrar\s+mais|outras\s+sugest/.test(txtNorm)) {
+      const nomeAtual = sessao.nomeBase || null;
+      const criterioSessao = sessao.criterio || '';
+      const generoSessao = sessao.genero || null;
+      const orcSessao = orcamento;
+
+      // Tenta sugerir alternativas com base no perfume actual ou critério anterior
+      if (nomeAtual) {
+        const perfAtual = Object.values(CATALOGO).find(p => p.nomeBase === nomeAtual);
+        if (perfAtual) {
+          const criterioAlt = [criterioSessao, perfAtual.familia?.toLowerCase(), generoSessao === 'F' ? 'feminino' : generoSessao === 'M' ? 'masculino' : ''].filter(Boolean).join(' ');
+          const sugestoes = sugerirPorCriterio(criterioAlt, generoSessao, orcSessao);
+          if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
+            // Remover o perfume actual das sugestões
+            sugestoes.designers = (sugestoes.designers || []).filter(p => p.nomeBase !== nomeAtual);
+            sugestoes.nicho = (sugestoes.nicho || []).filter(p => p.nomeBase !== nomeAtual);
+            if (sugestoes.designers.length || sugestoes.nicho.length) {
+              setSessao(from, { tipo: 'sugestao_activa', criterio: criterioAlt, genero: generoSessao, orcamento: orcSessao });
+              return formatarSugestoes(sugestoes, 'perfil semelhante', orcSessao);
+            }
+          }
+        }
+      }
+      // Sem contexto suficiente — inicia qualificação
+      clearSessao(from);
+      setSessao(from, { tipo: 'qualificar_intencao', criterio: txtNorm, orcamento: orcSessao });
+      return `Para sugerir as opções certas — o perfume é para si ou para oferecer?`;
     }
 
     // =============================================
@@ -1916,7 +1952,7 @@ Indique o número da opção pretendida.`;
   // P5 — Sugestão com critério de contexto
   // 3 perguntas obrigatórias antes de qualquer sugestão
   // ================================================
-  const TEM_CONTEXTO = /calor|quente|verao|frio|inverno|noite|festa|casamento|jantar|romantico|encontro|trabalho|escritorio|reuniao|diario|casual|intenso|marcante|leve|fresco|discreto|doce|sensual|elegante|baunilha|floral|oriental|amadeirado|aquatico|gourmand|oud|rosa\b|suger|recomendar|quero algo|quero um|procuro algo|preciso de|para.*dia\b|para.*noite|para.*ocasiao|para.*evento|para.*ele\b|para.*ela\b|para.*homem|para.*mulher|calor|quente|praia|sol\b|frio|chuva|nublado|clima|impressionar|conquistar|seduzir|balada|saida/.test(txtNorm) || ehSugestaoComTipo;
+  const TEM_CONTEXTO = /calor|quente|verao|frio|inverno|noite|festa|casamento|jantar|romantico|encontro|trabalho|escritorio|reuniao|diario|casual|intenso|marcante|leve|fresco|discreto|doce|sensual|elegante|baunilha|floral|oriental|amadeirado|aquatico|gourmand|oud|rosa\b|suger|recomendar|quero algo|quero um|procuro algo|preciso de|para.*dia\b|para.*noite|para.*ocasiao|para.*evento|para.*ele\b|para.*ela\b|para.*homem|para.*mulher|calor|quente|praia|sol\b|frio|chuva|nublado|clima|impressionar|conquistar|seduzir|balada|saida/.test(txtNorm) || ehSugestaoComTipo || ehPedidoAlternativas;
 
   if (TEM_CONTEXTO) {
     const generoMsg = extrairGenero(txtNorm);
@@ -2003,7 +2039,7 @@ Indique o número da opção pretendida.`;
   // Perfume fora do catálogo — escalada CIRÚRGICA
   // NUNCA durante conversa fluida ou conceptual
   // ================================================
-  const eContextoFluido = /nicho|designer|suger|recomendar|calor|quente|frio|noite|festa|fresc|intenso|floral|oriental|leve|para.*ele|para.*ela|para.*dia|para.*noite|quero algo|procuro|tens.*algo|o que.*recomendas|lista|ver|mostrar|explorar|diferenca|o que e|como|feminino|masculino/i.test(txt);
+  const eContextoFluido = /nicho|designer|suger|recomendar|calor|quente|frio|noite|festa|fresc|intenso|floral|oriental|leve|para.*ele|para.*ela|para.*dia|para.*noite|quero algo|procuro|tens.*algo|o que.*recomendas|lista|ver|mostrar|explorar|diferenca|o que e|como|feminino|masculino|outras.*op|alternativa|ver mais|mais op/i.test(txt) || ehPedidoAlternativas;
 
   if (!eContextoFluido) {
     const pareceNomeEspecifico = (
