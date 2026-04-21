@@ -706,6 +706,158 @@ function respostaPerfume(nomeBase) {
   const emoji = p0.genero === 'M' ? '👔' : p0.genero === 'F' ? '👗' : '✨';
   const banner = getBannerDesconto();
   const generoLabel = p0.genero === 'M' ? 'Masculino' : p0.genero === 'F' ? 'Feminino' : 'Unissexo';
+
+  // Distinção rigorosa: nicho puro / zona cinzenta / designer
+  const ZONA_CINZENTA = ['Tom Ford', 'MFK', 'Maison Francis Kurkdjian', 'Byredo', 'Le Labo', 'Jo Malone'];
+  const ehZonaCinzenta = ZONA_CINZENTA.some(m => nomeBase.includes(m));
+  const ehNichoPuro = p0.nicho && !ehZonaCinzenta;
+
+  let categoriaLabel = '';
+  let categoriaNota = '';
+  if (ehNichoPuro) {
+    categoriaLabel = ' _(Nicho)_';
+    categoriaNota = '';
+  } else if (ehZonaCinzenta) {
+    categoriaLabel = ' _(Zona cinzenta)_';
+    categoriaNota = `\n_Nota: esta casa situa-se entre o designer e o nicho puro — distribuição mais alargada que o nicho tradicional, mas com ADN de luxo._\n`;
+  } else {
+    categoriaLabel = '';
+    categoriaNota = '';
+  }
+
+  const CASAS = {
+    'Dior': 'Dior',
+    'Chanel': 'Chanel',
+    'YSL': 'Yves Saint Laurent',
+    'Armani': 'Giorgio Armani',
+    'Rabanne': 'Rabanne',
+    'Versace': 'Versace',
+    'Hugo Boss': 'Hugo Boss',
+    'Lancôme': 'Lancôme',
+    'Guerlain': 'Guerlain',
+    'Mugler': 'Thierry Mugler',
+    'Tom Ford': 'Tom Ford Private Blend',
+    'Calvin Klein': 'Calvin Klein',
+    'Narciso Rodriguez': 'Narciso Rodriguez',
+    'Issey Miyake': 'Issey Miyake',
+    'Creed': 'Creed',
+    'Mancera': 'Mancera',
+    'Montale': 'Montale',
+    'MFK': 'Maison Francis Kurkdjian',
+    'By Kilian': 'By Kilian',
+    'Amouage': 'Amouage',
+    'Parfums de Marly': 'Parfums de Marly',
+    'Nishane': 'Nishane',
+    'Initio': 'Initio Parfums Privés',
+    'Xerjoff': 'Xerjoff',
+    'Frederic Malle': 'Éditions de Parfums Frédéric Malle',
+    'Roja Dove': 'Roja Parfums',
+  };
+  let casa = 'casa de perfumaria';
+  for (const [marca, desc] of Object.entries(CASAS)) {
+    if (nomeBase.includes(marca)) { casa = desc; break; }
+  }
+
+  // Descrições evocativas por perfume específico e por família
+  const DESCRICOES_ESPECIFICAS = {
+    'Dior Sauvage': 'Berço de rocha árida e bergamota eléctrica. Abre com intensidade que acalma — não é agressão, é presença. Na pele de quem o usa bem, torna-se uma segunda natureza.',
+    'Bleu de Chanel': 'Madeiras que não gritam. Uma frescura que tem peso. É o perfume de quem não precisa de se anunciar — a sala percebe antes de qualquer palavra.',
+    'Mancera Instant Crush': 'Laranja que queima levemente, rosa que se abre devagar, baunilha que fica. Uma fragrância que começa doce e termina numa quentura difícil de largar.',
+    'MFK Baccarat Rouge 540': 'Açafrão e jasmim dissolvidos em cedro âmbar. É o perfume que as pessoas identificam sem conseguir nomear — o rasto que fica num elevador dois minutos depois.',
+    'Creed Aventus': 'Groselha preta e bétula numa base de almíscar fumado. É ambição transformada em aroma. Projecta-se com autoridade — não da variante de hoje, mas da ideia original.',
+    'Parfums de Marly Layton': 'Maçã fria, lavanda e um fundo de baunilha e sândalo que aquece progressivamente. Formal na abertura, envolvente na base — funciona tanto num jantar como numa reunião.',
+    'Tom Ford Black Orchid': 'Trufa, orquídea preta e patchouli. Escuro desde o primeiro spray. Não é para todos os contextos — é para os contextos certos.',
+    'Tom Ford Tobacco Vanille': 'Uma lareira com conhaque. Tabaco doce, especiarias e baunilha num fundo que persiste horas depois. Para climas frios ou noites de inverno — em Angola, reservado para ambientes fechados e à noite.',
+    'Nishane Hacivat': 'Abacaxi e bergamota que cedem espaço a cedro e patchouli. Uma assinatura turca com alcance internacional — dura, projecta, surpreende.',
+    'Nishane Hundred Silent Ways': 'Rosa turca sobre cedro e âmbar branco. Começa floral com substância, termina amadeirado com suavidade. O tipo de perfume que quem está perto pede o nome.',
+    'Initio Oud for Greatness': 'Oud, especiarias e almíscar em concentração total. Não é subtil — não foi feito para ser. Para quem quer que a entrada seja definitiva.',
+    'By Kilian Angels Share': 'Conhaque, canela e baunilha. Começa como uma destilaria elegante, termina como algo que fica na memória das pessoas que o sentiram. Gourmand com classe.',
+    'Armani Acqua di Giò': 'Maresia, pedra molhada e cipreste. O aquático que definiu uma categoria. Ideal para calor — leve o suficiente para Luanda às 14h.',
+    'Chanel N°5': 'Aldeídos, ylang-ylang e íris sobre um fundo de almíscar e âmbar. A fragrância mais referenciada da história. Não é moda — é presença atemporal.',
+    'YSL Black Opium': 'Café, flor branca e baunilha preta. Abre com energia, termina com sedução. Funciona à noite, funciona em ambientes fechados, funciona sempre que quer ser notada.',
+    'Lancôme La Vie est Belle': 'Íris com pralinê e baunilha. O gourmand feminino mais reconhecível dos últimos anos — doce com dignidade, marcante sem ser agressivo.',
+  };
+
+  function getDescricaoEvocativa(p) {
+    // Tenta descrição específica primeiro
+    for (const [key, desc] of Object.entries(DESCRICOES_ESPECIFICAS)) {
+      if (nomeBase.includes(key)) return desc;
+    }
+    // Fallback por família — evocativo, nunca técnico
+    const f = (p.familia || '').toLowerCase();
+    if (/aquatico|citrico/.test(f))
+      return 'Frescura que tem substância. Discreto sem ser apagado — a escolha para quem quer estar sempre em ordem sem forçar presença.';
+    if (/gourmand/.test(f))
+      return 'Quente e envolvente. Quem está perto não fica indiferente — e não percebe logo o que é, o que o torna ainda mais interessante.';
+    if (/floral.*oriental|oriental.*floral/.test(f))
+      return 'Floral à superfície, com uma profundidade que só aparece com o tempo. Para quem quer ser lembrado depois de sair da sala.';
+    if (/floral/.test(f))
+      return 'Floral com carácter. Não é a flor óbvia — é a flor com algo por baixo que prende.';
+    if (/oriental|especiado/.test(f))
+      return 'Especiarias, resinas, profundidade. Para os contextos onde quer que a presença fique mesmo depois de sair.';
+    if (/amadeirado/.test(f))
+      return 'Madeiras nobres que não gritam. Uma elegância seca que combina com autoridade e discrição em simultâneo.';
+    return 'Uma fragrância que evolui — diferente na abertura, diferente no fundo, diferente em cada pele.';
+  }
+
+  // Pirâmide de notas estruturada
+  function getNotasEstruturadas(p) {
+    // Se as notas já têm separação, usa tal como está
+    // Senão, apresenta como notas principais
+    return `*Notas:* ${p.notas}`;
+  }
+
+  const descricao = getDescricaoEvocativa(p0);
+  const contexto = getContextoSazonal(p0);
+
+  let reply = `${emoji} *${nomeBase}*${categoriaLabel}${banner}\n`;
+  reply += `_${casa}_\n`;
+  if (categoriaNota) reply += categoriaNota;
+  reply += `\n*Género:* ${generoLabel} | *Família:* ${p0.familia}\n`;
+  reply += `${getNotasEstruturadas(p0)}\n\n`;
+  reply += `${descricao}\n\n`;
+  reply += `✦ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n\n`;
+
+  if (versoes.length === 1) {
+    reply += `*Concentração:* ${p0.conc} — ${getDuracao(p0.conc)}.\n\n`;
+    reply += `💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
+    reply += `\n📦 Entrega em Luanda incluída.`;
+
+    const versoesRelacionadas = Object.values(CATALOGO).filter(p =>
+      p.nomeBase !== nomeBase &&
+      normalizar(p.nomeBase).startsWith(normalizar(nomeBase).split(' ').slice(0,2).join(' ')) &&
+      p.preco && Object.keys(p.preco).length > 0
+    );
+    const nomesRelUnicos = new Set(versoesRelacionadas.map(p => p.nomeBase));
+
+    if (nomesRelUnicos.size > 0) {
+      reply += `\n\n_Também disponível:_\n`;
+      nomesRelUnicos.forEach(nb => {
+        const vs = versoesRelacionadas.filter(p => p.nomeBase === nb);
+        const kzMin = Math.min(...vs.map(p => precoMin(p.preco)));
+        reply += `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      });
+    }
+    reply += `\n\nDeseja encomendar? Escreva *encomendar* ou diga-me se quer explorar outras opções.`;
+  } else {
+    reply += `💰 *Versões disponíveis:*\n`;
+    versoes.forEach((p, i) => {
+      reply += `\n*${i+1}. ${p.conc}* _(${getDuracao(p.conc).split(' — ')[0]})_\n`;
+      reply += formatPrecos(p.preco) + `\n`;
+    });
+    reply += `\n📦 Entrega em Luanda incluída.`;
+    reply += `\n\nQual das versões prefere? Pode indicar o número ou o nome _(EDT, EDP, Parfum...)_.`;
+  }
+  return reply;
+}
+  const versoes = Object.values(CATALOGO).filter(p =>
+    p.nomeBase === nomeBase && p.preco && Object.keys(p.preco).length > 0
+  );
+  if (!versoes.length) return null;
+  const p0 = versoes[0];
+  const emoji = p0.genero === 'M' ? '👔' : p0.genero === 'F' ? '👗' : '✨';
+  const banner = getBannerDesconto();
+  const generoLabel = p0.genero === 'M' ? 'Masculino' : p0.genero === 'F' ? 'Feminino' : 'Unissexo';
   const nichoLabel = p0.nicho ? ' _(Nicho)_' : '';
 
   const CASAS = {
@@ -761,59 +913,6 @@ function respostaPerfume(nomeBase) {
   }
 
   const contexto = getContextoSazonal(p0);
-  let reply = `${emoji} *${nomeBase}*${nichoLabel}${banner}\n\nUma criação de ${casa}.\n\n*Género:* ${generoLabel} | *Família:* ${p0.familia}\n\n*Notas:* ${p0.notas}\n\n${getDescricao(p0)}\n\n✨ ${contexto.charAt(0).toUpperCase() + contexto.slice(1)}.\n\n`;
-
-  // Mostrar SEMPRE todas as versões — mesmo que só haja 1
-  // Assim o cliente fica sempre informado de todas as opções disponíveis
-  if (versoes.length === 1) {
-    reply += `*Concentração:* ${p0.conc} — ${getDuracao(p0.conc)}.\n\n`;
-    reply += `💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
-    reply += `\n📦 Entrega em Luanda incluída.`;
-
-    // Procurar versões relacionadas: mesma marca, nome semelhante mas diferente nomeBase
-    // Ex: "Prada Paradoxe" → verificar se há "Prada Paradoxe Intense", etc.
-    const marcaBase = nomeBase.split(' ').slice(0, 2).join(' ').toLowerCase();
-    const versoesRelacionadas = Object.values(CATALOGO).filter(p =>
-      p.nomeBase !== nomeBase &&
-      normalizar(p.nomeBase).startsWith(normalizar(nomeBase).split(' ').slice(0,2).join(' ')) &&
-      p.preco && Object.keys(p.preco).length > 0
-    );
-    const nomesRelUnicos = new Set(versoesRelacionadas.map(p => p.nomeBase));
-
-    if (nomesRelUnicos.size > 0) {
-      reply += `\n\n💡 *Também temos versões relacionadas:*\n`;
-      nomesRelUnicos.forEach(nb => {
-        const vs = versoesRelacionadas.filter(p => p.nomeBase === nb);
-        const kzMin = Math.min(...vs.map(p => precoMin(p.preco)));
-        reply += `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
-      });
-      reply += `\nQuer saber mais sobre alguma destas versões?`;
-    } else if (p0.nicho) {
-      reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!\n\n💡 Posso também verificar se existe alguma promoção disponível. Quer que o faça?`;
-    } else {
-      reply += `\n\nDeseja encomendar? Escreva *encomendar* e trato de tudo!`;
-    }
-  } else {
-    // Múltiplas versões — mostrar TODAS com preços e perguntar qual prefere
-    reply += `💰 *Todas as versões disponíveis:*\n`;
-    versoes.forEach((p, i) => {
-      const precMin = precoMin(p.preco);
-      const precMax = precoMax(p.preco);
-      const faixaPreco = precMin === precMax
-        ? `${precMin.toLocaleString('pt-PT')} Kz`
-        : `${precMin.toLocaleString('pt-PT')} a ${precMax.toLocaleString('pt-PT')} Kz`;
-      reply += `\n*${i+1}. ${p.conc}* _(${getDuracao(p.conc).split(' — ')[0]})_\n`;
-      reply += formatPrecos(p.preco) + `\n`;
-    });
-    reply += `\n📦 Entrega em Luanda incluída.`;
-    if (p0.nicho) {
-      reply += `\n\nQual das versões prefere? Pode indicar o número ou o nome _(EDT, EDP, Parfum...)_.\n\n💡 Posso também verificar se existe alguma promoção disponível. Quer que o faça?`;
-    } else {
-      reply += `\n\nQual das versões prefere? Indique o número ou o nome _(EDT, EDP, Parfum...)_ e trato da encomenda.`;
-    }
-  }
-  return reply;
-}
 
 // ===================================================
 // FLUXO DE ENCOMENDA
@@ -881,31 +980,57 @@ function encontrarAlternativas(nomeBase, orcamento) {
 }
 
 // ===================================================
-// FORMATAR SUGESTÕES
+// FORMATAR SUGESTÕES — tom consultor, não lista de vendas
 // ===================================================
 function formatarSugestoes(sugestoes, tituloContexto, orcamento) {
   const { designers, nicho } = sugestoes;
   if (!designers.length && !nicho.length) return null;
-  let reply = `Com prazer!\n`;
-  if (tituloContexto) reply += `\nPara *${tituloContexto}*, as minhas sugestões:\n`;
+
+  const ABERTURAS = [
+    `Três opções. Cada uma faz sentido por razões diferentes.`,
+    `Com base no que descreveu, estas são as escolhas certas.`,
+    `Seleccionei isto para si.`,
+    `Para o que procura, estas são as que fazem sentido.`,
+  ];
+  const abertura = ABERTURAS[Math.floor(Math.random() * ABERTURAS.length)];
+
+  let reply = abertura;
+  if (tituloContexto) reply += ` Para *${tituloContexto}*:\n`;
+  else reply += `\n`;
+
+  function descricaoBreve(p) {
+    const f = (p.familia || '').toLowerCase();
+    if (/aquatico|citrico/.test(f)) return 'Fresco, limpo, presente sem incomodar.';
+    if (/gourmand/.test(f)) return 'Quente e envolvente — quem está perto pergunta o que é.';
+    if (/floral.*oriental|oriental.*floral/.test(f)) return 'Floral à superfície, quente por baixo. Evolui bem.';
+    if (/floral/.test(f)) return 'Floral com substância — não é superficial.';
+    if (/oriental|especiado/.test(f)) return 'Intenso, profundo, marcante.';
+    if (/amadeirado/.test(f)) return 'Madeiras secas, elegância discreta.';
+    return 'Uma assinatura própria.';
+  }
+
   if (designers.length) {
     reply += `\n🏷️ *Designer:*\n`;
     designers.forEach(p => {
       const kzMin = precoMin(p.preco);
-      const ctx = getContextoSazonal(p);
-      reply += `\n• *${p.nomeBase}*\n  _${p.notas}_\n  ${ctx.charAt(0).toUpperCase() + ctx.slice(1)}.\n  A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      reply += `\n*${p.nomeBase}*\n`;
+      reply += `_${p.notas}_\n`;
+      reply += `${descricaoBreve(p)}\n`;
+      reply += `A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
     });
   }
   if (nicho.length) {
-    reply += `\n💎 *Nicho (mais exclusivo):*\n`;
+    reply += `\n💎 *Nicho:*\n`;
     nicho.forEach(p => {
       const kzMin = precoMin(p.preco);
-      const ctx = getContextoSazonal(p);
-      reply += `\n• *${p.nomeBase}*\n  _${p.notas}_\n  ${ctx.charAt(0).toUpperCase() + ctx.slice(1)}.\n  A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
+      reply += `\n*${p.nomeBase}*\n`;
+      reply += `_${p.notas}_\n`;
+      reply += `${descricaoBreve(p)}\n`;
+      reply += `A partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
     });
   }
   if (orcamento) reply += `\n_Dentro do orçamento de ${orcamento.toLocaleString('pt-PT')} Kz._`;
-  reply += `\n\nQuer saber mais sobre algum destes? Escreva o nome para ver todos os detalhes, ou *encomendar [nome]* para avançar.`;
+  reply += `\n\nQuer saber mais sobre algum destes? Escreva o nome para ver a descrição completa, notas e preços.`;
   return reply;
 }
 
@@ -1245,59 +1370,149 @@ Um consultor entrará em contacto consigo brevemente. 🖤`;
     // Estado 2: recebeu género, pergunta época/estilo
     // Estado 3: recebeu época, sugere com contexto
     // =============================================
-    if (sessao.tipo === 'qualificar_genero') {
-      // Cliente respondeu — extractar género
-      const generoRespondido = extrairGenero(txtNorm)
-        || (/masculin|homem|ele\b|rapaz|\bm\b|para mim/.test(txtNorm) ? 'M'
-          : /feminin|mulher|ela\b|menina|\bf\b/.test(txtNorm) ? 'F'
-          : /unissex|ambos|qualquer/.test(txtNorm) ? 'U' : null);
+    // =============================================
+    // QUALIFICAÇÃO — 3 perguntas obrigatórias
+    // Pergunta 1: intenção (para quem / o quê)
+    // Pergunta 2: impressão (o que quer provocar)
+    // Pergunta 3: contexto de uso (quando / onde)
+    // =============================================
 
-      if (!generoRespondido) {
-        // Não percebeu o género — pergunta de novo de forma diferente
-        return `Para ajudar melhor — o perfume é para homem ou para mulher?`;
+    if (sessao.tipo === 'qualificar_intencao') {
+      // Recebeu resposta à pergunta de intenção
+      // Reflecte + avança para pergunta de impressão
+      const n = txtNorm;
+      let reflexo = '';
+      if (/oferecer|presente|prenda|oferta/.test(n)) reflexo = 'Um presente. Algo que fique.';
+      else if (/para mim|uso proprio|eu mesmo|uso pessoal/.test(n)) reflexo = 'Para si. Bem.';
+      else if (/mulher|namorada|esposa|mae\b|ela\b|irma|menina/.test(n)) reflexo = 'Para ela. Certo.';
+      else if (/homem|namorado|marido|pai\b|ele\b|irmao|rapaz/.test(n)) reflexo = 'Para ele.';
+      else reflexo = 'Entendido.';
+
+      const generoRespondido =
+        /mulher|namorada|esposa|mae\b|ela\b|irma|menina|feminin/.test(n) ? 'F' :
+        /homem|namorado|marido|pai\b|ele\b|irmao|rapaz|masculin/.test(n) ? 'M' :
+        /para mim/.test(n) ? (sessao.generoSelf || null) : null;
+
+      updateSessao(from, {
+        tipo: 'qualificar_impressao',
+        intencao: txt,
+        genero: generoRespondido,
+        criterio: sessao.criterio || ''
+      });
+
+      return `${reflexo}\n\nQue impressão quer que este perfume deixe — presença marcante, algo que só quem está perto sente, ou algo que varia ao longo do dia?`;
+    }
+
+    if (sessao.tipo === 'qualificar_impressao') {
+      // Recebeu resposta à pergunta de impressão
+      // Reflecte + avança para pergunta de contexto
+      const n = txtNorm;
+      let reflexo = '';
+      let estiloMapped = '';
+
+      if (/marcante|presenca|forte|poderoso|impacto|notar|chamar|intenso|pesado|chamativo/.test(n)) {
+        reflexo = 'Uma entrada. Não um perfume.';
+        estiloMapped = 'intenso oriental marcante noite';
+      } else if (/discreto|intimo|perto|suave|leve|delicado|subtil|nao.*forte/.test(n)) {
+        reflexo = 'A pele que cheira melhor do que o perfume.';
+        estiloMapped = 'discreto leve suave fresco';
+      } else if (/varia|evolui|transforma|diferente.*dia|fresco.*noite|versatil/.test(n)) {
+        reflexo = 'Um perfume que muda. Como quem o usa.';
+        estiloMapped = 'versatil floral amadeirado';
+      } else if (/fresc|limpo|aquatico|natural|ar livre/.test(n)) {
+        reflexo = 'Frescura com personalidade.';
+        estiloMapped = 'fresco aquatico citrico';
+      } else if (/doce|baunilha|quente|envolvente|aconcheg/.test(n)) {
+        reflexo = 'Calor que fica na memória.';
+        estiloMapped = 'doce gourmand baunilha oriental';
+      } else if (/sensual|sedutor|romantico|conquista|atrair/.test(n)) {
+        reflexo = 'Sedução, então.';
+        estiloMapped = 'sensual oriental romantico gourmand';
+      } else {
+        reflexo = 'Compreendido.';
+        estiloMapped = n;
       }
 
+      updateSessao(from, {
+        tipo: 'qualificar_contexto',
+        intencao: sessao.intencao,
+        impressao: txt,
+        estiloMapped,
+        genero: sessao.genero,
+        criterio: sessao.criterio || ''
+      });
+
+      return `${reflexo}\n\nE onde vai ser usado — no dia a dia, numa ocasião especial, ou tem um contexto específico em mente?`;
+    }
+
+    if (sessao.tipo === 'qualificar_contexto') {
+      // Recebeu resposta ao contexto de uso — tem tudo para sugerir
+      const n = txtNorm;
+      let criterioContexto = '';
+      let reflexo = '';
+
+      if (/calor|quente|angola|clima|sol\b|dia.*a.*dia|diario|trabalho|escritorio|casual/.test(n)) {
+        criterioContexto = 'fresco aquatico dia calor';
+        reflexo = 'Angola exige isso. Sabe como é.';
+      } else if (/noite|festa|jantar|evento|especial|sair|saida|balada/.test(n)) {
+        criterioContexto = 'intenso oriental noite especial';
+        reflexo = 'Então tem de ficar.';
+      } else if (/romantico|encontro|conquista|date\b|seduzir/.test(n)) {
+        criterioContexto = 'sensual oriental romantico gourmand';
+        reflexo = 'Para isso, a escolha tem de ser precisa.';
+      } else if (/casamento|batizado|formatura|cerimonia/.test(n)) {
+        criterioContexto = 'floral oriental elegante';
+        reflexo = 'Uma ocasião que merece estar à altura.';
+      } else if (/frio|inverno|viagem|europa|lisboa|portugal/.test(n)) {
+        criterioContexto = 'intenso oriental amadeirado inverno';
+        reflexo = 'Para climas frios, o perfume pede mais profundidade.';
+      } else {
+        criterioContexto = n;
+        reflexo = 'Com esse contexto em mente,';
+      }
+
+      const estiloMapped = sessao.estiloMapped || '';
       const criterioBase = sessao.criterio || '';
-      updateSessao(from, { tipo: 'qualificar_epoca', genero: generoRespondido, criterio: criterioBase });
+      const criterioFinal = [criterioBase, estiloMapped, criterioContexto].filter(Boolean).join(' ');
+      const genero = sessao.genero;
+      const orc = extrairOrcamento(txt) || orcamento;
+      clearSessao(from);
 
-      // Se já tem época no contexto inicial, avança directamente
-      const temEpoca = /calor|quente|verao|frio|inverno|noite|dia\b|trabalho/.test(criterioBase);
-      if (temEpoca) {
-        // Sugere directamente com género + época
-        const sugestoes = sugerirPorCriterio(criterioBase, generoRespondido, orcamento);
-        if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
-          clearSessao(from);
-          const titulo = getTituloContexto(criterioBase);
-          const genLabel = generoRespondido === 'M' ? 'masculinos' : 'femininos';
-          return formatarSugestoes(sugestoes, `${titulo} — perfumes ${genLabel}`, orcamento);
-        }
+      const sugestoes = sugerirPorCriterio(criterioFinal, genero, orc);
+      if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
+        setSessao(from, { tipo: 'sugestao_activa', criterio: criterioFinal, genero, orcamento: orc });
+        const titulo = getTituloContexto(criterioFinal);
+        const genLabel = genero === 'M' ? 'masculinos' : genero === 'F' ? 'femininos' : '';
+        return `${reflexo}\n\n` + formatarSugestoes(sugestoes, titulo + (genLabel ? ` — ${genLabel}` : ''), orc);
       }
+      return `${reflexo}\n\nPara esse perfil, as fragrâncias orientais e amadeiradas da nossa colecção são as mais indicadas. Escreva *catálogo* para ver tudo ou diga-me um nome específico.`;
+    }
 
-      return `E para que tipo de ocasião — prefere algo *mais fresco para o dia* ou *mais intenso para a noite*?`;
+    // Compatibilidade: estados antigos redirecciona para novo fluxo
+    if (sessao.tipo === 'qualificar_genero') {
+      const generoRespondido = extrairGenero(txtNorm) ||
+        (/masculin|homem|ele\b|rapaz|para mim/.test(txtNorm) ? 'M' :
+         /feminin|mulher|ela\b|menina/.test(txtNorm) ? 'F' : null);
+      const criterioBase = sessao.criterio || '';
+      updateSessao(from, { tipo: 'qualificar_impressao', intencao: txt, genero: generoRespondido, criterio: criterioBase });
+      return `Que impressão quer que este perfume deixe — presença marcante, algo íntimo e discreto, ou algo versátil que evolui ao longo do dia?`;
     }
 
     if (sessao.tipo === 'qualificar_epoca') {
       const genero = sessao.genero;
       const criterioBase = sessao.criterio || '';
-
-      // Mapear resposta do cliente para critério
       const n = txtNorm;
-      let criterioEpoca = '';
-      if (/calor|quente|dia\b|fresc|leve|casual|trabalho|escritorio/.test(n)) criterioEpoca = 'fresco aquatico dia calor';
-      else if (/noite|intenso|marcante|forte|especial|festa|evento|romantico|encontro|casamento/.test(n)) criterioEpoca = 'intenso oriental noite especial';
-      else if (/ambos|qualquer|versatil/.test(n)) criterioEpoca = 'versatil floral amadeirado';
-      else criterioEpoca = n; // usa a resposta literal
-
+      let criterioEpoca = /calor|quente|fresc|dia\b|casual/.test(n) ? 'fresco aquatico dia' :
+        /noite|intenso|marcante|festa/.test(n) ? 'intenso oriental noite' : n;
       const criterioFinal = criterioBase + ' ' + criterioEpoca;
       const sugestoes = sugerirPorCriterio(criterioFinal, genero, orcamento);
       clearSessao(from);
-
       if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
         const titulo = getTituloContexto(criterioFinal);
         const genLabel = genero === 'M' ? 'masculinos' : genero === 'F' ? 'femininos' : '';
         return formatarSugestoes(sugestoes, titulo + (genLabel ? ` — ${genLabel}` : ''), orcamento);
       }
-      return `Para o perfil indicado, as fragrâncias orientais e amadeiradas são as mais indicadas. Escreva *catálogo* para ver tudo ou diga-me um nome específico.`;
+      return `Para esse perfil, as fragrâncias orientais e amadeiradas são as mais indicadas. Escreva *catálogo* para ver tudo.`;
     }
 
     // Refinamento de sugestão activa
@@ -1506,36 +1721,29 @@ Indique o número da opção pretendida.`;
 
   // ================================================
   // P5 — Sugestão com critério de contexto
-  // FIX BUG 1 e BUG 3: SE NÃO TEM GÉNERO → pergunta género primeiro
+  // 3 perguntas obrigatórias antes de qualquer sugestão
   // ================================================
-  const TEM_CONTEXTO = /calor|quente|verao|frio|inverno|noite|festa|casamento|jantar|romantico|encontro|trabalho|escritorio|reuniao|diario|casual|intenso|marcante|leve|fresco|discreto|doce|sensual|elegante|baunilha|floral|oriental|amadeirado|aquatico|gourmand|oud|rosa\b|suger|recomendar|quero algo|procuro algo|para.*dia\b|para.*noite|para.*ocasiao|para.*evento/.test(txtNorm);
+  const TEM_CONTEXTO = /calor|quente|verao|frio|inverno|noite|festa|casamento|jantar|romantico|encontro|trabalho|escritorio|reuniao|diario|casual|intenso|marcante|leve|fresco|discreto|doce|sensual|elegante|baunilha|floral|oriental|amadeirado|aquatico|gourmand|oud|rosa\b|suger|recomendar|quero algo|procuro algo|para.*dia\b|para.*noite|para.*ocasiao|para.*evento|para.*ele\b|para.*ela\b|para.*homem|para.*mulher|calor|quente|praia|sol\b|frio|chuva|nublado|clima|impressionar|conquistar|seduzir|balada|saida/.test(txtNorm);
 
   if (TEM_CONTEXTO) {
     const generoMsg = extrairGenero(txtNorm);
 
-    if (!generoMsg) {
-      // NÃO TEM GÉNERO — pergunta primeiro (FIX BUG 1 + BUG 3)
-      setSessao(from, { tipo: 'qualificar_genero', criterio: txtNorm, orcamento });
-      return `Para ajudar melhor — o perfume é para si (homem ou mulher) ou para oferecer a alguém?`;
+    // Tem género + ocasião/clima definidos → faz pergunta 2 (impressão)
+    if (generoMsg) {
+      const temContextoRico = /calor|quente|noite|festa|casamento|romantico|encontro|trabalho|frio|inverno|especial/.test(txtNorm);
+      if (temContextoRico) {
+        // Tem tudo — mas ainda faz a pergunta de impressão para personalizar
+        setSessao(from, { tipo: 'qualificar_impressao', intencao: txt, genero: generoMsg, criterio: txtNorm, orcamento });
+        const genLabel = generoMsg === 'F' ? 'ela' : generoMsg === 'M' ? 'ele' : 'quem o vai usar';
+        return `Percebo. E que impressão quer que este perfume deixe em ${genLabel} — presença marcante, algo íntimo que só quem está perto sente, ou algo versátil?`;
+      }
+      setSessao(from, { tipo: 'qualificar_impressao', intencao: txt, genero: generoMsg, criterio: txtNorm, orcamento });
+      return `Que impressão quer que este perfume deixe — presença marcante, algo discreto e íntimo, ou algo que evolui ao longo do dia?`;
     }
 
-    // TEM GÉNERO — verifica se precisa de época
-    const temEpoca = /calor|quente|frio|inverno|noite|dia\b|trabalho|casual|fresco|intenso/.test(txtNorm);
-
-    if (!temEpoca) {
-      // Tem género mas não tem época — pergunta época
-      setSessao(from, { tipo: 'qualificar_epoca', genero: generoMsg, criterio: txtNorm, orcamento });
-      return `Perfeito! E para que tipo de ocasião — algo *mais fresco para o dia* ou *mais intenso para a noite*?`;
-    }
-
-    // TEM GÉNERO + ÉPOCA — sugere directamente
-    const sugestoes = sugerirPorCriterio(txtNorm, generoMsg, orcamento);
-    if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
-      setSessao(from, { tipo: 'sugestao_activa', criterio: txtNorm, genero: generoMsg, orcamento });
-      const titulo = getTituloContexto(txtNorm);
-      const genLabel = generoMsg === 'M' ? 'masculinos' : 'femininos';
-      return formatarSugestoes(sugestoes, `${titulo} — ${genLabel}`, orcamento);
-    }
+    // Sem género — começa pelo início
+    setSessao(from, { tipo: 'qualificar_intencao', criterio: txtNorm, orcamento });
+    return `Para fazer uma sugestão certeira — o perfume é para si ou para oferecer?`;
   }
 
   // Pedido vago de orçamento
