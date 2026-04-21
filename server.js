@@ -1045,69 +1045,6 @@ function respostaPerfume(nomeBase) {
   }
   return reply;
 }
-  const versoes = Object.values(CATALOGO).filter(p =>
-    p.nomeBase === nomeBase && p.preco && Object.keys(p.preco).length > 0
-  );
-  if (!versoes.length) return null;
-  const p0 = versoes[0];
-  const emoji = p0.genero === 'M' ? '👔' : p0.genero === 'F' ? '👗' : '✨';
-  const banner = getBannerDesconto();
-  const generoLabel = p0.genero === 'M' ? 'Masculino' : p0.genero === 'F' ? 'Feminino' : 'Unissexo';
-  const nichoLabel = p0.nicho ? ' _(Nicho)_' : '';
-
-  const CASAS = {
-    'Dior': 'a prestigiada casa francesa Dior',
-    'Chanel': 'a icónica casa Chanel',
-    'YSL': 'a casa francesa Yves Saint Laurent',
-    'Armani': 'a casa italiana Giorgio Armani',
-    'Rabanne': 'a casa Paco Rabanne',
-    'Versace': 'a casa italiana Versace',
-    'Hugo Boss': 'a casa Hugo Boss',
-    'Lancôme': 'a casa francesa Lancôme',
-    'Guerlain': 'a histórica casa francesa Guerlain',
-    'Mugler': 'a casa francesa Thierry Mugler',
-    'Tom Ford': 'a casa americana Tom Ford',
-    'Calvin Klein': 'a casa americana Calvin Klein',
-    'Narciso Rodriguez': 'a casa Narciso Rodriguez',
-    'Issey Miyake': 'a casa japonesa Issey Miyake',
-    'Creed': 'a lendária casa britânica Creed',
-    'Mancera': 'a casa parisiense Mancera — referência no nicho',
-    'Montale': 'a casa parisiense Montale',
-    'MFK': 'a Maison Francis Kurkdjian',
-    'By Kilian': 'a exclusiva casa By Kilian',
-    'Amouage': 'a opulenta casa omanense Amouage',
-    'Parfums de Marly': 'a casa francesa Parfums de Marly',
-    'Nishane': 'a casa turca Nishane',
-    'Initio': 'a casa francesa Initio Parfums Privés',
-    'Xerjoff': 'a casa italiana Xerjoff',
-    'Frederic Malle': 'as Éditions de Parfums Frédéric Malle',
-    'Roja Dove': 'a casa britânica Roja Parfums',
-  };
-  let casa = 'uma reconhecida casa de perfumaria';
-  for (const [marca, desc] of Object.entries(CASAS)) {
-    if (nomeBase.includes(marca)) { casa = desc; break; }
-  }
-
-  function getDescricao(p) {
-    const f = (p.familia || '').toLowerCase();
-    if (/baccarat|rouge.*540/.test(nomeBase.toLowerCase()))
-      return 'Quem o usa raramente passa despercebido. Deixa um rasto dourado e inconfundível — é o tipo de fragrância que as pessoas se voltam para tentar perceber de onde vem.';
-    if (/aquatico|citrico/.test(f))
-      return 'Fresco, limpo e revigorante. Discreto sem ser apagado — a escolha certa para quem quer estar sempre bem apresentado sem exageros.';
-    if (/gourmand/.test(f))
-      return 'Envolvente, quente e irresistível. Sofisticado sem ser pesado. Quem está perto vai sentir um calor agradável — nunca enjoativo, sempre memorável.';
-    if (/floral.*oriental|oriental.*floral/.test(f))
-      return 'Elegante e marcante. Floral na superfície, com uma base quente e profunda que transforma ao longo do dia. Para quem quer ser lembrado depois de sair da sala.';
-    if (/floral/.test(f))
-      return 'Floral com complexidade e alma. Não é um floral óbvio — tem carácter. O perfume de quem não precisa de gritar para ser notado.';
-    if (/oriental|especiado/.test(f))
-      return 'Intenso e magnético. Como especiarias no ar e madeiras a arder numa noite fria. Para ocasiões em que quer fazer uma entrada inesquecível.';
-    if (/amadeirado/.test(f))
-      return 'Sofisticado, seco e inconfundível. As madeiras nobres dão-lhe uma elegância discreta que combina com qualquer ocasião formal.';
-    return 'Uma fragrância de carácter que evolui de forma encantadora ao longo do dia.';
-  }
-
-  const contexto = getContextoSazonal(p0);
 
 // ===================================================
 // FLUXO DE ENCOMENDA
