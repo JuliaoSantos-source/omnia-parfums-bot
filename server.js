@@ -1606,10 +1606,24 @@ function getBotReply(from, msg) {
   };
 
   // Marca sozinha (sem nome de perfume) → lista da marca
+  // Detectar menção de marca em frases de consulta sem perfume específico
+  // Ex: "Quanto custa o Nishane", "tem Mancera?", "o que tem da Creed"
   const marcaSozinha = Object.keys(MARCAS_LISTA).find(m => {
     const n = txtNorm.trim();
-    return n === m || n === m.replace(' ', '') ||
-           (n.split(' ').length <= 2 && n.startsWith(m.split(' ')[0]) && !pesquisaDirecta(txtLow));
+    const marcaBase = m.split(' ')[0]; // ex: "nishane", "mancera"
+    // Exacto
+    if (n === m || n === m.replace(' ', '')) return true;
+    // Frase curta com a marca mas sem nome de perfume específico
+    if (n.includes(marcaBase) && !pesquisaDirecta(txtLow)) {
+      // Verificar que não é um perfume específico já no catálogo
+      const temNomePerfume = Object.values(CATALOGO).some(p =>
+        normalizar(p.nomeBase).includes(marcaBase) &&
+        normalizar(p.nomeBase).split(' ').filter(w => w.length > 3 && w !== marcaBase)
+          .some(w => txtNorm.includes(w))
+      );
+      return !temNomePerfume;
+    }
+    return false;
   });
   if (marcaSozinha) {
     return MARCAS_LISTA[marcaSozinha]();
@@ -1784,10 +1798,9 @@ function getBotReply(from, msg) {
           }
         }
       }
-      // Sem contexto suficiente — inicia qualificação
+      // Sem contexto suficiente — pede que descreva directamente
       clearSessao(from);
-      setSessao(from, { tipo: 'qualificar_intencao', criterio: txtNorm, orcamento: orcSessao });
-      return `Para sugerir as opções certas — o perfume é para si ou para oferecer?`;
+      return `Diga-me o que procura — para que ocasião, que tipo de perfume, para si ou para oferecer — e sugiro de imediato.`;
     }
 
     // =============================================
@@ -1877,6 +1890,21 @@ Um consultor entrará em contacto consigo brevemente. 🖤`;
       });
 
       return `${reflexo}\n\nQue impressão quer que este perfume deixe — presença marcante, algo que só quem está perto sente, ou algo que varia ao longo do dia?`;
+    }
+
+    // Detectar frustração do cliente no fluxo de qualificação
+    const ehFrustracao = /^(de novo|outra vez|ja disse|ja respondi|enfim|isto ja|porque repetes|nao percebes|nao entende|para quem|isso ja|basta|chega)/.test(txtNorm);
+    if (ehFrustracao && sessao.tipo && sessao.tipo.startsWith('qualificar')) {
+      // Avançar directamente para sugestão com o que já sabe
+      const criterioActual = [sessao.criterio || '', sessao.estiloMapped || '', sessao.intencao || ''].join(' ');
+      const generoActual = sessao.genero;
+      clearSessao(from);
+      const sugestoes = sugerirPorCriterio(criterioActual || 'versatil floral amadeirado', generoActual, orcamento);
+      if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
+        setSessao(from, { tipo: 'sugestao_activa', criterio: criterioActual, genero: generoActual, orcamento });
+        return formatarSugestoes(sugestoes, 'o seu perfil', orcamento);
+      }
+      return `Compreendo. Com base no que partilhou, recomendo explorar o nosso catálogo — escreva *nicho* para ver as opções exclusivas ou diga-me um nome específico.`;
     }
 
     if (sessao.tipo === 'qualificar_impressao') {
