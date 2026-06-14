@@ -1625,6 +1625,8 @@ function getBotReply(from, msg) {
   const txtNorm = normalizar(txt);
   const sessao = getSessao(from);
   const orcamento = extrairOrcamento(txt) || (sessao && sessao.orcamento);
+  const ehPedidoSugestao = /^(sugestoe?s?|sugerir|sugere|sugira|recomenda|recomendaco?e?s?|quero sugestoes|da.me sugestoes|preciso de sugestoes|quero ver sugestoes|nao quero.*perfume.*sim sugestoes|nao.*perfume.*sugestoes|quero opcoe?s?)$/.test(txtNorm) ||
+    /^sugestoe?s?\s*(de|para|sobre)?$/.test(txtNorm);
   if (extrairOrcamento(txt)) updateSessao(from, { orcamento: extrairOrcamento(txt) });
 
   // ================================================
@@ -1715,8 +1717,6 @@ function getBotReply(from, msg) {
     /^(ver|mostrar|listar|explorar)\s+(nicho|catalogo|masculin|feminin)/.test(txtNorm);
 
   // Palavras de intenção de sugestão — NUNCA tratar como nome de perfume
-  const ehPedidoSugestao = /^(sugestoe?s?|sugerir|sugere|sugira|recomenda|recomendaco?e?s?|quero sugestoes|da.me sugestoes|preciso de sugestoes|quero ver sugestoes|nao quero.*perfume.*sim sugestoes|nao.*perfume.*sugestoes|quero opcoe?s?)$/.test(txtNorm) ||
-    /^sugestoe?s?\s*(de|para|sobre)?$/.test(txtNorm);
 
   // "Outras opções" / "alternativas" nunca deve chegar ao fallback de escalada
   const ehPedidoAlternativas = /outras?\s*op[çc][oõ]es|ver\s+mais|mais\s+op[çc][oõ]es|alternativas|outra\s+op[çc][aã]o|outras\s+escolhas|outras\s+sugest/.test(txtNorm);
