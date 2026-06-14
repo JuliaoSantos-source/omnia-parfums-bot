@@ -1077,6 +1077,24 @@ function sugerirPorCriterio(txtNorm, genero, orcamento) {
     if (p.nicho) nicho.push(p);
     else designers.push(p);
   }
+  // Garantir mínimo de sugestões — se pool muito restrito, alargar
+  if (designers.length < 2 && nicho.length < 2) {
+    // Pool muito restrito — alargar critérios mantendo género
+    const poolAlargado = Object.values(CATALOGO).filter(p => {
+      if (!p.preco || !Object.keys(p.preco).length) return false;
+      if (genero && p.genero !== genero && p.genero !== 'U') return false;
+      if (orcamento && orcamento > 0) return precoMin(p.preco) <= orcamento * 1.2;
+      return true;
+    });
+    const vistosAlarg = new Set(vistos);
+    for (const p of poolAlargado) {
+      if (vistosAlarg.has(p.nomeBase)) continue;
+      vistosAlarg.add(p.nomeBase);
+      if (p.nicho) nicho.push(p);
+      else designers.push(p);
+      if (designers.length >= 3 && nicho.length >= 2) break;
+    }
+  }
   return { designers: designers.slice(0, 3), nicho: nicho.slice(0, 2) };
 }
 
@@ -1274,9 +1292,9 @@ function respostaPerfume(nomeBase) {
         reply += `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz\n`;
       });
     }
-    // Upsell promoção para Nishane
+    // Upsell promoção para Nishane — só pergunta, não escala automaticamente
     if (p0.nomeBase && p0.nomeBase.startsWith('Nishane')) {
-      reply += `\n\n🏷️ Quer que verifique se existe alguma promoção activa neste perfume? Responda *promoção* e verifico para si.`;
+      reply += `\n\n🏷️ Quer verificar se há promoção activa? Escreva *promoção*.`;
     }
     reply += `\n\nDeseja encomendar? Escreva *encomendar* ou diga-me se quer explorar outras opções.`;
   } else {
@@ -1562,6 +1580,15 @@ function getBotReply(from, msg) {
   if (extrairOrcamento(txt)) updateSessao(from, { orcamento: extrairOrcamento(txt) });
 
   // ================================================
+  // P0B — Pedido explícito de sugestões → inicia fluxo de 3 perguntas
+  // "Sugestões", "Quero sugestões", "Não quero perfume, quero sugestões"
+  // ================================================
+  if (ehPedidoSugestao) {
+    if (!sessao) setSessao(from, { tipo: 'qualificar_intencao', criterio: '', orcamento });
+    return `Para fazer uma sugestão certeira — o perfume é para si ou para oferecer?`;
+  }
+
+  // ================================================
   // P0A — Marca sozinha sem perfume específico → mostra lista da marca
   // Ex: "Nishane", "Mancera", "Montale"
   // ================================================
@@ -1575,6 +1602,36 @@ function getBotReply(from, msg) {
     'xerjoff': () => { const ps = [...new Set(Object.values(CATALOGO).filter(p => p.nomeBase.startsWith('Xerjoff')).map(p => p.nomeBase))]; return `✨ *Xerjoff — colecção disponível:*\n\n${ps.map(nb => { const vs = Object.values(CATALOGO).filter(p => p.nomeBase === nb); const kzMin = Math.min(...vs.map(p => precoMin(p.preco))); return `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz`; }).join('\n')}\n\n_Escreva o nome completo para ver detalhes e preços._`; },
     'initio': () => { const ps = [...new Set(Object.values(CATALOGO).filter(p => p.nomeBase.startsWith('Initio')).map(p => p.nomeBase))]; return `✨ *Initio — colecção disponível:*\n\n${ps.map(nb => { const vs = Object.values(CATALOGO).filter(p => p.nomeBase === nb); const kzMin = Math.min(...vs.map(p => precoMin(p.preco))); return `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz`; }).join('\n')}\n\n_Escreva o nome completo para ver detalhes e preços._`; },
   };
+
+
+  // FIX 3 — Filtro de género dentro de marca
+  // "Mancera pra mulher", "Tem Nishane femininos", "Mancera para ela"
+  const marcaComGenero = (() => {
+    const genero = extrairGenero(txtNorm);
+    if (!genero) return null;
+    const marcas = ['mancera','nishane','montale','creed','parfums de marly','xerjoff','initio','amouage','frederic malle'];
+    for (const m of marcas) {
+      if (txtNorm.includes(m) && !pesquisaDirecta(txtLow)) {
+        const nomeMarca = m.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const ps = [...new Set(
+          Object.values(CATALOGO)
+            .filter(p => normalizar(p.nomeBase).startsWith(m) && (p.genero === genero || p.genero === 'U'))
+            .map(p => p.nomeBase)
+        )];
+        if (ps.length > 0) {
+          const genLabel = genero === 'F' ? 'Femininos & Unissexo' : 'Masculinos & Unissexo';
+          const linhas = ps.map(nb => {
+            const vs = Object.values(CATALOGO).filter(p => p.nomeBase === nb);
+            const kzMin = Math.min(...vs.map(p => precoMin(p.preco)));
+            return `• *${nb}* — a partir de ${kzMin.toLocaleString('pt-PT')} Kz`;
+          });
+          return `✨ *${nomeMarca} — ${genLabel}*${getBannerDesconto()}\n\n${linhas.join('\n')}\n\n_Escreva o nome para ver versões, notas e preços._`;
+        }
+      }
+    }
+    return null;
+  })();
+  if (marcaComGenero) return marcaComGenero;
 
   // Marca sozinha (sem nome de perfume) → lista da marca
   // Detectar menção de marca em frases de consulta sem perfume específico
@@ -1608,6 +1665,10 @@ function getBotReply(from, msg) {
     /^(catalogo|nicho|luxo|exclusiv|premium|masculin|feminin|unissex|ola|oi|bom dia|boa tarde|boa noite|obrigad|tchau|xau|adeus|bye)\b/.test(txtNorm) ||
     /perfumes?\s+(de\s+)?(nicho|designer|masculin|feminin|unissex|luxo|calor|frio|noite|dia\b)/.test(txtNorm) ||
     /^(ver|mostrar|listar|explorar)\s+(nicho|catalogo|masculin|feminin)/.test(txtNorm);
+
+  // Palavras de intenção de sugestão — NUNCA tratar como nome de perfume
+  const ehPedidoSugestao = /^(sugestoe?s?|sugerir|sugere|sugira|recomenda|recomendaco?e?s?|quero sugestoes|da.me sugestoes|preciso de sugestoes|quero ver sugestoes|nao quero.*perfume.*sim sugestoes|nao.*perfume.*sugestoes|quero opcoe?s?)$/.test(txtNorm) ||
+    /^sugestoe?s?\s*(de|para|sobre)?$/.test(txtNorm);
 
   // "Outras opções" / "alternativas" nunca deve chegar ao fallback de escalada
   const ehPedidoAlternativas = /outras?\s*op[çc][oõ]es|ver\s+mais|mais\s+op[çc][oõ]es|alternativas|outra\s+op[çc][aã]o|outras\s+escolhas|outras\s+sugest/.test(txtNorm);
@@ -1743,6 +1804,24 @@ function getBotReply(from, msg) {
     }
 
     // =============================================
+    // FIX 9 — "Mas quero femininos/masculinos" — refiltrar sessão activa
+    const ehRefinamentoGenero = /^(mas\s+)?(quero|prefiro|s[oó]\s+)?(feminin|masculin|para\s+(ela|ele|mulher|homem))/.test(txtNorm) ||
+      /^feminin|^masculin/.test(txtNorm);
+    if (ehRefinamentoGenero && (sessao.tipo === 'sugestao_activa' || sessao.tipo === 'perfume_activo')) {
+      const novoGenero = extrairGenero(txtNorm) || extrairGenero('feminino feminino');
+      const generoFinal = /feminin|ela|mulher/.test(txtNorm) ? 'F' : /masculin|ele|homem/.test(txtNorm) ? 'M' : null;
+      const criterioSessao = sessao.criterio || '';
+      const orcSessao = orcamento || sessao.orcamento;
+      if (generoFinal) {
+        const sugestoes = sugerirPorCriterio(criterioSessao || 'versatil', generoFinal, orcSessao);
+        if (sugestoes && (sugestoes.designers.length || sugestoes.nicho.length)) {
+          updateSessao(from, { tipo: 'sugestao_activa', criterio: criterioSessao, genero: generoFinal, orcamento: orcSessao });
+          const genLabel = generoFinal === 'F' ? 'femininos' : 'masculinos';
+          return formatarSugestoes(sugestoes, genLabel, orcSessao);
+        }
+      }
+    }
+
     // OUTRAS OPÇÕES — cliente viu um perfume e quer alternativas
     // Captura ANTES de qualquer outro handler para não cair no fallback
     // =============================================
@@ -2320,7 +2399,7 @@ Nicho puro são casas como Mancera, Creed, Montale, Nishane, Amouage, Parfums de
   // P5 — Sugestão com critério de contexto
   // 3 perguntas obrigatórias antes de qualquer sugestão
   // ================================================
-  const TEM_CONTEXTO = /calor|quente|verao|frio|inverno|noite|festa|casamento|jantar|romantico|encontro|trabalho|escritorio|reuniao|diario|casual|intenso|marcante|leve|fresco|discreto|doce|sensual|elegante|baunilha|floral|oriental|amadeirado|aquatico|gourmand|oud|rosa\b|suger|recomendar|quero algo|quero um|procuro algo|preciso de|para.*dia\b|para.*noite|para.*ocasiao|para.*evento|para.*ele\b|para.*ela\b|para.*homem|para.*mulher|calor|quente|praia|sol\b|frio|chuva|nublado|clima|impressionar|conquistar|seduzir|balada|saida/.test(txtNorm) || ehSugestaoComTipo || ehPedidoAlternativas;
+  const TEM_CONTEXTO = /calor|quente|verao|frio|inverno|noite|festa|casamento|jantar|romantico|encontro|trabalho|escritorio|reuniao|diario|casual|dia a dia|uso diario|quotidiano|intenso|marcante|leve|fresco|discreto|doce|sensual|elegante|baunilha|floral|oriental|amadeirado|aquatico|gourmand|oud|rosa\b|suger|recomendar|quero algo|quero um|procuro algo|preciso de|para.*dia\b|para.*noite|para.*ocasiao|para.*evento|para.*ele\b|para.*ela\b|para.*homem|para.*mulher|calor|quente|praia|sol\b|frio|chuva|nublado|clima|impressionar|conquistar|seduzir|balada|saida/.test(txtNorm) || ehSugestaoComTipo || ehPedidoAlternativas || ehPedidoSugestao;
 
   if (TEM_CONTEXTO) {
     const generoMsg = extrairGenero(txtNorm);
@@ -2372,6 +2451,30 @@ Nicho puro são casas como Mancera, Creed, Montale, Nishane, Amouage, Parfums de
   // ================================================
 
   // ================================================
+  // ================================================
+  // FIX 8 — Perguntas de comparação de preço
+  // "Todos Mancera são ao mesmo preço?", "Qual o mais barato?"
+  // ================================================
+  const ehPerguntaPreco = /todos.*mesmo.*preco|mesmo.*preco.*todos|mais.*barato|mais.*caro|mais.*acessivel|preco.*diferente|diferente.*preco|quanto.*custam|custam.*mesmo/.test(txtNorm);
+  if (ehPerguntaPreco) {
+    // Tentar identificar a marca mencionada
+    const marcasConhecidas = ['mancera','nishane','montale','creed','parfums de marly','dior','chanel','ysl'];
+    const marcaMenc = marcasConhecidas.find(m => txtNorm.includes(m));
+    if (marcaMenc) {
+      const perfsDaMarca = Object.values(CATALOGO).filter(p => normalizar(p.nomeBase).startsWith(marcaMenc) && p.preco);
+      const precosUnicos = [...new Set(perfsDaMarca.map(p => precoMin(p.preco)))].sort((a,b) => a-b);
+      if (precosUnicos.length > 0) {
+        const nomeMarca = marcaMenc.charAt(0).toUpperCase() + marcaMenc.slice(1);
+        if (precosUnicos.length === 1) {
+          return `Todos os perfumes *${nomeMarca}* têm o mesmo preço base: *${precosUnicos[0].toLocaleString('pt-PT')} Kz*. O preço final varia com o tamanho — escreva o nome de qualquer um para ver as opções.`;
+        } else {
+          return `Os preços *${nomeMarca}* variam entre *${precosUnicos[0].toLocaleString('pt-PT')} Kz* e *${precosUnicos[precosUnicos.length-1].toLocaleString('pt-PT')} Kz*, consoante o modelo e tamanho. Escreva o nome de qualquer um para ver todos os detalhes.`;
+        }
+      }
+    }
+    return `Os preços variam conforme a marca, modelo e tamanho. Escreva o nome do perfume ou da marca para ver os preços exactos.`;
+  }
+
   // FIX — "Nicho femininos", "nicho e designer", etc.
   // Responde SEM escalar
   // ================================================
@@ -2407,14 +2510,38 @@ Nicho puro são casas como Mancera, Creed, Montale, Nishane, Amouage, Parfums de
   // Perfume fora do catálogo — escalada CIRÚRGICA
   // NUNCA durante conversa fluida ou conceptual
   // ================================================
-  const eContextoFluido = /nicho|designer|suger|recomendar|calor|quente|frio|noite|festa|fresc|intenso|floral|oriental|leve|para.*ele|para.*ela|para.*dia|para.*noite|quero algo|procuro|tens.*algo|o que.*recomendas|lista|ver|mostrar|explorar|diferenca|o que e|como|feminino|masculino|outras.*op|alternativa|ver mais|mais op/i.test(txt) || ehPedidoAlternativas;
+  // Palavras genéricas que NUNCA devem disparar escalada de "perfume não encontrado"
+  const PALAVRAS_GENERICAS = new Set([
+    'sugestoes','sugestao','sugerir','sugere','sugira','recomenda','recomendacoes',
+    'opcoes','opcao','alternativas','alternativa','outros','outras','mais',
+    'femininos','feminino','masculinos','masculino','unissexo','nicho','designer',
+    'catalogo','lista','ver','mostrar','explorar','dia','noite','calor','frio',
+    'presente','oferecer','oferta','preco','precos','desconto','promocao','entrega',
+    'informacao','ajuda','obrigado','nao','sim','ok','certo','errado','outro',
+    'quero','preciso','gosto','tenho','tem','tens','ha','existe','disponivel',
+    'quanto','custa','como','quando','onde','qual','porque','nao sei'
+  ]);
+
+  const ehPalavraGenerica = txtNorm.trim().split(' ').every(w => PALAVRAS_GENERICAS.has(w) || w.length <= 2);
+
+  const eContextoFluido = /nicho|designer|suger|recomendar|calor|quente|frio|noite|festa|fresc|intenso|floral|oriental|leve|para.*ele|para.*ela|para.*dia|para.*noite|quero algo|procuro|tens.*algo|o que.*recomendas|lista|ver|mostrar|explorar|diferenca|o que e|como|feminino|masculino|outras.*op|alternativa|ver mais|mais op/i.test(txt) || ehPedidoAlternativas || ehPedidoSugestao || ehPalavraGenerica;
 
   if (!eContextoFluido) {
+    // Só escalar se parece genuinamente um nome de perfume
+    // Nunca escalar palavras genéricas do vocabulário de atendimento
+    const palavrasMsg = txtNorm.trim().split(' ').filter(w => w.length > 1);
+    const temMaiuscula = /^[A-Z]/.test(txt.trim());
+    const temPalavrasMarcaConhecida = /polo|guilty|habit rouge|fahrenheit|poison|obsession|shock|flora|bamboo|bloom|insolence|shalimar|iris|jicky|vetiver|kouros|azzaro|davidoff|dunhill|ferrari|bvlgari|prada|valentino|givenchy|burberry/.test(txtNorm);
+    const naoEhGenerico = !ehPalavraGenerica;
+
     const pareceNomeEspecifico = (
-      /^[A-Z][a-zA-Zà-ÿ]/.test(txt) && txt.split(' ').length <= 6
+      temMaiuscula &&
+      palavrasMsg.length >= 2 &&
+      palavrasMsg.length <= 6 &&
+      naoEhGenerico
     ) && (
       /tens|tem|custa|preço|preco|quanto|disponivel|quero|comprar|encomendar/i.test(txt) ||
-      txt.split(' ').length <= 4
+      (palavrasMsg.length >= 2 && palavrasMsg.length <= 4 && temPalavrasMarcaConhecida)
     );
 
     if (pareceNomeEspecifico) {
