@@ -734,6 +734,40 @@ const CATALOGO = {
   'maison crivelli oud trilogy (3×50ml)': { nome: 'Maison Crivelli Oud Trilogy (3×50ml) EDP', nomeBase: 'Maison Crivelli Oud Trilogy (3×50ml)', genero: 'U', conc: 'EDP', familia: 'Nicho', nicho: true, preco: {'50ml': 1047300}, notas: 'Maison Crivelli Oud Trilogy (3×50ml)' },
   'maison crivelli magic blotters': { nome: 'Maison Crivelli Magic Blotters EDP', nomeBase: 'Maison Crivelli Magic Blotters', genero: 'U', conc: 'EDP', familia: 'Nicho', nicho: true, preco: {'5ml': 71500}, notas: 'Maison Crivelli Magic Blotters' },
 
+
+  // ===== NISHANE — Colecção Completa =====
+  'nishane hacivat': { nome: 'Nishane Hacivat Extrait', nomeBase: 'Nishane Hacivat', genero: 'U', conc: 'Extrait', familia: 'Cítrico Amadeirado', nicho: true, preco: {'50ml': 638600, '100ml': 843000}, notas: 'Bergamota, Abacaxi, Cedro, Patchouli' },
+  'nishane hundred silent ways': { nome: 'Nishane Hundred Silent Ways Extrait', nomeBase: 'Nishane Hundred Silent Ways', genero: 'U', conc: 'Extrait', familia: 'Floral Amadeirado', nicho: true, preco: {'50ml': 490500, '100ml': 604600}, notas: 'Rosa Turca, Almíscar, Cedro, Âmbar' },
+  'nishane ani': { nome: 'Nishane Ani Extrait', nomeBase: 'Nishane Ani', genero: 'U', conc: 'Extrait', familia: 'Floral Almíscar', nicho: true, preco: {'50ml': 468300, '100ml': 604600}, notas: 'Flor de Laranjeira, Almíscar, Âmbar' },
+  'nishane zenne': { nome: 'Nishane Zenne Extrait', nomeBase: 'Nishane Zenne', genero: 'U', conc: 'Extrait', familia: 'Oriental Floral', nicho: true, preco: {'50ml': 468300}, notas: 'Rosa, Oud, Âmbar' },
+  'nishane afrika olifant': { nome: 'Nishane Afrika Olifant Extrait', nomeBase: 'Nishane Afrika Olifant', genero: 'U', conc: 'Extrait', familia: 'Amadeirado Especiado', nicho: true, preco: {'50ml': 468300}, notas: 'Âmbar, Vetiver, Patchouli' },
+  'nishane wulong cha': { nome: 'Nishane Wulong Cha Extrait', nomeBase: 'Nishane Wulong Cha', genero: 'U', conc: 'Extrait', familia: 'Aquático Verde', nicho: true, preco: {'50ml': 434300, '100ml': 553500}, notas: 'Chá Oolong, Madeira, Almíscar Branco' },
+  'nishane florane': { nome: 'Nishane Florane Extrait', nomeBase: 'Nishane Florane', genero: 'U', conc: 'Extrait', familia: 'Floral Verde', nicho: true, preco: {'50ml': 434300}, notas: 'Tubarosa, Jasmim, Almíscar Branco' },
+  'nishane tuberoza': { nome: 'Nishane Tuberoza Extrait', nomeBase: 'Nishane Tuberoza', genero: 'U', conc: 'Extrait', familia: 'Floral', nicho: true, preco: {'50ml': 434300, '100ml': 553500}, notas: 'Tubarosa, Íris, Almíscar' },
+  'nishane ege': { nome: 'Nishane Ege Extrait', nomeBase: 'Nishane Ege', genero: 'U', conc: 'Extrait', familia: 'Cítrico Marinho', nicho: true, preco: {'50ml': 434300, '100ml': 553500}, notas: 'Bergamota, Sálvia, Cedro, Âmbar' },
+  'nishane ambra calabria': { nome: 'Nishane Ambra Calabria Extrait', nomeBase: 'Nishane Ambra Calabria', genero: 'U', conc: 'Extrait', familia: 'Cítrico Âmbar', nicho: true, preco: {'50ml': 434300}, notas: 'Bergamota, Âmbar, Almíscar' },
+  'nishane sultan vetiver': { nome: 'Nishane Sultan Vetiver Extrait', nomeBase: 'Nishane Sultan Vetiver', genero: 'U', conc: 'Extrait', familia: 'Amadeirado', nicho: true, preco: {'50ml': 434300}, notas: 'Vetiver, Âmbar, Cedro' },
+  'nishane vain e naive': { nome: 'Nishane Vain & Naive Extrait', nomeBase: 'Nishane Vain & Naive', genero: 'U', conc: 'Extrait', familia: 'Floral Almíscar', nicho: true, preco: {'50ml': 434300}, notas: 'Pêssego, Rosa, Almíscar Branco' },
+  'nishane karagoz': { nome: 'Nishane Karagoz Extrait', nomeBase: 'Nishane Karagoz', genero: 'U', conc: 'Extrait', familia: 'Oriental', nicho: true, preco: {'50ml': 468300}, notas: 'Pimenta, Âmbar, Almíscar' },
+  'nishane favonius': { nome: 'Nishane Favonius Extrait', nomeBase: 'Nishane Favonius', genero: 'U', conc: 'Extrait', familia: 'Floral', nicho: true, preco: {'50ml': 468300}, notas: 'Brisa Marinha, Floral, Âmbar' },
+  'nishane tero': { nome: 'Nishane Tero Extrait', nomeBase: 'Nishane Tero', genero: 'U', conc: 'Extrait', familia: 'Amadeirado', nicho: true, preco: {'50ml': 468300, '100ml': 604600}, notas: 'Cedro, Patchouli, Âmbar' },
+  'nishane tempfluo': { nome: 'Nishane Tempfluo Extrait', nomeBase: 'Nishane Tempfluo', genero: 'U', conc: 'Extrait', familia: 'Floral Amadeirado', nicho: true, preco: {'50ml': 468300, '100ml': 604600}, notas: 'Jasmim, Cedro, Almíscar' },
+  'nishane kredo': { nome: 'Nishane Kredo Extrait', nomeBase: 'Nishane Kredo', genero: 'U', conc: 'Extrait', familia: 'Especiado', nicho: true, preco: {'50ml': 468300, '100ml': 604600}, notas: 'Especiarias, Âmbar, Madeira' },
+  'nishane papilefiko': { nome: 'Nishane Papilefiko Extrait', nomeBase: 'Nishane Papilefiko', genero: 'U', conc: 'Extrait', familia: 'Cítrico Floral', nicho: true, preco: {'50ml': 468300, '100ml': 604600}, notas: 'Figo, Cítrico, Almíscar' },
+  'nishane nanshe': { nome: 'Nishane Nanshe Extrait', nomeBase: 'Nishane Nanshe', genero: 'U', conc: 'Extrait', familia: 'Floral Oriental', nicho: true, preco: {'50ml': 604600, '100ml': 783400}, notas: 'Rosa, Oud, Âmbar Oriental' },
+  'nishane meant to be seen': { nome: 'Nishane Meant to Be Seen Extrait', nomeBase: 'Nishane Meant to Be Seen', genero: 'U', conc: 'Extrait', familia: 'Floral Âmbar', nicho: true, preco: {'50ml': 654000, '100ml': 851500}, notas: 'Bergamota, Rosa, Âmbar Branco' },
+  'nishane nefs': { nome: 'Nishane Nefs Extrait', nomeBase: 'Nishane Nefs', genero: 'U', conc: 'Extrait', familia: 'Oriental Intenso', nicho: true, preco: {'50ml': 1030300}, notas: 'Oud, Âmbar, Resinas Raras' },
+  'nishane mana': { nome: 'Nishane Mana Extrait', nomeBase: 'Nishane Mana', genero: 'U', conc: 'Extrait', familia: 'Amadeirado Oriental', nicho: true, preco: {'50ml': 1030300}, notas: 'Oud, Especiarias Exóticas, Âmbar' },
+  'nishane shem': { nome: 'Nishane Shem Extrait', nomeBase: 'Nishane Shem', genero: 'U', conc: 'Extrait', familia: 'Oriental Especiado', nicho: true, preco: {'50ml': 1030300}, notas: 'Incenso, Oud, Âmbar Seco' },
+  'nishane colognise': { nome: 'Nishane Colognise EDP', nomeBase: 'Nishane Colognise', genero: 'U', conc: 'EDP', familia: 'Cítrico', nicho: true, preco: {'100ml': 349100}, notas: 'Nishane Colognise' },
+  'nishane safran colognise': { nome: 'Nishane Safran Colognise EDP', nomeBase: 'Nishane Safran Colognise', genero: 'U', conc: 'EDP', familia: 'Cítrico', nicho: true, preco: {'100ml': 349100}, notas: 'Nishane Safran Colognise' },
+  'nishane hesperide colognise': { nome: 'Nishane Hesperide Colognise EDP', nomeBase: 'Nishane Hesperide Colognise', genero: 'U', conc: 'EDP', familia: 'Cítrico', nicho: true, preco: {'100ml': 349100}, notas: 'Nishane Hesperide Colognise' },
+  'nishane fan your flames': { nome: 'Nishane Fan Your Flames Extrait', nomeBase: 'Nishane Fan Your Flames', genero: 'U', conc: 'Extrait', familia: 'Floral', nicho: true, preco: {'50ml': 212900, '100ml': 264000}, notas: 'Rosa, Sândalo, Almíscar' },
+  'nishane deziro': { nome: 'Nishane Deziro Extrait', nomeBase: 'Nishane Deziro', genero: 'U', conc: 'Extrait', familia: 'Amadeirado', nicho: true, preco: {'50ml': 229900, '100ml': 289500}, notas: 'Cedro, Bergamota, Almíscar' },
+  'nishane ani x': { nome: 'Nishane Ani X Extrait', nomeBase: 'Nishane Ani X', genero: 'U', conc: 'Extrait', familia: 'Floral Almíscar', nicho: true, preco: {'50ml': 468300}, notas: 'Flor de Laranjeira, Almíscar, Âmbar' },
+  'nishane shinanay': { nome: 'Nishane Shinanay Extrait', nomeBase: 'Nishane Shinanay', genero: 'U', conc: 'Extrait', familia: 'Floral', nicho: true, preco: {'30ml': 332100}, notas: 'Íris, Almíscar, Sândalo' },
+  'nishane unutamam': { nome: 'Nishane Unutamam Extrait', nomeBase: 'Nishane Unutamam', genero: 'U', conc: 'Extrait', familia: 'Oriental', nicho: true, preco: {'30ml': 332100}, notas: 'Âmbar, Rosa, Especiarias' },
+
 };
 
 // ===================================================
@@ -1277,9 +1311,13 @@ function respostaPerfume(nomeBase) {
     reply += `💰 *Preço:*\n${formatPrecos(p0.preco)}\n`;
     reply += `\n📦 Entrega em Luanda incluída.`;
 
+    // Cross-sell: versões relacionadas incluindo variantes do mesmo perfume
+    // Ex: "Dior Sauvage" → mostra "Dior Sauvage Elixir"
+    const prefixoBusca = normalizar(nomeBase).split(' ').slice(0, 2).join(' ');
     const versoesRelacionadas = Object.values(CATALOGO).filter(p =>
       p.nomeBase !== nomeBase &&
-      normalizar(p.nomeBase).startsWith(normalizar(nomeBase).split(' ').slice(0,2).join(' ')) &&
+      (normalizar(p.nomeBase).startsWith(prefixoBusca) ||
+       normalizar(p.nomeBase).startsWith(normalizar(nomeBase))) &&
       p.preco && Object.keys(p.preco).length > 0
     );
     const nomesRelUnicos = new Set(versoesRelacionadas.map(p => p.nomeBase));
@@ -1440,12 +1478,22 @@ const _PALAVRA_PARA_NB = {}; // palavra → [nomeBase, ...]
 const _NB_NORM = {};         // nomeBase → string normalizada
 const _NB_PALAVRAS = {};     // nomeBase → palavras >3 letras
 
+// Palavras genéricas que NÃO devem ser usadas como índice de pesquisa de produto
+// Evita que "perfumes para o calor" match "Kajal Perfumes Almaz"
+const PALAVRAS_STOP_INDEX = new Set([
+  'perfume','perfumes','parfum','parfums','eau','eaux','the','and',
+  'pour','homme','femme','woman','man','for','her','him','with',
+  'collection','edition','limited','special','intense','pure',
+  'de','du','da','des','la','le','les','un','uma','para','com',
+  'noir','blanc','rose','gold','silver','black','white','blue','red',
+]);
+
 (function construirIndice() {
   const nomesBase = new Set(Object.values(CATALOGO).map(p => p.nomeBase));
   for (const nb of nomesBase) {
     const nbNorm = normalizar(nb);
     _NB_NORM[nb] = nbNorm;
-    const palavras = nbNorm.split(' ').filter(w => w.length > 3);
+    const palavras = nbNorm.split(' ').filter(w => w.length > 3 && !PALAVRAS_STOP_INDEX.has(w));
     _NB_PALAVRAS[nb] = palavras;
     for (const p of palavras) {
       if (!_PALAVRA_PARA_NB[p]) _PALAVRA_PARA_NB[p] = [];
@@ -1804,6 +1852,18 @@ function getBotReply(from, msg) {
     }
 
     // =============================================
+    // BUG 3 FIX — Detectar nova intenção no meio do fluxo de qualificação
+    // Se o utilizador manda algo que não é resposta ao fluxo, abandonar e processar novo pedido
+    const ehNovaIntencao = sessao.tipo && sessao.tipo.startsWith('qualificar') && (
+      pesquisaDirecta(txtLow) !== null ||
+      /^(catalogo|nicho|masculino|feminino|ola|oi|bom dia|boa tarde|obrigad)/.test(txtNorm) ||
+      ehPedidoSugestao || ehComandoNavegacao
+    );
+    if (ehNovaIntencao) {
+      clearSessao(from);
+      // Re-processar como nova mensagem (não retorna aqui — deixa cair para os handlers normais)
+    }
+
     // FIX 9 — "Mas quero femininos/masculinos" — refiltrar sessão activa
     const ehRefinamentoGenero = /^(mas\s+)?(quero|prefiro|s[oó]\s+)?(feminin|masculin|para\s+(ela|ele|mulher|homem))/.test(txtNorm) ||
       /^feminin|^masculin/.test(txtNorm);
@@ -2282,7 +2342,18 @@ Nicho puro são casas como Mancera, Creed, Montale, Nishane, Amouage, Parfums de
     const fem   = getNomesAgrupados('F');
     const uni   = getNomesAgrupados('U');
     const nicho = getNomesAgrupados(null, true);
-    return `🖤 *Catálogo Omnia Parfums*${getBannerDesconto()}\n\n👔 *MASCULINOS — Designer (${masc.length})*\n${masc.join('\n')}\n\n👗 *FEMININOS — Designer (${fem.length})*\n${fem.join('\n')}\n\n✨ *UNISSEXO — Designer (${uni.length})*\n${uni.join('\n')}\n\n💎 *NICHO & LUXO (${nicho.length})*\n${nicho.join('\n')}\n\n_Escreva o nome para ver versões, preços e descrição._`;
+    // Enviar em 4 mensagens separadas para não truncar
+    const msgs = [
+      `🖤 *Catálogo Omnia Parfums*${getBannerDesconto()}\n\n👔 *MASCULINOS — Designer (${masc.length})*\n${masc.join('\n')}`,
+      `👗 *FEMININOS — Designer (${fem.length})*\n${fem.join('\n')}`,
+      `✨ *UNISSEXO — Designer (${uni.length})*\n${uni.join('\n')}`,
+      `💎 *NICHO & LUXO (${nicho.length})*\n${nicho.join('\n')}\n\n_Escreva o nome para ver versões, preços e descrição._`
+    ];
+    // Enviar as primeiras 3 com delay, retornar a última
+    for (let i = 0; i < msgs.length - 1; i++) {
+      setTimeout(() => sendMessage(from, msgs[i]), i * 800);
+    }
+    return msgs[msgs.length - 1];
   }
 
   // Navegação pura: só a palavra sozinha → mostra lista
